@@ -4,7 +4,7 @@ export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).send('Method not allowed');
 
   const { userInput } = req.body;
-  const apiKey = process.env.GEMINI_API_KEY; // Kunci ini diambil dari Vercel
+  const apiKey = process.env.Gemini API Key; // Kunci ini diambil dari Vercel
 
   try {
     const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`, {
