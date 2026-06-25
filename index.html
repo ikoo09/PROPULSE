@@ -1,0 +1,835 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ProPulse FB Pro - Real Time Trend Center</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Chart.js for Analytics -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    animation: {
+                        'spin-slow': 'spin 3s linear infinite',
+                        'pulse-fast': 'pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'shimmer': 'shimmer 2s infinite',
+                    },
+                    keyframes: {
+                        shimmer: {
+                            '0%': { transform: 'translateX(-100%)' },
+                            '100%': { transform: 'translateX(100%)' }
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Custom scrollbar for dark theme */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0f172a; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #334155; 
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #475569; 
+        }
+        .text-gradient {
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-100 font-sans selection:bg-cyan-500 selection:text-slate-950 min-h-screen">
+
+    <div id="toast-container" class="fixed bottom-6 right-6 z-50 flex flex-col gap-3 max-w-sm pointer-events-none"></div>
+
+    <header class="sticky top-0 z-40 border-b border-white/5 bg-slate-950/80 backdrop-blur-md">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="relative">
+                    <div class="absolute inset-0 bg-cyan-500 rounded-lg blur-md opacity-45 animate-pulse"></div>
+                    <div class="relative bg-gradient-to-br from-cyan-400 to-indigo-600 p-2 rounded-lg text-slate-950 flex items-center justify-center">
+                        <i class="fa-solid fa-fire text-white"></i>
+                    </div>
+                </div>
+                <div>
+                    <div class="flex items-center gap-2">
+                        <span class="font-extrabold text-lg tracking-wider bg-gradient-to-r from-white via-slate-100 to-cyan-400 text-gradient">PROPULSE</span>
+                        <span class="bg-gradient-to-r from-rose-500 to-fuchsia-600 text-white text-[9px] font-black uppercase px-1.5 py-0.5 rounded tracking-widest">PRO LIVE</span>
+                    </div>
+                    <p class="text-[10px] text-slate-400 font-medium">Asisten Tren Real-Time Kreator FB Pro</p>
+                </div>
+            </div>
+
+            <div class="hidden md:flex items-center gap-6 text-sm">
+                <div class="flex items-center gap-2 bg-slate-900/60 border border-white/5 px-3 py-1.5 rounded-full">
+                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse-fast"></span>
+                    <span class="text-[11px] text-slate-300 font-mono" id="crawl-count">14,295 Ter-Crawl</span>
+                </div>
+                <a href="#scripts" class="text-slate-400 hover:text-white transition-all text-xs font-medium">Scriptwriter</a>
+                <a href="#stats" class="text-slate-400 hover:text-white transition-all text-xs font-medium">Analitik</a>
+            </div>
+
+            <button id="btn-rayap-live" class="relative group overflow-hidden bg-gradient-to-r from-cyan-500 via-blue-600 to-indigo-600 hover:from-cyan-400 hover:to-indigo-500 text-slate-950 font-bold px-4 py-2 rounded-lg text-xs tracking-wider uppercase shadow-lg shadow-cyan-500/20 active:scale-95 transition-all flex items-center gap-2">
+                <i class="fa-solid fa-arrows-rotate text-white" id="icon-rayap"></i>
+                <span class="text-white font-black">RAYAP LIVE</span>
+            </button>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+        
+        <!-- Hero Section -->
+        <div class="relative overflow-hidden rounded-3xl bg-slate-900 border border-white/5 p-6 sm:p-10 shadow-2xl">
+            <div class="absolute top-0 right-0 -translate-y-12 translate-x-12 w-96 h-96 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none"></div>
+            
+            <div class="relative max-w-3xl space-y-4">
+                <div class="inline-flex items-center gap-2 px-3 py-1 bg-white/5 rounded-full border border-white/10">
+                    <i class="fa-solid fa-wand-magic-sparkles text-cyan-400 text-xs"></i>
+                    <span class="text-xs font-semibold text-slate-300">Targeting Facebook Professional (FB Pro) Monetization</span>
+                </div>
+                <h1 class="text-3xl sm:text-5xl font-black tracking-tight leading-tight">
+                    Jangan Asal Bikin Konten! Temukan Apa yang <span class="bg-gradient-to-r from-cyan-400 via-blue-400 to-fuchsia-500 text-gradient">Viral Detik Ini.</span>
+                </h1>
+                <p class="text-slate-300 text-sm sm:text-base max-w-2xl leading-relaxed">
+                    Dapatkan rekomendasi ide video Reels, video durasi panjang (In-Stream Ads), hingga postingan foto/status interaktif yang dianalisis langsung menggunakan teknologi AI Gemini.
+                </p>
+                
+                <!-- Niche Selector -->
+                <div class="pt-4 space-y-2">
+                    <span class="text-[11px] uppercase tracking-wider font-extrabold text-cyan-400 flex items-center gap-1.5">
+                        <i class="fa-solid fa-compass"></i> Pilih Niche Kreator Anda:
+                    </span>
+                    <div class="flex flex-wrap gap-2 pt-1" id="niche-container">
+                        <!-- Tombol Niche akan di-render melalui JavaScript -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Loading State Panel -->
+        <div id="crawling-status" class="hidden bg-slate-900/80 border border-cyan-500/20 rounded-2xl p-5 backdrop-blur-md animate-pulse">
+            <div class="flex items-center gap-4">
+                <div class="relative p-2.5 bg-slate-950 border border-cyan-500/40 rounded-full text-cyan-400">
+                    <i class="fa-solid fa-microchip animate-spin text-xl"></i>
+                </div>
+                <div class="space-y-1 w-full">
+                    <h4 class="text-sm font-bold text-cyan-300 uppercase">GEMINI TREND CRAWLER MEMPROSES DATA...</h4>
+                    <p class="text-xs text-slate-300 italic" id="crawling-text">Mempersiapkan mesin penelusuran live...</p>
+                    <div class="relative h-1.5 w-full bg-slate-950 rounded-full overflow-hidden mt-2">
+                        <div class="absolute top-0 left-0 h-full bg-cyan-500 rounded-full animate-shimmer w-1/2"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            
+            <!-- Feed Kiri - Daftar Tren -->
+            <div class="lg:col-span-7 space-y-6">
+                <div class="flex items-center justify-between border-b border-white/5 pb-4">
+                    <div class="flex items-center gap-2">
+                        <i class="fa-solid fa-fire text-rose-400 animate-pulse"></i>
+                        <h2 class="font-extrabold text-lg sm:text-xl tracking-tight">Ide Konten Terkini</h2>
+                    </div>
+                    
+                    <div class="flex bg-white/5 p-1 rounded-xl border border-white/5 text-xs" id="tab-container">
+                        <!-- Tabs di-render via JS -->
+                    </div>
+                </div>
+
+                <div class="space-y-4" id="trends-feed">
+                    <!-- List tren di-render via JS -->
+                </div>
+
+                <!-- Sumber Penelusuran Real-Time -->
+                <div id="sources-container" class="hidden bg-slate-900/40 border border-white/5 p-4 rounded-2xl space-y-2">
+                    <h4 class="text-[11px] uppercase font-extrabold text-slate-400 flex items-center gap-1.5">
+                        <i class="fa-solid fa-arrow-up-right-from-square text-cyan-400"></i> Sumber Pencarian AI (Live Grounding):
+                    </h4>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs" id="sources-list">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Panel Detail Kanan - Eksekusi Tren -->
+            <div class="lg:col-span-5 space-y-6">
+                <div class="bg-slate-900 border border-white/5 p-6 rounded-3xl space-y-5 sticky top-24" id="trend-detail-panel">
+                    <!-- Detail Tren di-render via JS -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Panel Generator Skrip -->
+        <div id="scripts-container" class="hidden transition-all duration-500">
+            <div class="bg-slate-900 border border-cyan-500/20 rounded-3xl p-6 sm:p-8 space-y-6" id="scripts">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/5 pb-4">
+                    <div class="flex items-center gap-3">
+                        <div class="p-2.5 bg-cyan-500/10 text-cyan-400 rounded-xl">
+                            <i class="fa-solid fa-microchip text-xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-extrabold text-lg sm:text-xl">Draf Skrip Konten AI Generator</h3>
+                            <p class="text-xs text-slate-400">Dirancang khusus untuk memicu algoritma monetisasi Meta</p>
+                        </div>
+                    </div>
+                    <button id="btn-copy-script" class="hidden px-4 py-2 bg-white/5 hover:bg-white/10 text-slate-100 text-xs font-semibold rounded-xl border border-white/5 flex items-center gap-2 transition-all">
+                        <i class="fa-solid fa-share-nodes text-cyan-400"></i> Salin Skrip
+                    </button>
+                </div>
+
+                <div id="script-content-area">
+                    <!-- Skrip atau Status Loading muncul di sini -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Dashboard Analitik -->
+        <div id="stats" class="bg-slate-900 border border-white/5 rounded-3xl p-6 sm:p-8 space-y-6">
+            <div class="flex items-center gap-2 border-b border-white/5 pb-4">
+                <i class="fa-solid fa-chart-column text-indigo-400 text-xl"></i>
+                <h3 class="font-extrabold text-lg">Dapur Analitik FB Pro Indonesia</h3>
+            </div>
+
+            <div class="h-64 w-full relative">
+                <canvas id="analyticsChart"></canvas>
+            </div>
+
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div class="p-4 bg-slate-950/60 rounded-2xl border border-white/5"><span class="text-[10px] text-slate-400 block">Puncak Posting</span><p class="text-xl font-black text-cyan-400">18:00 WIB</p></div>
+                <div class="p-4 bg-slate-950/60 rounded-2xl border border-white/5"><span class="text-[10px] text-slate-400 block">Est. CPM</span><p class="text-xl font-black text-emerald-400">$1.20 - $2.85</p></div>
+                <div class="p-4 bg-slate-950/60 rounded-2xl border border-white/5"><span class="text-[10px] text-slate-400 block">Top Niche</span><p class="text-xl font-black text-indigo-400">Kuliner</p></div>
+                <div class="p-4 bg-slate-950/60 rounded-2xl border border-white/5"><span class="text-[10px] text-slate-400 block">Avg. Hook Retensi</span><p class="text-xl font-black text-rose-400">8.9 Detik</p></div>
+            </div>
+        </div>
+        
+        <!-- Generator Hook Kustom -->
+        <div class="bg-gradient-to-br from-slate-900 to-slate-950 border border-white/5 p-6 rounded-3xl space-y-4">
+            <div class="flex items-center gap-2">
+                <i class="fa-solid fa-message text-cyan-400 text-lg"></i>
+                <h4 class="font-extrabold text-base">Buat Hook Anda Sendiri</h4>
+            </div>
+            <div class="flex flex-col sm:flex-row gap-3">
+                <input 
+                    type="text" 
+                    id="custom-prompt"
+                    placeholder="Misal: 'Tips cuci AC sendiri dengan modal minim' atau 'Prank istri'..."
+                    class="flex-1 bg-slate-950 border border-white/10 rounded-xl px-4 py-3 text-sm text-slate-100 focus:outline-none focus:border-cyan-500/50 transition-all"
+                />
+                <button 
+                    id="btn-custom-script"
+                    class="px-6 py-3 bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-black text-xs uppercase rounded-xl transition-all shadow-md shadow-cyan-500/10"
+                >
+                    Ubah Ke Skrip
+                </button>
+            </div>
+        </div>
+
+    </main>
+
+    <script>
+        // Data Mock & State Management
+        const MOCK_TRENDS = [
+            { title: "Tantangan 'Sehari Menjadi...' (A Day in My Life) dengan Plot Twist", category: "Reels", trendScore: 98, momentum: "Viral Peak", hook: "“Kalian kira jadi FB Pro itu gampang? Sini ikut saya seharian dan lihat sendiri kekacauan di menit ke-3...”", description: "Format video pendek menceritakan rutinitas harian dengan transisi cepat, audio ASMR di awal, lalu diakhiri kejadian lucu yang tidak terduga.", audio: "Original Audio (Pulsing Lofi Beat) + Efek Suara Ketukan Keyboard", hashtags: ["FBProIndonesia", "ADayInMyLife", "DailyVlog"], retentionStrategy: "Gunakan teks berjalan (subtitle) berwarna kontras kuning-putih dan potong klip setiap 1.5 detik." },
+            { title: "Unboxing Jujur & Review Emosional Produk Murah Viral", category: "Long-form Video", trendScore: 94, momentum: "Rising", hook: "“Jangan beli barang ini sebelum nonton video ini! Jujur, saya nyesel banget tapi bukan karena jelek...”", description: "Video durasi 3-5 menit mengulas produk e-commerce murah. Fokus pada reaksi wajah natural dan pembuktian klaim.", audio: "Upbeat Corporate Acoustic (Aura Positif)", hashtags: ["ReviewJujur", "RacunBelanja", "FBProTips"], retentionStrategy: "Tunjukkan hasil akhir penggunaan produk di detik ke-3, lalu tawarkan penjelasan sebagai jembatan cerita." },
+            { title: "Template Foto Estetik Berisi 'Kutipan Sukses & Kegagalan'", category: "Photo/Status", trendScore: 89, momentum: "Emerging", hook: "“Gaji 5 juta dari FB Pro itu bukan mitos, tapi ini 3 kenyataan pahit yang gak pernah dibilang para 'suhu'...”", description: "Gunakan format korsel (multiple photos) dengan tulisan tebal minimalis. Slide pertama provokatif, slide berikutnya solusi.", audio: "N/A - Postingan Gambar", hashtags: ["QuotesKreator", "MotivasiFBPro"], retentionStrategy: "Tulis caption panjang yang memancing diskusi di kolom komentar." },
+            { title: "Edukasi Singkat: Cara Cepat Mengatasi 'Pembatasan Monetisasi'", category: "Reels", trendScore: 96, momentum: "Viral Peak", hook: "“Akun FB Pro kamu kena logo merah? Jangan panik, lakukan trik rahasia ini dalam 24 jam langsung hijau lagi!”", description: "Tutorial layar rekam HP yang menunjukkan langkah demi langkah mengajukan banding atau menghapus konten.", audio: "Trending Electronic Dance Synth", hashtags: ["MonetisasiFB", "TipsFBPro"], retentionStrategy: "Sembunyikan langkah penentu paling penting di bagian akhir video agar ditonton sampai selesai." }
+        ];
+
+        const NICHES = [
+            { id: 'umum', name: '🌍 Umum', keywords: 'Kreator umum, hiburan, meme, viral Indonesia' },
+            { id: 'kuliner', name: '🍟 Kuliner / Mukbang', keywords: 'Resep masakan rumah, mukbang pedas, kuliner kaki lima, jajanan viral' },
+            { id: 'gaming', name: '🎮 Gaming / Streamer', keywords: 'Mobile Legends, PUBG, kelucuan game, trik rahasia game' },
+            { id: 'tutorial', name: '💡 Tutorial & Edukasi', keywords: 'Cara monetisasi, tutorial ngedit di HP, belajar canva, tips keuangan' },
+            { id: 'vlog', name: '🎥 Daily Vlog', keywords: 'Keseharian ibu rumah tangga, drama keluarga, prank bersih rumah' },
+            { id: 'beauty', name: '💅 Kecantikan & Fashion', keywords: 'Makeup pemula, transisi makeup, outfit murah Shopee, skincare routine' },
+            { id: 'bisnis', name: '💼 Bisnis & Usaha', keywords: 'Ide usaha modal kecil, jualan live, kisah sukses umkm, trik marketing' },
+        ];
+
+        // Global State Variables
+        let state = {
+            selectedNiche: 'umum',
+            activeTab: 'all',
+            trends: [...MOCK_TRENDS],
+            selectedTrend: MOCK_TRENDS[0],
+            isCrawling: false,
+            isGeneratingScript: false,
+            generatedScript: null,
+            sources: []
+        };
+
+        const API_KEY = ""; // Diisi otomatis oleh environment jika ada
+
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            
+            let icon = '<i class="fa-solid fa-circle-check text-emerald-400"></i>';
+            let bgClass = 'bg-emerald-500/15 border-emerald-500/30 text-emerald-200';
+            
+            if (type === 'error') {
+                icon = '<i class="fa-solid fa-circle-exclamation text-red-400"></i>';
+                bgClass = 'bg-red-500/15 border-red-500/30 text-red-200';
+            } else if (type === 'info') {
+                icon = '<i class="fa-solid fa-microchip text-cyan-400 animate-pulse"></i>';
+                bgClass = 'bg-cyan-500/15 border-cyan-500/30 text-cyan-200';
+            }
+
+            toast.className = `flex items-center gap-3 px-5 py-4 rounded-xl shadow-2xl transition-all duration-500 transform translate-y-10 opacity-0 border backdrop-blur-md pointer-events-auto ${bgClass}`;
+            toast.innerHTML = `
+                ${icon}
+                <p class="text-xs font-medium leading-relaxed">${message}</p>
+            `;
+
+            container.appendChild(toast);
+            
+            // Animate in
+            setTimeout(() => {
+                toast.classList.remove('translate-y-10', 'opacity-0');
+            }, 10);
+
+            // Remove after 3 seconds
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'scale-95');
+                setTimeout(() => toast.remove(), 500);
+            }, 3000);
+        }
+
+        function renderNiches() {
+            const container = document.getElementById('niche-container');
+            container.innerHTML = NICHES.map(niche => `
+                <button onclick="selectNiche('${niche.id}')" 
+                    class="px-3 py-1.5 rounded-xl text-xs font-semibold transition-all border border-white/5 ${
+                        state.selectedNiche === niche.id 
+                            ? 'bg-cyan-500 text-slate-950 font-bold shadow-md shadow-cyan-500/10 scale-105' 
+                            : 'bg-white/5 text-slate-300 hover:bg-white/10'
+                    }">
+                    ${niche.name}
+                </button>
+            `).join('');
+        }
+
+        function renderTabs() {
+            const tabs = ['all', 'Reels', 'Video', 'Photo'];
+            const container = document.getElementById('tab-container');
+            container.innerHTML = tabs.map(tab => `
+                <button onclick="selectTab('${tab}')" 
+                    class="px-3 py-1.5 rounded-lg font-bold transition-all ${
+                        state.activeTab === tab ? 'bg-slate-950 text-cyan-400' : 'text-slate-400 hover:text-white'
+                    }">
+                    ${tab === 'all' ? 'Semua' : tab}
+                </button>
+            `).join('');
+        }
+
+        function renderTrends() {
+            const container = document.getElementById('trends-feed');
+            const filteredTrends = state.activeTab === 'all' 
+                ? state.trends 
+                : state.trends.filter(item => {
+                    if (state.activeTab === 'Reels') return item.category.toLowerCase().includes('reels');
+                    if (state.activeTab === 'Video') return item.category.toLowerCase().includes('video');
+                    if (state.activeTab === 'Photo') return item.category.toLowerCase().includes('photo');
+                    return true;
+                });
+
+            container.innerHTML = filteredTrends.map((trend, index) => {
+                const isSelected = state.selectedTrend && state.selectedTrend.title === trend.title;
+                // Escape quotes for HTML dataset
+                const encodedTitle = encodeURIComponent(trend.title);
+                
+                return `
+                <div onclick="selectTrend('${encodedTitle}')" 
+                    class="group relative p-5 rounded-2xl transition-all duration-300 cursor-pointer border ${
+                        isSelected ? 'bg-slate-900 border-cyan-500/30 shadow-lg shadow-cyan-500/5' : 'bg-slate-900/40 hover:bg-slate-900/70 border-white/5'
+                    }">
+                    <div class="flex items-start justify-between gap-4">
+                        <div class="flex items-center gap-2">
+                            <span class="px-2.5 py-0.5 rounded-md text-[10px] font-black uppercase bg-indigo-500/15 text-indigo-400 border border-indigo-500/20">
+                                ${trend.category}
+                            </span>
+                            <span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-cyan-500/10 text-cyan-400 border border-cyan-500/15">
+                                📈 ${trend.momentum}
+                            </span>
+                        </div>
+                        <div class="flex items-center gap-1.5">
+                            <span class="text-[10px] text-slate-400 uppercase font-black">Score</span>
+                            <span class="text-sm font-mono font-black text-cyan-400">${trend.trendScore}%</span>
+                        </div>
+                    </div>
+                    <h3 class="mt-3 font-extrabold text-base sm:text-lg group-hover:text-cyan-300 transition-colors">
+                        ${trend.title}
+                    </h3>
+                    <div class="mt-3 p-3 bg-slate-950/60 rounded-xl border border-white/5">
+                        <p class="text-xs text-cyan-200 font-medium italic line-clamp-2">${trend.hook}</p>
+                    </div>
+                    <div class="mt-4 flex justify-between gap-3 text-xs border-t border-white/5 pt-3">
+                        <div class="flex items-center gap-1.5 text-slate-400">
+                            <i class="fa-solid fa-music text-indigo-400"></i>
+                            <span class="text-[11px] truncate max-w-[200px]">${trend.audio}</span>
+                        </div>
+                    </div>
+                </div>
+            `}).join('');
+        }
+
+        function renderTrendDetail() {
+            const container = document.getElementById('trend-detail-panel');
+            const trend = state.selectedTrend;
+            
+            if(!trend) return;
+
+            container.innerHTML = `
+                <div class="flex items-center justify-between border-b border-white/5 pb-3">
+                    <h3 class="font-extrabold text-sm uppercase text-cyan-400 flex items-center gap-1.5">
+                        <i class="fa-solid fa-layer-group"></i> Eksekusi Tren
+                    </h3>
+                </div>
+                <div>
+                    <span class="px-2.5 py-0.5 rounded-md text-[10px] font-black uppercase bg-indigo-500/15 text-indigo-400 border border-indigo-500/20">
+                        ${trend.category}
+                    </span>
+                    <h2 class="text-xl font-extrabold leading-tight mt-2">${trend.title}</h2>
+                </div>
+                <div class="space-y-1">
+                    <span class="text-[10px] uppercase font-black text-slate-400">Konsep Konten</span>
+                    <p class="text-xs sm:text-sm text-slate-300 bg-slate-950/40 p-3 rounded-xl border border-white/5">
+                        ${trend.description}
+                    </p>
+                </div>
+                <div class="space-y-1">
+                    <span class="text-[10px] uppercase font-black text-rose-400 flex items-center gap-1.5">
+                        <i class="fa-solid fa-play"></i> Hook (3 Detik Pertama)
+                    </span>
+                    <p class="text-xs sm:text-sm text-rose-200 font-bold italic bg-rose-500/5 p-3 rounded-xl border border-rose-500/10">
+                        ${trend.hook}
+                    </p>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="bg-slate-950/40 p-3 rounded-xl border border-white/5">
+                        <span class="text-[9px] uppercase font-bold text-slate-400 block mb-1">Rekomendasi Musik</span>
+                        <p class="text-xs font-semibold text-indigo-300 truncate" title="${trend.audio}">${trend.audio}</p>
+                    </div>
+                    <div class="bg-slate-950/40 p-3 rounded-xl border border-white/5">
+                        <span class="text-[9px] uppercase font-bold text-slate-400 block mb-1">Taktik Retensi</span>
+                        <p class="text-xs font-semibold text-emerald-300 line-clamp-2" title="${trend.retentionStrategy}">${trend.retentionStrategy}</p>
+                    </div>
+                </div>
+                <div class="pt-2">
+                    <button onclick="handleGenerateScript()" id="btn-generate"
+                        class="w-full bg-slate-950 hover:bg-slate-900 text-cyan-400 border border-cyan-500/30 px-4 py-3 rounded-xl text-xs font-black uppercase transition-all flex items-center justify-center gap-2 disabled:opacity-50">
+                        <i class="fa-solid fa-wand-magic-sparkles" id="icon-generate"></i>
+                        <span id="text-generate">BUATKAN SKRIP VIDEO LENGKAP</span>
+                    </button>
+                </div>
+            `;
+        }
+
+        function renderSources() {
+            const container = document.getElementById('sources-container');
+            const list = document.getElementById('sources-list');
+            
+            if (state.sources.length > 0) {
+                container.classList.remove('hidden');
+                list.innerHTML = state.sources.slice(0, 4).map((source, idx) => `
+                    <a href="${source.uri}" target="_blank" rel="noreferrer" class="p-2 bg-slate-950/60 rounded-lg hover:text-cyan-300 border border-white/5 truncate flex items-center gap-1.5">
+                        <span class="text-cyan-400 font-bold">${idx + 1}.</span> ${source.title}
+                    </a>
+                `).join('');
+            } else {
+                container.classList.add('hidden');
+            }
+        }
+
+        function renderScriptPanel() {
+            const mainContainer = document.getElementById('scripts-container');
+            const contentArea = document.getElementById('script-content-area');
+            const btnCopy = document.getElementById('btn-copy-script');
+
+            if (state.isGeneratingScript || state.generatedScript) {
+                mainContainer.classList.remove('hidden');
+            } else {
+                mainContainer.classList.add('hidden');
+                return;
+            }
+
+            if (state.isGeneratingScript) {
+                btnCopy.classList.add('hidden');
+                contentArea.innerHTML = `
+                    <div class="py-12 flex flex-col items-center justify-center space-y-3">
+                        <div class="w-10 h-10 border-4 border-cyan-500/20 border-t-cyan-400 rounded-full animate-spin"></div>
+                        <p class="text-xs text-cyan-300 font-medium animate-pulse">Menulis draf skrip retensi tinggi & instruksi visual...</p>
+                    </div>
+                `;
+            } else if (state.generatedScript) {
+                btnCopy.classList.remove('hidden');
+                contentArea.innerHTML = `
+                    <div class="bg-slate-950/80 p-5 sm:p-6 rounded-2xl border border-white/5 text-slate-300 text-sm leading-relaxed overflow-y-auto max-h-[500px] whitespace-pre-wrap font-mono select-all">${escapeHTML(state.generatedScript)}</div>
+                `;
+            }
+        }
+
+        function escapeHTML(str) {
+            return str.replace(/[&<>'"]/g, 
+                tag => ({
+                    '&': '&amp;',
+                    '<': '&lt;',
+                    '>': '&gt;',
+                    "'": '&#39;',
+                    '"': '&quot;'
+                }[tag])
+            );
+        }
+
+        // Interaksi Tombol UI
+        function selectNiche(id) {
+            state.selectedNiche = id;
+            const nicheName = NICHES.find(n => n.id === id).name;
+            renderNiches();
+            showToast(`Niche diset ke: ${nicheName}. Klik 'Rayap Live' untuk info tren terbaru!`, 'info');
+        }
+
+        function selectTab(tab) {
+            state.activeTab = tab;
+            renderTabs();
+            renderTrends();
+        }
+
+        function selectTrend(encodedTitle) {
+            const title = decodeURIComponent(encodedTitle);
+            const trend = state.trends.find(t => t.title === title);
+            if(trend) {
+                state.selectedTrend = trend;
+                state.generatedScript = null; // reset script
+                renderTrends();
+                renderTrendDetail();
+                renderScriptPanel();
+            }
+        }
+
+        // Copy Feature
+        document.getElementById('btn-copy-script').addEventListener('click', () => {
+            if (state.generatedScript) {
+                navigator.clipboard.writeText(state.generatedScript).then(() => {
+                    showToast('Skrip berhasil disalin ke clipboard!', 'success');
+                }).catch(() => {
+                    // Fallback
+                    const el = document.createElement('textarea');
+                    el.value = state.generatedScript;
+                    document.body.appendChild(el);
+                    el.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(el);
+                    showToast('Skrip berhasil disalin!', 'success');
+                });
+            }
+        });
+
+        async function fetchWithRetry(url, options, retries = 3) {
+            let delay = 1000;
+            for (let i = 0; i < retries; i++) {
+                try {
+                    const response = await fetch(url, options);
+                    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                    return await response.json();
+                } catch (error) {
+                    if (i === retries - 1) throw error;
+                    await new Promise(res => setTimeout(res, delay));
+                    delay *= 2; 
+                }
+            }
+        }
+
+        document.getElementById('btn-rayap-live').addEventListener('click', async () => {
+            const btn = document.getElementById('btn-rayap-live');
+            const icon = document.getElementById('icon-rayap');
+            const loadingPanel = document.getElementById('crawling-status');
+            const statusText = document.getElementById('crawling-text');
+
+            if(state.isCrawling) return;
+
+            // Set UI to loading
+            state.isCrawling = true;
+            btn.classList.add('opacity-50', 'cursor-not-allowed');
+            icon.classList.add('animate-spin');
+            loadingPanel.classList.remove('hidden');
+            
+            const selectedNicheObj = NICHES.find(n => n.id === state.selectedNiche) || NICHES[0];
+            statusText.innerText = `Mencari database media sosial saat ini untuk niche ${selectedNicheObj.name}...`;
+
+            const userQuery = `Temukan tren konten video, foto, dan reels terbaru yang sedang sangat viral atau 'high' di platform Meta (Facebook Pro dan Instagram) di Indonesia saat ini, khususnya untuk niche: "${selectedNicheObj.name}" dengan fokus topik: "${selectedNicheObj.keywords}". Identifikasi 4 tren spesifik lengkap dengan ide judul konten, taktik visual, contoh kalimat hook pembuka video yang memikat audiens Indonesia, audio latar belakang yang sedang trending, rekomendasi hashtag, dan strategi retensi penonton agar durasi tonton tinggi.`;
+            const systemPrompt = `Anda adalah Analis Tren Media Sosial Khusus Meta & Facebook Professional (FB Pro). Tugas Anda adalah menemukan tren nyata dan aktual di Indonesia saat ini menggunakan pencarian Google bawaan Anda. Berikan data tren yang aktual dan valid dalam bentuk JSON.`;
+
+            try {
+                const payload = {
+                    contents: [{ parts: [{ text: userQuery }] }],
+                    tools: [{ "google_search": {} }],
+                    systemInstruction: { parts: [{ text: systemPrompt }] },
+                    generationConfig: {
+                        responseMimeType: "application/json",
+                        responseSchema: {
+                            type: "OBJECT",
+                            properties: {
+                                trends: {
+                                    type: "ARRAY",
+                                    items: {
+                                        type: "OBJECT",
+                                        properties: {
+                                            title: { type: "STRING" }, category: { type: "STRING" }, trendScore: { type: "INTEGER" }, momentum: { type: "STRING" }, hook: { type: "STRING" }, description: { type: "STRING" }, audio: { type: "STRING" },
+                                            hashtags: { type: "ARRAY", items: { type: "STRING" } }, retentionStrategy: { type: "STRING" }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                };
+
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${API_KEY}`;
+                
+                // If no API key, bypass to fallback immediately
+                if(!API_KEY) throw new Error("No API Key configured. Using smart local fallback.");
+
+                const result = await fetchWithRetry(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                const candidate = result.candidates?.[0];
+                if (candidate && candidate.content?.parts?.[0]?.text) {
+                    let extractedSources = [];
+                    const groundingMetadata = candidate.groundingMetadata;
+                    if (groundingMetadata && groundingMetadata.groundingAttributions) {
+                        extractedSources = groundingMetadata.groundingAttributions
+                            .map(attr => ({ uri: attr.web?.uri, title: attr.web?.title }))
+                            .filter(src => src.uri && src.title);
+                    }
+                    
+                    const parsedData = JSON.parse(candidate.content.parts[0].text);
+                    if (parsedData.trends && parsedData.trends.length > 0) {
+                        state.trends = parsedData.trends;
+                        state.selectedTrend = parsedData.trends[0];
+                        state.sources = extractedSources;
+                        state.generatedScript = null;
+                        
+                        showToast(`Berhasil merayap ${parsedData.trends.length} tren baru!`, 'success');
+                    } else throw new Error('Data structure invalid');
+                } else throw new Error('Empty response');
+
+            } catch (error) {
+                console.log("Crawling Info:", error.message);
+                showToast('API Key tidak diisi atau error jaringan. Menampilkan data AI Fallback Lokal.', 'info');
+                
+                // Simulate Fallback Freshness
+                state.trends = MOCK_TRENDS.map(t => ({
+                    ...t,
+                    trendScore: Math.floor(Math.random() * (99 - 88 + 1)) + 88
+                }));
+                state.selectedTrend = state.trends[0];
+                state.sources = [];
+                state.generatedScript = null;
+            } finally {
+                state.isCrawling = false;
+                btn.classList.remove('opacity-50', 'cursor-not-allowed');
+                icon.classList.remove('animate-spin');
+                loadingPanel.classList.add('hidden');
+                
+                renderTrends();
+                renderTrendDetail();
+                renderSources();
+                renderScriptPanel();
+                
+                // Update header count randomly to simulate live feel
+                document.getElementById('crawl-count').innerText = `${(14000 + Math.floor(Math.random()*1000)).toLocaleString()} Ter-Crawl`;
+            }
+        });
+
+        async function handleGenerateScript(customTrendObj = null) {
+            const trend = customTrendObj || state.selectedTrend;
+            if(!trend || state.isGeneratingScript) return;
+
+            state.isGeneratingScript = true;
+            state.generatedScript = null;
+            renderScriptPanel();
+            
+            // UI Button adjustments if clicked from main panel
+            if(!customTrendObj) {
+                const btnIcon = document.getElementById('icon-generate');
+                const btnText = document.getElementById('text-generate');
+                btnIcon.className = "fa-solid fa-spinner animate-spin";
+                btnText.innerText = "MENYUSUN SKRIP AI...";
+            }
+
+            // Scroll to panel
+            document.getElementById('scripts-container').scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+            const query = `Buatkan draf skrip video retensi tinggi berdurasi 60-90 detik yang dioptimalkan untuk monetisasi iklan instream / Facebook Reels (FB Pro) berdasarkan tren berikut ini:
+            - Judul Tren: "${trend.title}"
+            - Jenis Konten: "${trend.category}"
+            - Hook Pembuka: "${trend.hook}"
+            - Konsep: "${trend.description}"
+            
+            Berikan detail terperinci: 1. Pembagian Waktu (0-5s, 5-30s, dll). 2. Visual Kamera. 3. Audio. 4. Teks Overlay. Gunakan bahasa Indonesia natural.`;
+
+            try {
+                if(!API_KEY) {
+                    // Fallback jika tanpa kunci
+                    await new Promise(r => setTimeout(r, 2000));
+                    state.generatedScript = `[DRAF SKRIP SIMULASI (No API Key)]\n\nJUDUL: ${trend.title}\n\n[00:00 - 00:03] SUPER HOOK\nVisual: Kamera mendekat cepat ke wajah.\nAudio: Sound effect 'swoosh'.\nKreator: ${trend.hook}\n\n[00:03 - 00:15] PERMASALAHAN\nVisual: Menunjukkan proses yang berantakan atau melelahkan.\nKreator: Jujur ya, ngerjain ini tuh ga segampang yang dibicarain orang di luar sana. Liat nih...\n\n[00:15 - 00:40] SOLUSI/KLIMAKS\nVisual: Transisi cepat ke mode rapi/selesai dengan teknik khusus.\nKreator: Tapi semenjak pakai cara rahasia ini, semuanya berubah 180 derajat!\n\n[00:40 - 00:60] CTA\nVisual: Tunjuk ke arah ikon komentar.\nKreator: Yang mau tau detail alatnya, ketik 'MAU' di kolom komentar, nanti aku spill!`;
+                    throw new Error("No API Key");
+                }
+
+                const payload = {
+                    contents: [{ parts: [{ text: query }] }],
+                    systemInstruction: { parts: [{ text: "Anda adalah Scriptwriter handal untuk video pendek FB Pro." }] }
+                };
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${API_KEY}`;
+                
+                const result = await fetchWithRetry(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                const text = result.candidates?.[0]?.content?.parts?.[0]?.text;
+                if(text) state.generatedScript = text;
+                else throw new Error("Failed extraction");
+
+                showToast('Skrip berhasil di-generate!', 'success');
+            } catch(e) {
+                if(e.message !== "No API Key") showToast('Gagal memuat API nyata, menampilkan draf simulasi lokal.', 'info');
+            } finally {
+                state.isGeneratingScript = false;
+                renderScriptPanel();
+                
+                if(!customTrendObj) {
+                    const btnIcon = document.getElementById('icon-generate');
+                    const btnText = document.getElementById('text-generate');
+                    if(btnIcon && btnText) {
+                        btnIcon.className = "fa-solid fa-wand-magic-sparkles";
+                        btnText.innerText = "BUATKAN SKRIP VIDEO LENGKAP";
+                    }
+                }
+            }
+        }
+
+        // Custom Hook Builder listener
+        document.getElementById('btn-custom-script').addEventListener('click', () => {
+            const input = document.getElementById('custom-prompt');
+            const val = input.value.trim();
+            if(!val) return;
+            
+            handleGenerateScript({
+                title: `Kustom: ${val}`,
+                category: "Reels / Video",
+                hook: `“Ini adalah eksekusi untuk: ${val}...”`,
+                description: "Ide konten kustom yang dibuat mandiri oleh pemikiran kreator."
+            });
+            input.value = '';
+        });
+
+        function initChart() {
+            const ctx = document.getElementById('analyticsChart').getContext('2d');
+            
+            // Gradient for Reels
+            const gradientReels = ctx.createLinearGradient(0, 0, 0, 400);
+            gradientReels.addColorStop(0, 'rgba(6, 182, 212, 0.5)'); // Cyan
+            gradientReels.addColorStop(1, 'rgba(6, 182, 212, 0)');
+            
+            // Gradient for Videos
+            const gradientVideos = ctx.createLinearGradient(0, 0, 0, 400);
+            gradientVideos.addColorStop(0, 'rgba(99, 102, 241, 0.5)'); // Indigo
+            gradientVideos.addColorStop(1, 'rgba(99, 102, 241, 0)');
+
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['08:00', '10:00', '12:00', '14:00', '16:00', '18:00', '20:00', '22:00'],
+                    datasets: [
+                        {
+                            label: 'Reels Interaksi',
+                            data: [4000, 5500, 7800, 6800, 8900, 11000, 14200, 12000],
+                            borderColor: '#06b6d4',
+                            backgroundColor: gradientReels,
+                            borderWidth: 2,
+                            fill: true,
+                            tension: 0.4,
+                            pointRadius: 0
+                        },
+                        {
+                            label: 'Videos Interaksi',
+                            data: [2400, 1398, 9800, 3908, 4800, 5800, 7300, 6100],
+                            borderColor: '#6366f1',
+                            backgroundColor: gradientVideos,
+                            borderWidth: 2,
+                            fill: true,
+                            tension: 0.4,
+                            pointRadius: 0
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: {
+                        mode: 'index',
+                        intersect: false,
+                    },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: '#0f172a',
+                            titleColor: '#cbd5e1',
+                            bodyColor: '#e2e8f0',
+                            borderColor: 'rgba(255,255,255,0.1)',
+                            borderWidth: 1
+                        }
+                    },
+                    scales: {
+                        x: { grid: { color: 'rgba(255,255,255,0.05)', drawBorder: false }, ticks: { color: '#64748b' } },
+                        y: { grid: { color: 'rgba(255,255,255,0.05)', drawBorder: false }, ticks: { color: '#64748b' } }
+                    }
+                }
+            });
+        }
+
+        function simulateLiveEvents() {
+            const events = [
+                "Metrik interaksi Reels niche Kuliner naik +14.2% dalam 1 jam terakhir!",
+                "Audio 'Pulsing Lofi Beat' terdeteksi naik daun di Facebook Reels Indonesia.",
+                "Kreator di Jakarta baru saja viral dengan format 'Unboxing Jujur'.",
+                "Algoritma FB Pro terdeteksi meningkatkan bobot jangkauan pada tipe Foto Korsel."
+            ];
+            setInterval(() => {
+                const randomEvent = events[Math.floor(Math.random() * events.length)];
+                showToast(randomEvent, 'info');
+            }, 25000); // 25s intervals
+        }
+
+        // On Load Init
+        window.addEventListener('DOMContentLoaded', () => {
+            renderNiches();
+            renderTabs();
+            renderTrends();
+            renderTrendDetail();
+            initChart();
+            simulateLiveEvents();
+        });
+
+    </script>
+</body>
