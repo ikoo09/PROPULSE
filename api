@@ -1,13 +1,11 @@
-gemini.js
-// File ini berjalan aman di sisi Server Vercel sehingga API Key Anda tidak bocor ke browser!
-
-// File ini berjalan aman di sisi Server Vercel sehingga API Key Anda tidak bocor ke browser!
+// File: api/gemini.js
+// Fungsi: Menangani request ke Google Gemini API secara aman di sisi server.
 
 export default async function handler(req, res) {
-    // Berikan header CORS agar bisa diakses dari frontend Anda
+    // Pengaturan CORS untuk keamanan koneksi dari frontend
     res.setHeader('Access-Control-Allow-Credentials', true);
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT');
+    res.setHeader('Access-Control-Allow-Origin', '*'); 
+    res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,POST');
     res.setHeader(
         'Access-Control-Allow-Headers',
         'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version'
@@ -21,49 +19,45 @@ export default async function handler(req, res) {
         return res.status(405).json({ error: 'Method Not Allowed' });
     }
 
-    // Membaca API Key secara aman dari Environment Variables Vercel
+    // Mengambil API Key dari Environment Variables (disimpan aman di dashboard Vercel)
     const apiKey = process.env.GEMINI_API_KEY;
     if (!apiKey) {
         return res.status(500).json({ 
-            error: 'GEMINI_API_KEY tidak ditemukan di Environment Variables Vercel. Pastikan Anda sudah menambahkannya di Dashboard Vercel.' 
+            error: 'Konfigurasi server salah: GEMINI_API_KEY tidak ditemukan.' 
         });
     }
 
     try {
         const { contents, systemInstruction, generationConfig, tools } = req.body;
 
-        // --- VALIDASI TAMBAHAN ---
+        // Validasi input
         if (!contents || !Array.isArray(contents)) {
-            return res.status(400).json({ error: 'Payload "contents" wajib diisi dan harus berupa array.' });
+            return res.status(400).json({ error: 'Payload "contents" wajib berupa array.' });
         }
-        // -------------------------
 
-        const payload = {
-            contents,
-            systemInstruction,
-            generationConfig,
-            tools
-        };
-
-        // Panggil endpoint resmi Gemini API menggunakan API Key yang tersimpan di server Vercel
-        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+        const payload = { contents, systemInstruction, generationConfig, tools };
+        
+        // Panggil model Gemini
+        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+        
         const response = await fetch(apiUrl, {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload)
         });
 
+        const data = await response.json();
+
         if (!response.ok) {
-            const errorText = await response.text();
-            return res.status(response.status).json({ error: errorText });
+            return res.status(response.status).json({ 
+                error: data.error?.message || 'Gagal terhubung ke Gemini API' 
+            });
         }
 
-        const data = await response.json();
         return res.status(200).json(data);
 
     } catch (error) {
-        return res.status(500).json({ error: error.message || 'Terjadi kesalahan internal server proxy.' });
+        console.error('Error internal API:', error);
+        return res.status(500).json({ error: 'Terjadi kesalahan internal pada server.' });
     }
 }
