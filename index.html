@@ -686,10 +686,10 @@
 
             for (let i = 0; i < 5; i++) {
                 try {
-                   const response = await fetch('/api/gemini', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
+                   const response = awaitfetch('https://propulse-virid.vercel.app/api/gemini', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
         contents: [{ role: "user", parts: [{ text: "Berikan tren terbaru untuk FB Pro" }] }]
     })
 });
