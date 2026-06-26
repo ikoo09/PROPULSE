@@ -1,6 +1,6 @@
-// Handler API Serverless Vercel menggunakan sintaks CommonJS yang stabil
+// Handler API Serverless Vercel
 module.exports = async function handler(req, res) {
-  // Set CORS headers agar bisa diakses dengan aman
+  // Set CORS headers
   res.setHeader('Access-Control-Allow-Credentials', true);
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT');
@@ -23,13 +23,18 @@ module.exports = async function handler(req, res) {
 
   if (!apiKey) {
     return res.status(500).json({
-      error: "Konfigurasi Error: Environment variable 'GEMINI_API_KEY' belum diatur di dashboard Vercel Anda. Silakan tambahkan API Key Anda di Settings > Environment Variables pada project Vercel Anda."
+      error: "Konfigurasi Error: Environment variable 'GEMINI_API_KEY' belum diatur di dashboard Vercel Anda."
     });
   }
 
   try {
-    // Menggunakan model stabil gemini-1.5-flash atau gemini-2.5-flash-preview-09-2025 sesuai dokumentasi
-    const modelName = "gemini-1.5-flash"; // Lebih stabil untuk integrasi API umum
+    // Solusi Error 404 Model Not Found: 
+    // Menggunakan alias "-latest" agar Google API dapat menemukan modelnya
+    const modelName = "gemini-1.5-flash-latest"; 
+    
+    // Jika masih gagal juga, Anda bisa mencoba mengubah modelName di atas menjadi:
+    // const modelName = "gemini-pro";
+
     const response = await fetch(
       `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${apiKey}`,
       {
