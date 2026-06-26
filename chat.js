@@ -53,16 +53,3 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: error.message });
   }
 }
-async function triggerFacebookAutomation(taskType) {
-    // Simulasi integrasi ke API Meta
-    const ACCESS_TOKEN = process.env.FB_ACCESS_TOKEN;
-    const url = `https://graph.facebook.com/v20.0/me/feed?access_token=${ACCESS_TOKEN}`;
-    
-    // Logika AI menentukan konten apa yang diposting
-    // Contoh: AI membuat caption, lalu dikirim via POST ke FB
-}
-
-// Modifikasi response untuk menerima instruksi automasi
-if (payload.action === 'RUN_AUTO_POST') {
-    await triggerFacebookAutomation('POST');
-}
