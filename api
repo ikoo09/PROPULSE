@@ -1,4 +1,4 @@
-// File: api/gemini.js
+gemini.js
 // Fungsi: Menangani request ke Google Gemini API secara aman di sisi server.
 
 export default async function handler(req, res) {
