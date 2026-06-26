@@ -629,9 +629,10 @@
             selectedHookAngle: 'controversial'
         };
 
-        // KONFIGURASI API
-        const USE_BACKEND = false; // Gunakan 'true' jika Anda telah men-deploy folder api/gemini.js di Vercel
-        const DIRECT_API_KEY = ""; // Isi dengan API Key Gemini Anda di sini jika USE_BACKEND = false
+        // KONFIGURASI API (DIUBAH)
+        // Diubah menjadi TRUE agar membaca file serverless Vercel Anda
+        const USE_BACKEND = true; 
+        const DIRECT_API_KEY = ""; 
 
         // Helper function for dynamic Gemini API Call (Dual Route: Direct atau Backend Vercel)
         async function fetchGeminiAPI(userQuery, systemPrompt, customPayload = {}) {
@@ -649,14 +650,15 @@
                     let response;
                     
                     if (USE_BACKEND) {
-                        // Jalur Backend Vercel Serverless (Lebih aman untuk produksi)
-                        response = await fetch('/api/gemini', {
+                        // Jalur Backend Vercel Serverless
+                        // PENTING: Path diubah menjadi '/api/chat' sesuai nama file 'chat.js' yang Anda unggah
+                        response = await fetch('/api/chat', {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify(payload)
                         });
                     } else {
-                        // Jalur Direct API (Browser ke Google - Cocok untuk Testing/Local)
+                        // Jalur Direct API
                         if (!DIRECT_API_KEY) throw new Error("API_KEY_MISSING");
                         
                         const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${DIRECT_API_KEY}`;
