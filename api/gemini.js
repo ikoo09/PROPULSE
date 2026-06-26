@@ -1,7 +1,21 @@
-export default async function handler(req, res) {
+// Handler API Serverless Vercel menggunakan sintaks CommonJS yang stabil
+module.exports = async function handler(req, res) {
+  // Set CORS headers agar bisa diakses dengan aman
+  res.setHeader('Access-Control-Allow-Credentials', true);
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT');
+  res.setHeader(
+    'Access-Control-Allow-Headers',
+    'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version'
+  );
+
+  if (req.method === 'OPTIONS') {
+    return res.status(200).end();
+  }
+
   if (req.method !== "POST") {
     return res.status(405).json({
-      error: "Method not allowed"
+      error: "Metode tidak diizinkan. Gunakan POST."
     });
   }
 
@@ -9,13 +23,15 @@ export default async function handler(req, res) {
 
   if (!apiKey) {
     return res.status(500).json({
-      error: "GEMINI_API_KEY tidak ditemukan"
+      error: "Konfigurasi Error: Environment variable 'GEMINI_API_KEY' belum diatur di dashboard Vercel Anda. Silakan tambahkan API Key Anda di Settings > Environment Variables pada project Vercel Anda."
     });
   }
 
   try {
+    // Menggunakan model stabil gemini-1.5-flash atau gemini-2.5-flash-preview-09-2025 sesuai dokumentasi
+    const modelName = "gemini-1.5-flash"; // Lebih stabil untuk integrasi API umum
     const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${apiKey}`,
       {
         method: "POST",
         headers: {
@@ -27,13 +43,19 @@ export default async function handler(req, res) {
 
     const data = await response.json();
 
-    return res.status(response.status).json(data);
+    if (!response.ok) {
+      return res.status(response.status).json({
+        error: data.error?.message || "Terjadi kesalahan dari API Gemini.",
+        details: data
+      });
+    }
+
+    return res.status(200).json(data);
 
   } catch (error) {
-
     return res.status(500).json({
-      error: error.message
+      error: "Server Error internal saat menghubungi Gemini API",
+      message: error.message
     });
-
   }
-}
+};

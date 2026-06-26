@@ -1,7 +1,8 @@
 {
-  "functions": {
-    "api/*.js": {
-      "maxDuration": 60
-    }
-  }
+  "name": "propulse-fb-pro",
+  "version": "1.0.0",
+  "description": "Real Time Suite & AI Analytics untuk FB Pro",
+  "main": "api/gemini.js",
+  "dependencies": {},
+  "devDependencies": {}
 }
