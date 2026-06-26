@@ -29,7 +29,7 @@ module.exports = async function handler(req, res) {
 
   try {
     // Menggunakan alias "-latest" agar Google API dapat menemukan modelnya
-    const modelName = "Gemini 2.5 Pro"; 
+    const modelName = ""gemini-2.5-pro"; 
     
     // Jika masih gagal juga, Anda bisa mencoba mengubah modelName di atas menjadi:
     // const modelName = "gemini-pro";
