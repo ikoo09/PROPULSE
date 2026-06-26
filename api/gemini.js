@@ -30,7 +30,7 @@ module.exports = async function handler(req, res) {
   try {
     // Solusi Error 404 Model Not Found: 
     // Menggunakan alias "-latest" agar Google API dapat menemukan modelnya
-    const modelName = "gemini-1.5-flash-latest"; 
+    const modelName = "Gemini 2.5 Flash"; 
     
     // Jika masih gagal juga, Anda bisa mencoba mengubah modelName di atas menjadi:
     // const modelName = "gemini-pro";
