@@ -64,12 +64,6 @@
         .progress-bar-fill {
             transition: width 1.5s cubic-bezier(0.4, 0, 0.2, 1);
         }
-        
-        /* Agent Checklist Animation */
-        .agent-item { transition: all 0.3s ease; }
-        .agent-active { color: #22d3ee; font-weight: bold; transform: scale(1.02); }
-        .agent-done { color: #10b981; opacity: 0.8; }
-        .agent-pending { color: #475569; }
     </style>
 </head>
 <body class="bg-slate-950 text-slate-100 font-sans selection:bg-cyan-500 selection:text-slate-950 min-h-screen flex flex-col">
@@ -122,7 +116,7 @@
             <div class="flex items-center gap-3">
                 <div class="hidden md:flex items-center gap-2 bg-slate-900/60 border border-white/5 px-3 py-1.5 rounded-full">
                     <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse-fast"></span>
-                    <span class="text-[11px] text-slate-300 font-mono" id="crawl-count">Multi-Agent AI Aktif</span>
+                    <span class="text-[11px] text-slate-300 font-mono" id="crawl-count">Gemini AI Aktif</span>
                 </div>
             </div>
         </div>
@@ -141,21 +135,21 @@
     <!-- Main Content Area -->
     <main class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
         
-        <!-- SECTION 1: DETEKSI TREN LIVE (MULTI-AGENT PIPELINE) -->
+        <!-- SECTION 1: DETEKSI TREN LIVE -->
         <div id="view-trends" class="workspace-view space-y-8">
             <div class="relative overflow-hidden rounded-3xl bg-slate-900 border border-white/5 p-6 sm:p-10 shadow-2xl">
                 <div class="absolute top-0 right-0 -translate-y-12 translate-x-12 w-96 h-96 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none"></div>
                 
                 <div class="relative max-w-3xl space-y-4">
                     <div class="inline-flex items-center gap-2 px-3 py-1 bg-white/5 rounded-full border border-white/10">
-                        <i class="fa-solid fa-network-wired text-cyan-400 text-xs"></i>
-                        <span class="text-xs font-semibold text-slate-300">Multi-Agent AI Pipeline (8 Agents)</span>
+                        <i class="fa-solid fa-wand-magic-sparkles text-cyan-400 text-xs"></i>
+                        <span class="text-xs font-semibold text-slate-300">Live Niche Trend Crawler (Grounding)</span>
                     </div>
                     <h1 class="text-3xl sm:text-5xl font-black tracking-tight leading-tight">
                         Deteksi Tren Niche Terkini <span class="bg-gradient-to-r from-cyan-400 via-blue-400 to-fuchsia-500 text-gradient">Secara Live.</span>
                     </h1>
                     <p class="text-slate-300 text-sm sm:text-base max-w-2xl leading-relaxed">
-                        Sistem mempekerjakan 8 Agent AI secara berurutan untuk mencari tren via Google, mengukur viralitas, menghitung persaingan, jam tayang, hingga menyusun strategi monetisasi dan skrip lengkap.
+                        Gunakan data grounding penelusuran Google langsung dari Gemini AI untuk mengikis tren real-time di internet berdasarkan niche pilihan Anda secara presisi.
                     </p>
                     
                     <!-- Niche Selector -->
@@ -168,174 +162,86 @@
                 </div>
 
                 <div class="mt-6 flex justify-end">
-                    <button id="btn-rayap-live" onclick="triggerMultiAgentPipeline()" class="relative group overflow-hidden bg-gradient-to-r from-cyan-500 via-blue-600 to-indigo-600 hover:from-cyan-400 hover:to-indigo-500 text-slate-950 font-bold px-6 py-3 rounded-xl text-xs tracking-wider uppercase shadow-lg shadow-cyan-500/20 active:scale-95 transition-all flex items-center gap-2">
-                        <i class="fa-solid fa-gears text-white" id="icon-rayap"></i>
-                        <span class="text-white font-black">JALANKAN 8 AGENT AI</span>
+                    <button id="btn-rayap-live" onclick="triggerNicheCrawling()" class="relative group overflow-hidden bg-gradient-to-r from-cyan-500 via-blue-600 to-indigo-600 hover:from-cyan-400 hover:to-indigo-500 text-slate-950 font-bold px-6 py-3 rounded-xl text-xs tracking-wider uppercase shadow-lg shadow-cyan-500/20 active:scale-95 transition-all flex items-center gap-2">
+                        <i class="fa-solid fa-arrows-rotate text-white" id="icon-rayap"></i>
+                        <span class="text-white font-black">RAYAP TREN LIVE AI</span>
                     </button>
                 </div>
             </div>
 
-            <!-- Loading State Panel (Multi-Agent Status) -->
-            <div id="crawling-status" class="hidden bg-slate-900 border border-cyan-500/30 rounded-3xl p-6 shadow-2xl relative overflow-hidden">
-                <div class="absolute top-0 left-0 h-1 bg-slate-800 w-full">
-                    <div id="agent-progress-bar" class="h-full bg-gradient-to-r from-cyan-500 to-indigo-500 w-0 transition-all duration-500"></div>
-                </div>
-                <div class="flex flex-col md:flex-row gap-8 items-start">
-                    <div class="w-full md:w-1/3 space-y-4">
-                        <div class="flex items-center gap-3">
-                            <div class="relative p-3 bg-slate-950 border border-cyan-500/40 rounded-xl text-cyan-400">
-                                <i class="fa-solid fa-microchip animate-spin text-2xl"></i>
-                            </div>
-                            <div>
-                                <h4 class="text-sm font-bold text-cyan-300 uppercase">PIPELINE AKTIF</h4>
-                                <p class="text-[11px] text-slate-400 font-mono mt-0.5">Menjaga batas API Rate Limit...</p>
-                            </div>
-                        </div>
-                        <p class="text-xs text-slate-300 leading-relaxed italic" id="crawling-text">Inisialisasi sistem Multi-Agent...</p>
+            <!-- Loading State Panel -->
+            <div id="crawling-status" class="hidden bg-slate-900/80 border border-cyan-500/20 rounded-2xl p-5 backdrop-blur-md animate-pulse">
+                <div class="flex items-center gap-4">
+                    <div class="relative p-2.5 bg-slate-950 border border-cyan-500/40 rounded-full text-cyan-400">
+                        <i class="fa-solid fa-microchip animate-spin text-xl"></i>
                     </div>
-                    
-                    <div class="w-full md:w-2/3 grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px] font-mono" id="agent-checklist">
-                        <!-- Checklist will be generated via JS -->
+                    <div class="space-y-1 w-full">
+                        <h4 class="text-sm font-bold text-cyan-300 uppercase">GEMINI MENGANALISIS ALGORITMA META...</h4>
+                        <p class="text-xs text-slate-300 italic" id="crawling-text">Memproses kueri pencarian, mengekstrak metrik FYP, dan memvalidasi tren...</p>
+                        <div class="relative h-1.5 w-full bg-slate-950 rounded-full overflow-hidden mt-2">
+                            <div class="absolute top-0 left-0 h-full bg-cyan-500 rounded-full animate-shimmer w-1/2"></div>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Multi-Agent Dashboard Output -->
-            <div id="super-dashboard-container" class="hidden space-y-6">
-                
-                <!-- Main Header Info -->
-                <div class="bg-gradient-to-br from-slate-900 to-slate-950 border border-white/10 rounded-3xl p-6 sm:p-8 shadow-xl">
-                    <div class="flex flex-col md:flex-row gap-6 justify-between items-start">
-                        <div class="space-y-3">
-                            <div class="flex flex-wrap items-center gap-2">
-                                <span class="px-3 py-1 rounded-lg text-[10px] font-black uppercase bg-cyan-500/20 text-cyan-400 border border-cyan-500/30">👑 TOP TREN DITEMUKAN</span>
-                                <span class="px-3 py-1 rounded-lg text-[10px] font-black bg-white/5 border border-white/10" id="dash-agent-date"></span>
-                            </div>
-                            <h2 class="text-2xl sm:text-4xl font-black tracking-tight text-white" id="dash-title">Judul Tren Utama</h2>
-                            <p class="text-slate-300 text-sm max-w-2xl leading-relaxed" id="dash-description">Deskripsi dari Agent 1...</p>
+            <!-- Feed Content -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                <!-- Left: Trend List -->
+                <div class="lg:col-span-7 space-y-6">
+                    <div class="flex items-center justify-between border-b border-white/5 pb-4">
+                        <div class="flex items-center gap-2">
+                            <i class="fa-solid fa-fire text-rose-400 animate-pulse"></i>
+                            <h2 class="font-extrabold text-lg sm:text-xl tracking-tight">Data Tren Akurat AI</h2>
                         </div>
-                        <div class="flex-shrink-0 text-center bg-slate-900 border border-cyan-500/30 p-4 rounded-2xl min-w-[150px]">
-                            <span class="block text-[10px] uppercase font-bold text-slate-400 mb-1">Skor Viralitas (Agent 2)</span>
-                            <span class="text-4xl font-black text-cyan-400" id="dash-viral-score">0</span><span class="text-lg text-cyan-500 font-bold">%</span>
-                            <p class="text-[10px] text-cyan-200 mt-2 font-medium" id="dash-viral-momentum">Momentum</p>
+                        <div class="flex bg-white/5 p-1 rounded-xl border border-white/5 text-xs overflow-x-auto scrollbar-none" id="tab-container"></div>
+                    </div>
+
+                    <div class="space-y-4" id="trends-feed">
+                        <!-- Empty State -->
+                        <div class="text-center py-12 text-slate-500 bg-slate-900/40 rounded-2xl border border-white/5">
+                            <i class="fa-solid fa-radar text-4xl mb-3 block opacity-50"></i>
+                            <p class="text-xs font-medium">Belum ada data tren.<br>Silakan klik tombol <b>"RAYAP TREN LIVE AI"</b> untuk memindai algoritma.</p>
                         </div>
+                    </div>
+
+                    <!-- Live Grounding Sources -->
+                    <div id="sources-container" class="hidden bg-slate-900/40 border border-white/5 p-4 rounded-2xl space-y-2">
+                        <h4 class="text-[11px] uppercase font-extrabold text-slate-400 flex items-center gap-1.5">
+                            <i class="fa-solid fa-arrow-up-right-from-square text-cyan-400"></i> Referensi Validasi Data Google Search:
+                        </h4>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs" id="sources-list"></div>
                     </div>
                 </div>
 
-                <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-                    
-                    <!-- Left Column: Metrics & Strategy -->
-                    <div class="lg:col-span-5 space-y-6">
-                        
-                        <!-- Competition & Timing -->
-                        <div class="bg-slate-900 border border-white/5 p-6 rounded-3xl space-y-5">
-                            <h3 class="text-sm font-black uppercase text-slate-300 border-b border-white/5 pb-3">
-                                <i class="fa-solid fa-chart-pie text-indigo-400 mr-2"></i> Metrik Persaingan & Waktu
-                            </h3>
-                            
-                            <div class="space-y-4">
-                                <div>
-                                    <div class="flex justify-between items-end mb-1">
-                                        <span class="text-xs font-semibold text-slate-400">Tingkat Persaingan (Agent 3)</span>
-                                        <span class="text-xs font-bold text-rose-400" id="dash-comp-level">Tinggi</span>
-                                    </div>
-                                    <div class="w-full bg-slate-950 rounded-full h-2">
-                                        <div class="h-2 rounded-full bg-rose-500 transition-all duration-1000 w-0" id="dash-comp-bar"></div>
-                                    </div>
-                                    <p class="text-[10px] text-slate-500 mt-1.5 leading-relaxed" id="dash-comp-desc"></p>
-                                </div>
-                                
-                                <div class="bg-indigo-500/10 border border-indigo-500/20 p-4 rounded-xl">
-                                    <span class="text-[10px] uppercase font-bold text-indigo-400 block mb-1">Waktu Upload Optimal (Agent 4)</span>
-                                    <p class="text-base font-black text-indigo-200" id="dash-timing"></p>
-                                    <p class="text-[10px] text-indigo-300/70 mt-1 leading-relaxed" id="dash-timing-desc"></p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Monetization -->
-                        <div class="bg-slate-900 border border-white/5 p-6 rounded-3xl space-y-4">
-                            <h3 class="text-sm font-black uppercase text-slate-300 border-b border-white/5 pb-3">
-                                <i class="fa-solid fa-sack-dollar text-emerald-400 mr-2"></i> Strategi Monetisasi (Agent 5)
-                            </h3>
-                            <div>
-                                <span class="text-[10px] font-bold text-emerald-400 block mb-1">Estimasi CPM / Peluang Earning</span>
-                                <p class="text-lg font-black text-white" id="dash-mon-cpm"></p>
-                            </div>
-                            <div class="bg-slate-950/50 p-3 rounded-xl border border-white/5">
-                                <span class="text-[10px] font-bold text-slate-400 block mb-1">Strategi Penempatan Iklan/Sponsor</span>
-                                <p class="text-xs text-slate-300 leading-relaxed" id="dash-mon-strategy"></p>
-                            </div>
-                        </div>
-
-                    </div>
-
-                    <!-- Right Column: Content Production (Hooks, CTA, Script) -->
-                    <div class="lg:col-span-7 space-y-6">
-                        
-                        <!-- Hooks & CTA -->
-                        <div class="bg-slate-900 border border-white/5 p-6 rounded-3xl space-y-5">
-                            <div class="flex items-center justify-between border-b border-white/5 pb-3">
-                                <h3 class="text-sm font-black uppercase text-slate-300">
-                                    <i class="fa-solid fa-magnet text-fuchsia-400 mr-2"></i> Hook & CTA Matrix
-                                </h3>
-                            </div>
-                            
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div class="space-y-3">
-                                    <span class="text-[10px] font-bold text-fuchsia-400 uppercase tracking-wider block">Opsi Hook (Agent 6)</span>
-                                    <div class="bg-slate-950 p-3 rounded-xl border border-white/5 hover:border-fuchsia-500/30 transition-all cursor-pointer group" onclick="copyToClipboard('hook-1')">
-                                        <p class="text-xs text-slate-300 font-semibold" id="hook-1"></p>
-                                        <span class="text-[9px] text-fuchsia-500 mt-2 block opacity-0 group-hover:opacity-100 transition-opacity">Klik untuk salin</span>
-                                    </div>
-                                    <div class="bg-slate-950 p-3 rounded-xl border border-white/5 hover:border-fuchsia-500/30 transition-all cursor-pointer group" onclick="copyToClipboard('hook-2')">
-                                        <p class="text-xs text-slate-300 font-semibold" id="hook-2"></p>
-                                        <span class="text-[9px] text-fuchsia-500 mt-2 block opacity-0 group-hover:opacity-100 transition-opacity">Klik untuk salin</span>
-                                    </div>
-                                </div>
-                                
-                                <div class="space-y-3">
-                                    <span class="text-[10px] font-bold text-amber-400 uppercase tracking-wider block">Call-To-Action (Agent 7)</span>
-                                    <div class="bg-amber-500/10 p-3 rounded-xl border border-amber-500/20 hover:bg-amber-500/20 transition-all cursor-pointer group h-full flex flex-col justify-center" onclick="copyToClipboard('dash-cta')">
-                                        <p class="text-xs text-amber-200 font-semibold" id="dash-cta"></p>
-                                        <span class="text-[9px] text-amber-500/80 mt-2 block opacity-0 group-hover:opacity-100 transition-opacity">Klik untuk salin CTA ini</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Full Script -->
-                        <div class="bg-slate-900 border border-white/5 p-6 rounded-3xl space-y-4">
-                            <div class="flex items-center justify-between border-b border-white/5 pb-3">
-                                <h3 class="text-sm font-black uppercase text-slate-300">
-                                    <i class="fa-solid fa-scroll text-cyan-400 mr-2"></i> Skrip Produksi Final (Agent 8)
-                                </h3>
-                                <button onclick="copyToClipboard('dash-script')" class="px-3 py-1.5 bg-white/5 hover:bg-white/10 text-slate-300 text-[10px] font-bold uppercase rounded-lg transition-all flex items-center gap-2">
-                                    <i class="fa-solid fa-copy"></i> Salin Skrip
-                                </button>
-                            </div>
-                            <div class="bg-slate-950/80 rounded-2xl border border-white/5 p-1 relative">
-                                <textarea id="dash-script" readonly class="w-full bg-transparent p-4 text-xs text-slate-300 font-mono leading-relaxed min-h-[300px] focus:outline-none resize-y"></textarea>
-                            </div>
-                        </div>
-
-                    </div>
+                <!-- Right: Trend Details & Script Generator -->
+                <div class="lg:col-span-5 space-y-6">
+                    <div class="bg-slate-900 border border-white/5 p-6 rounded-3xl space-y-5 sticky top-24 hidden" id="trend-detail-panel"></div>
                 </div>
+            </div>
 
-                <!-- Live Grounding Sources -->
-                <div id="sources-container" class="hidden bg-slate-900/40 border border-white/5 p-4 rounded-2xl space-y-2 mt-4">
-                    <h4 class="text-[11px] uppercase font-extrabold text-slate-400 flex items-center gap-1.5">
-                        <i class="fa-solid fa-arrow-up-right-from-square text-cyan-400"></i> Referensi Validasi Data Google Search (Agent 1):
-                    </h4>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 text-xs" id="sources-list"></div>
+            <!-- Embedded Script Generator Drawer -->
+            <div id="scripts-container" class="hidden transition-all duration-500 bg-slate-900 border border-cyan-500/20 rounded-3xl p-6 sm:p-8 space-y-6">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/5 pb-4">
+                    <div class="flex items-center gap-3">
+                        <div class="p-2.5 bg-cyan-500/10 text-cyan-400 rounded-xl">
+                            <i class="fa-solid fa-microchip text-xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-extrabold text-lg sm:text-xl">Draf Skrip Konten AI Generator</h3>
+                            <p class="text-xs text-slate-400">Dirancang khusus untuk memicu algoritma monetisasi Meta</p>
+                        </div>
+                    </div>
+                    <button onclick="copyToClipboard('script-textarea')" id="btn-copy-script" class="hidden px-4 py-2 bg-white/5 hover:bg-white/10 text-slate-100 text-xs font-semibold rounded-xl border border-white/5 flex items-center gap-2 transition-all">
+                        <i class="fa-solid fa-share-nodes text-cyan-400"></i> Salin Skrip
+                    </button>
                 </div>
-
+                <div id="script-content-area"></div>
             </div>
         </div>
 
         <!-- SECTION 2: REPURPOSING KONTEN (OTOMATISASI) -->
         <div id="view-repurposer" class="workspace-view space-y-6 hidden">
-            <!-- (Sama seperti sebelumnya) -->
             <div class="bg-slate-900 border border-white/5 p-6 rounded-3xl space-y-6">
                 <div class="flex items-center gap-3 border-b border-white/5 pb-4">
                     <div class="p-2.5 bg-emerald-500/10 text-emerald-400 rounded-xl">
@@ -392,7 +298,6 @@
 
         <!-- SECTION 3: GENERATOR HOOK & JUDUL VIRAL -->
         <div id="view-hooks" class="workspace-view space-y-6 hidden">
-            <!-- (Sama seperti sebelumnya) -->
             <div class="bg-slate-900 border border-white/5 p-6 rounded-3xl space-y-6">
                 <div class="flex items-center gap-3 border-b border-white/5 pb-4">
                     <div class="p-2.5 bg-fuchsia-500/10 text-fuchsia-400 rounded-xl">
@@ -453,8 +358,7 @@
 
         <!-- SECTION 4: SENTIMENT ANALYSIS (KOMENTAR) -->
         <div id="view-sentiment" class="workspace-view space-y-6 hidden">
-            <!-- (Sama seperti sebelumnya) -->
-             <div class="bg-slate-900 border border-white/5 p-6 rounded-3xl space-y-6">
+            <div class="bg-slate-900 border border-white/5 p-6 rounded-3xl space-y-6">
                 <div class="flex items-center gap-3 border-b border-white/5 pb-4">
                     <div class="p-2.5 bg-indigo-500/10 text-indigo-400 rounded-xl">
                         <i class="fa-solid fa-comments text-xl"></i>
@@ -527,8 +431,7 @@
 
         <!-- SECTION 5: ASISTEN SEO & HASHTAG -->
         <div id="view-seo" class="workspace-view space-y-6 hidden">
-             <!-- (Sama seperti sebelumnya) -->
-             <div class="bg-slate-900 border border-white/5 p-6 rounded-3xl space-y-6">
+            <div class="bg-slate-900 border border-white/5 p-6 rounded-3xl space-y-6">
                 <div class="flex items-center gap-3 border-b border-white/5 pb-4">
                     <div class="p-2.5 bg-rose-500/10 text-rose-400 rounded-xl">
                         <i class="fa-solid fa-hashtag text-xl"></i>
@@ -602,8 +505,7 @@
 
         <!-- SECTION 6: ANALISIS PERFORMA KONTEN -->
         <div id="view-performance" class="workspace-view space-y-6 hidden">
-             <!-- (Sama seperti sebelumnya) -->
-             <div class="bg-slate-900 border border-white/5 p-6 rounded-3xl space-y-6">
+            <div class="bg-slate-900 border border-white/5 p-6 rounded-3xl space-y-6">
                 <div class="flex items-center gap-3 border-b border-white/5 pb-4">
                     <div class="p-2.5 bg-cyan-500/10 text-cyan-400 rounded-xl">
                         <i class="fa-solid fa-chart-line text-xl"></i>
@@ -753,60 +655,93 @@
         // Global State Management
         let state = {
             selectedNiche: 'umum',
+            activeTab: 'all',
+            trends: [], 
+            selectedTrend: null,
             isCrawling: false,
-            dashboardSynced: false,
-            // Context Pipeline untuk 8 Agent
-            pipelineContext: {}, 
-            sources: []
+            isGeneratingScript: false,
+            generatedScript: null,
+            sources: [],
+            selectedHookAngle: 'controversial',
+            dashboardSynced: false
         };
 
-        // --- SISTEM ANTREAN & RATE LIMITING YANG DIPERBARUI ---
+        // --- PERBAIKAN SISTEM ANTREAN & RATE LIMITING ---
         let nextAvailableApiTime = Date.now();
-        // Diubah ke 6500ms (6.5 detik) agar hanya ~9 request per menit. 
-        // Sangat aman untuk lolos dari sensor kuota 15 RPM Gemini Free Tier.
-        const MIN_API_DELAY_MS = 6500; 
+        // Diubah menjadi 6 Detik untuk memastikan maksimal hanya ~10 request per menit 
+        // Sangat aman untuk menjaga batas kuota 15 RPM di Free Tier.
+        const MIN_API_DELAY_MS = 8000; 
 
+        // Fungsi fetch tangguh dengan mekanisme Exponential Backoff 
+        // yang disesuaikan khusus untuk error 429 Limit Kuota
         async function fetchGeminiAPI(userQuery, systemPrompt, customPayload = {}) {
+            
+            // 1. Manfaatkan Antrean Global untuk mencegah spam request beruntun
             const now = Date.now();
             if (now < nextAvailableApiTime) {
                 const waitTime = nextAvailableApiTime - now;
                 nextAvailableApiTime += MIN_API_DELAY_MS; 
+                showToast("Sistem mengatur antrean untuk menjaga batas kuota API...", "info");
                 await new Promise(resolve => setTimeout(resolve, waitTime));
             } else {
                 nextAvailableApiTime = Date.now() + MIN_API_DELAY_MS;
             }
 
+            // 2. Susun Payload Standar Gemini API
             const payload = {
-                contents: [{ role: "user", parts: [{ text: userQuery }] }],
-                systemInstruction: { parts: [{ text: systemPrompt }] },
+                contents: [{
+                    role: "user",
+                    parts: [{ text: userQuery }]
+                }],
+                systemInstruction: {
+                    parts: [{ text: systemPrompt }]
+                },
                 ...customPayload
             };
 
-            // Jeda retry di-perlama secara drastis (15s, 30s, 45s, 60s) 
-            // agar sistem memberikan waktu pada server Google mereset limit per menit-nya sebelum mencoba lagi.
-            const delays = [15000, 30000, 45000, 60000];
+            // Perbaikan Logika Retry: Jika server mengembalikan 429 (Quota Habis Per Menit),
+            // jeda retry harus lebih lama agar API punya waktu untuk mereset kuotanya.
+            // (8 detik, 12 detik, 15 detik, 20 detik)
+            const delays = [8000, 12000, 15000, 20000];
             
+            // 3. Sistem Loop Retry (Max 5 kali)
             for (let i = 0; i < 5; i++) {
                 try {
                     const response = await fetch('/api/gemini', {
                         method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
                         body: JSON.stringify(payload)
                     });
 
+                    // 4. Tangani Respon Server
                     if (!response.ok) {
-                        if (response.status === 429) throw new Error("429: Batas Kuota Terlampaui");
+                        if (response.status === 429) {
+                            throw new Error("429: Batas Kuota / RPM Terlampaui");
+                        }
                         const errData = await response.json().catch(() => ({}));
-                        throw new Error(errData.error?.message || `Error Kode: ${response.status}`);
+                        throw new Error(errData.error?.message || `Terjadi kesalahan server. (Kode: ${response.status})`);
                     }
+
+                    // Berhasil!
                     return await response.json();
 
                 } catch (error) {
-                    console.warn(`[Auto-Retry] Percobaan ke-${i + 1} gagal:`, error.message);
-                    if (i === 4) throw error;
-                    if (error.message.includes('429')) {
-                        showToast(`Limit API menyentuh batas. Antre ulang menunggu reset kuota... (${delays[i]/1000}s)`, "info");
+                    console.warn(`[Auto-Retry] Percobaan ke-${i + 1} gagal karena:`, error.message);
+                    
+                    // Jika sudah percobaan ke-5 (terakhir), tampilkan peringatan ke layar
+                    if (i === 4) {
+                        showToast("Sistem sibuk karena batas limit kuota Google AI. Mohon tunggu 1 Menit lalu coba lagi.", "error");
+                        throw error;
                     }
+                    
+                    // Jika errornya 429, beritahu user bahwa sistem sedang mengerem
+                    if (error.message.includes('429')) {
+                        showToast(`Limit tercapai. Mencoba ulang dalam ${delays[i]/1000} detik...`, "info");
+                    }
+
+                    // Eksekusi Exponential Backoff (berhenti sejenak, bertambah lama setiap gagal)
                     await new Promise(res => setTimeout(res, delays[i]));
                 }
             }
@@ -865,16 +800,18 @@
         }
 
         function copyTextDirectly(text) {
-            if(!text) { showToast("Tidak ada teks yang disalin!", "error"); return; }
+            if(!text) {
+                showToast("Tidak ada teks yang dapat disalin!", "error"); return;
+            }
             const temp = document.createElement('textarea');
             temp.value = text;
             document.body.appendChild(temp);
             temp.select();
             try {
                 document.execCommand('copy');
-                showToast('Disalin ke clipboard!', 'success');
+                showToast('Salinan berhasil disimpan ke clipboard!', 'success');
             } catch(e) {
-                showToast('Salinan gagal.', 'error');
+                showToast('Salinan gagal diproses.', 'error');
             }
             document.body.removeChild(temp);
         }
@@ -886,7 +823,7 @@
             copyTextDirectly(text);
         }
 
-        // Render Niche
+        // Render functions for Trends Feed Dashboard
         function renderNiches() {
             const container = document.getElementById('niche-container');
             if(!container) return;
@@ -906,290 +843,314 @@
             }
         }
 
-        function selectNiche(id) {
-            state.selectedNiche = id;
-            renderNiches();
-            state.dashboardSynced = false; 
-        }
-
-        // =================================================================================
-        // FITUR UTAMA: 8-AGENT MULTI-PIPELINE (MENGGANTIKAN SINGLE PROMPT TREN)
-        // =================================================================================
-        
-        const PIPELINE_AGENTS = [
-            { id: 1, name: "Agent Pencari Tren (Grounding Google)" },
-            { id: 2, name: "Agent Analisis Viralitas" },
-            { id: 3, name: "Agent Audit Tingkat Persaingan" },
-            { id: 4, name: "Agent Analisis Jam Tayang" },
-            { id: 5, name: "Agent Strategi Monetisasi (CPM)" },
-            { id: 6, name: "Agent Kreator Hook" },
-            { id: 7, name: "Agent Formulasi CTA" },
-            { id: 8, name: "Agent Penulis Skrip Final" }
-        ];
-
-        function initAgentChecklist() {
-            const list = document.getElementById('agent-checklist');
-            list.innerHTML = PIPELINE_AGENTS.map(agent => `
-                <div id="agent-item-${agent.id}" class="agent-item agent-pending flex items-center gap-2 p-1.5">
-                    <i class="fa-solid fa-circle-notch text-[10px]" id="agent-icon-${agent.id}"></i>
-                    <span>${agent.id}. ${agent.name}</span>
-                </div>
+        function renderTabs() {
+            const tabs = ['all', 'Reels', 'Video', 'Photo'];
+            const container = document.getElementById('tab-container');
+            if(!container) return;
+            container.innerHTML = tabs.map(tab => `
+                <button onclick="selectTab('${tab}')" 
+                    class="shrink-0 px-3 py-1.5 rounded-lg font-bold transition-all ${
+                        state.activeTab === tab ? 'bg-slate-950 text-cyan-400' : 'text-slate-400 hover:text-white'
+                    }">
+                    ${tab === 'all' ? 'Semua' : tab}
+                </button>
             `).join('');
         }
 
-        function updateAgentStatus(agentId, status, message = "") {
-            const item = document.getElementById(`agent-item-${agentId}`);
-            const icon = document.getElementById(`agent-icon-${agentId}`);
-            const textDisplay = document.getElementById('crawling-text');
-            const progress = document.getElementById('agent-progress-bar');
+        function renderTrends() {
+            const container = document.getElementById('trends-feed');
+            if(!container) return;
             
-            // Update Progress Bar
-            if(progress) progress.style.width = `${(agentId / PIPELINE_AGENTS.length) * 100}%`;
-
-            if(textDisplay && message) textDisplay.innerText = message;
-
-            if(!item || !icon) return;
-
-            // Reset classes
-            item.className = "agent-item flex items-center gap-2 p-1.5";
-            
-            if(status === 'active') {
-                item.classList.add('agent-active');
-                icon.className = "fa-solid fa-spinner animate-spin text-cyan-400";
-            } else if (status === 'done') {
-                item.classList.add('agent-done');
-                icon.className = "fa-solid fa-check text-emerald-500";
+            if(state.trends.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-12 text-slate-500 bg-slate-900/40 rounded-2xl border border-white/5">
+                        <i class="fa-solid fa-radar text-4xl mb-3 block opacity-50"></i>
+                        <p class="text-xs font-medium">Belum ada data tren.<br>Silakan klik tombol <b>"RAYAP TREN LIVE AI"</b> untuk memindai algoritma.</p>
+                    </div>`;
+                const panel = document.getElementById('trend-detail-panel');
+                if (panel) panel.classList.add('hidden');
+                return;
             }
+
+            const filteredTrends = state.activeTab === 'all' ? state.trends : state.trends.filter(item => {
+                if (state.activeTab === 'Reels') return item.category.toLowerCase().includes('reels');
+                if (state.activeTab === 'Video') return item.category.toLowerCase().includes('video');
+                if (state.activeTab === 'Photo') return item.category.toLowerCase().includes('photo');
+                return true;
+            });
+
+            container.innerHTML = filteredTrends.map((trend) => {
+                const isSelected = state.selectedTrend && state.selectedTrend.title === trend.title;
+                const encodedTitle = encodeURIComponent(trend.title);
+                return `
+                <div onclick="selectTrend('${encodedTitle}')" 
+                    class="group relative p-5 rounded-2xl transition-all duration-300 cursor-pointer border ${
+                        isSelected ? 'bg-slate-900 border-cyan-500/30 shadow-lg shadow-cyan-500/5' : 'bg-slate-900/40 hover:bg-slate-900/70 border-white/5'
+                    }">
+                    <div class="flex items-start justify-between gap-4">
+                        <div class="flex items-center gap-2">
+                            <span class="px-2.5 py-0.5 rounded-md text-[10px] font-black uppercase bg-indigo-500/15 text-indigo-400 border border-indigo-500/20">${trend.category}</span>
+                            <span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-cyan-500/10 text-cyan-400 border border-cyan-500/15">📈 ${trend.momentum || 'Trending'}</span>
+                        </div>
+                        <div class="flex items-center gap-1.5">
+                            <span class="text-[10px] text-slate-400 uppercase font-black">AI Score</span>
+                            <span class="text-sm font-mono font-black text-cyan-400">${trend.trendScore}%</span>
+                        </div>
+                    </div>
+                    <h3 class="mt-3 font-extrabold text-base sm:text-lg group-hover:text-cyan-300 transition-colors">${trend.title}</h3>
+                    <div class="mt-3 p-3 bg-slate-950/60 rounded-xl border border-white/5">
+                        <p class="text-xs text-cyan-200 font-medium italic line-clamp-2">${trend.hook}</p>
+                    </div>
+                </div>
+            `}).join('');
         }
 
-        async function triggerMultiAgentPipeline() {
-            if (state.isCrawling) return;
-
-            const btn = document.getElementById('btn-rayap-live');
-            const icon = document.getElementById('icon-rayap');
-            const statusPanel = document.getElementById('crawling-status');
-            const dashboard = document.getElementById('super-dashboard-container');
+        function renderTrendDetail() {
+            const container = document.getElementById('trend-detail-panel');
+            if(!container) return;
+            const trend = state.selectedTrend;
             
-            state.isCrawling = true;
-            state.pipelineContext = {}; // Reset context
-            state.sources = [];
-            
-            btn.classList.add('opacity-50', 'cursor-not-allowed');
-            icon.classList.add('animate-spin');
-            statusPanel.classList.remove('hidden');
-            dashboard.classList.add('hidden');
-            
-            initAgentChecklist();
-            const nicheObj = NICHES.find(n => n.id === state.selectedNiche);
-
-            try {
-                // ==========================================
-                // AGENT 1: PENCARI TREN
-                // ==========================================
-                updateAgentStatus(1, 'active', `Menelusuri data Google Search terkini untuk niche: ${nicheObj.name}...`);
-                const prompt1 = `Cari 1 tren atau topik paling viral dan terbaru di Indonesia hari ini untuk niche "${nicheObj.name}" dengan keywords: "${nicheObj.keywords}". Berikan judul spesifik dan deskripsi fakta kenapa ini sedang tren.`;
-                const schema1 = { type: "OBJECT", properties: { title: { type: "STRING" }, description: { type: "STRING" } }, required: ["title", "description"] };
-                
-                const res1 = await fetchGeminiAPI(prompt1, "Kamu Peneliti Tren Real-Time.", {
-                    tools: [{ "google_search": {} }],
-                    generationConfig: { responseMimeType: "application/json", responseSchema: schema1 }
-                });
-                
-                const data1 = JSON.parse(res1.candidates[0].content.parts[0].text);
-                state.pipelineContext.title = data1.title;
-                state.pipelineContext.description = data1.description;
-                
-                // Simpan Sources
-                const gMeta = res1.candidates[0].groundingMetadata;
-                if (gMeta && gMeta.groundingAttributions) {
-                    state.sources = gMeta.groundingAttributions.map(attr => ({ uri: attr.web?.uri, title: attr.web?.title })).filter(src => src.uri);
-                }
-                updateAgentStatus(1, 'done');
-
-
-                // ==========================================
-                // AGENT 2: ANALISIS VIRALITAS
-                // ==========================================
-                updateAgentStatus(2, 'active', `Menghitung probabilitas algoritma untuk topik: ${state.pipelineContext.title}...`);
-                const prompt2 = `Topik: "${state.pipelineContext.title}". Deskripsi: "${state.pipelineContext.description}". Hitung skor viralitas (1-100) dan sebutkan momentumnya (ex: Rising, Peak, Fading).`;
-                const schema2 = { type: "OBJECT", properties: { viralScore: { type: "INTEGER" }, momentum: { type: "STRING" } }, required: ["viralScore", "momentum"] };
-                
-                const res2 = await fetchGeminiAPI(prompt2, "Kamu Analis Algoritma Meta.", { generationConfig: { responseMimeType: "application/json", responseSchema: schema2 }});
-                const data2 = JSON.parse(res2.candidates[0].content.parts[0].text);
-                state.pipelineContext.viralScore = data2.viralScore;
-                state.pipelineContext.momentum = data2.momentum;
-                updateAgentStatus(2, 'done');
-
-
-                // ==========================================
-                // AGENT 3: AUDIT PERSAINGAN
-                // ==========================================
-                updateAgentStatus(3, 'active', `Memeriksa saturasi konten kreator lain...`);
-                const prompt3 = `Topik: "${state.pipelineContext.title}". Seberapa sulit persaingannya di FB Reels saat ini? (Tinggi/Sedang/Rendah), dan berikan 1 kalimat alasan/gap opportunity.`;
-                const schema3 = { type: "OBJECT", properties: { level: { type: "STRING" }, reason: { type: "STRING" } }, required: ["level", "reason"] };
-                
-                const res3 = await fetchGeminiAPI(prompt3, "Kamu Ahli Kompetisi Media Sosial.", { generationConfig: { responseMimeType: "application/json", responseSchema: schema3 }});
-                const data3 = JSON.parse(res3.candidates[0].content.parts[0].text);
-                state.pipelineContext.compLevel = data3.level;
-                state.pipelineContext.compReason = data3.reason;
-                updateAgentStatus(3, 'done');
-
-
-                // ==========================================
-                // AGENT 4: ANALISIS JAM TAYANG
-                // ==========================================
-                updateAgentStatus(4, 'active', `Menghitung waktu psikologis penonton...`);
-                const prompt4 = `Topik: "${state.pipelineContext.title}". Niche: "${nicheObj.name}". Kapan jam tayang paling optimal (hari dan jam spesifik WIB) untuk memposting ini agar fyp? Berikan alasannya.`;
-                const schema4 = { type: "OBJECT", properties: { bestTime: { type: "STRING" }, reason: { type: "STRING" } }, required: ["bestTime", "reason"] };
-                
-                const res4 = await fetchGeminiAPI(prompt4, "Kamu Spesialis Perilaku Audiens.", { generationConfig: { responseMimeType: "application/json", responseSchema: schema4 }});
-                const data4 = JSON.parse(res4.candidates[0].content.parts[0].text);
-                state.pipelineContext.bestTime = data4.bestTime;
-                state.pipelineContext.timeReason = data4.reason;
-                updateAgentStatus(4, 'done');
-
-
-                // ==========================================
-                // AGENT 5: STRATEGI MONETISASI
-                // ==========================================
-                updateAgentStatus(5, 'active', `Mengakses data CPM dan peluang sponsor...`);
-                const prompt5 = `Topik: "${state.pipelineContext.title}". Berapa estimasi CPM (dalam USD atau Rupiah) untuk video ini di In-Stream FB, dan bagaimana strategi sisipan iklan/sponsor terbaiknya?`;
-                const schema5 = { type: "OBJECT", properties: { estCpm: { type: "STRING" }, strategy: { type: "STRING" } }, required: ["estCpm", "strategy"] };
-                
-                const res5 = await fetchGeminiAPI(prompt5, "Kamu Ahli Monetisasi Kreator.", { generationConfig: { responseMimeType: "application/json", responseSchema: schema5 }});
-                const data5 = JSON.parse(res5.candidates[0].content.parts[0].text);
-                state.pipelineContext.estCpm = data5.estCpm;
-                state.pipelineContext.monStrategy = data5.strategy;
-                updateAgentStatus(5, 'done');
-
-
-                // ==========================================
-                // AGENT 6: KREATOR HOOK
-                // ==========================================
-                updateAgentStatus(6, 'active', `Merancang kalimat pancingan 3 detik pertama...`);
-                const prompt6 = `Topik: "${state.pipelineContext.title}". Buatkan 2 opsi Hook kalimat pembuka video (3 detik pertama) yang sangat psikologis dan memicu rasa penasaran penonton Indonesia.`;
-                const schema6 = { type: "OBJECT", properties: { hook1: { type: "STRING" }, hook2: { type: "STRING" } }, required: ["hook1", "hook2"] };
-                
-                const res6 = await fetchGeminiAPI(prompt6, "Kamu Copywriter Hook Jenius.", { generationConfig: { responseMimeType: "application/json", responseSchema: schema6 }});
-                const data6 = JSON.parse(res6.candidates[0].content.parts[0].text);
-                state.pipelineContext.hook1 = data6.hook1;
-                state.pipelineContext.hook2 = data6.hook2;
-                updateAgentStatus(6, 'done');
-
-
-                // ==========================================
-                // AGENT 7: FORMULASI CTA
-                // ==========================================
-                updateAgentStatus(7, 'active', `Menyusun strategi interaksi kolom komentar...`);
-                const prompt7 = `Topik: "${state.pipelineContext.title}". Buat 1 kalimat Call-To-Action (CTA) di akhir video yang memancing penonton untuk berkomentar secara organik (bukan sekedar 'jangan lupa like').`;
-                const schema7 = { type: "OBJECT", properties: { cta: { type: "STRING" } }, required: ["cta"] };
-                
-                const res7 = await fetchGeminiAPI(prompt7, "Kamu Spesialis Engagement.", { generationConfig: { responseMimeType: "application/json", responseSchema: schema7 }});
-                const data7 = JSON.parse(res7.candidates[0].content.parts[0].text);
-                state.pipelineContext.cta = data7.cta;
-                updateAgentStatus(7, 'done');
-
-
-                // ==========================================
-                // AGENT 8: PENULIS SKRIP FINAL
-                // ==========================================
-                updateAgentStatus(8, 'active', `Merangkai semua data menjadi naskah produksi...`);
-                const prompt8 = `Topik: "${state.pipelineContext.title}". Hook: "${state.pipelineContext.hook1}". CTA: "${state.pipelineContext.cta}". 
-                Tulis skrip video lengkap (60-90 detik). Sertakan format: [Detik], (Visual), dan (Narasi). Pastikan pacingnya cepat untuk FB Reels/Video.`;
-                const schema8 = { type: "OBJECT", properties: { script: { type: "STRING" } }, required: ["script"] };
-                
-                const res8 = await fetchGeminiAPI(prompt8, "Kamu Produser Video / Scriptwriter handal.", { generationConfig: { responseMimeType: "application/json", responseSchema: schema8 }});
-                const data8 = JSON.parse(res8.candidates[0].content.parts[0].text);
-                state.pipelineContext.script = data8.script;
-                updateAgentStatus(8, 'done');
-
-
-                // --- RENDER HASIL MULTI-AGENT ---
-                renderSuperDashboard();
-                showToast("8 Agent AI berhasil merampungkan analisis dan produksi konten!", "success");
-
-            } catch (error) {
-                console.error(error);
-                showToast("Pipeline terhenti karena masalah koneksi atau kuota API.", "error");
-            } finally {
-                state.isCrawling = false;
-                btn.classList.remove('opacity-50', 'cursor-not-allowed');
-                icon.classList.remove('animate-spin');
-                setTimeout(() => { statusPanel.classList.add('hidden'); }, 2000); // Sembunyikan panel status setelah 2 detik
+            if(!trend) {
+                container.classList.add('hidden');
+                return;
             }
+            
+            container.classList.remove('hidden');
+            container.innerHTML = `
+                <div class="flex items-center justify-between border-b border-white/5 pb-3">
+                    <h3 class="font-extrabold text-sm uppercase text-cyan-400 flex items-center gap-1.5">
+                        <i class="fa-solid fa-layer-group"></i> Eksekusi Tren AI
+                    </h3>
+                </div>
+                <div>
+                    <span class="px-2.5 py-0.5 rounded-md text-[10px] font-black uppercase bg-indigo-500/15 text-indigo-400 border border-indigo-500/20">${trend.category}</span>
+                    <h2 class="text-xl font-extrabold leading-tight mt-2">${trend.title}</h2>
+                </div>
+                <div class="space-y-1">
+                    <span class="text-[10px] uppercase font-black text-slate-400">Konsep Konten 100% Akurat</span>
+                    <p class="text-xs sm:text-sm text-slate-300 bg-slate-950/40 p-3 rounded-xl border border-white/5">${trend.description}</p>
+                </div>
+                <div class="space-y-1">
+                    <span class="text-[10px] uppercase font-black text-rose-400 flex items-center gap-1.5">
+                        <i class="fa-solid fa-play"></i> Hook Utama (3 Detik Pertama)
+                    </span>
+                    <p class="text-xs sm:text-sm text-rose-200 font-bold italic bg-rose-500/5 p-3 rounded-xl border border-rose-500/10">${trend.hook}</p>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="bg-slate-950/40 p-3 rounded-xl border border-white/5">
+                        <span class="text-[9px] uppercase font-bold text-slate-400 block mb-1">Rekomendasi Musik</span>
+                        <p class="text-xs font-semibold text-indigo-300 truncate" title="${trend.audio}">${trend.audio || 'Original Trending Audio'}</p>
+                    </div>
+                    <div class="bg-slate-950/40 p-3 rounded-xl border border-white/5">
+                        <span class="text-[9px] uppercase font-bold text-slate-400 block mb-1">Taktik Retensi AI</span>
+                        <p class="text-xs font-semibold text-emerald-300 line-clamp-2" title="${trend.retentionStrategy}">${trend.retentionStrategy || 'Pacing cepat di bawah 1.5 detik'}</p>
+                    </div>
+                </div>
+                <div class="pt-2">
+                    <button onclick="handleGenerateScript()" id="btn-generate"
+                        class="w-full bg-slate-950 hover:bg-slate-900 text-cyan-400 border border-cyan-500/30 px-4 py-3 rounded-xl text-xs font-black uppercase transition-all flex items-center justify-center gap-2 shadow shadow-cyan-500/10">
+                        <i class="fa-solid fa-wand-magic-sparkles" id="icon-generate"></i>
+                        <span id="text-generate">BUATKAN SKRIP VIDEO LENGKAP</span>
+                    </button>
+                </div>
+            `;
         }
 
-        function renderSuperDashboard() {
-            const ctx = state.pipelineContext;
-            if(!ctx.title) return; // Fail safe
-
-            const dashboard = document.getElementById('super-dashboard-container');
-            dashboard.classList.remove('hidden');
-
-            // Tanggal
-            const date = new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
-            document.getElementById('dash-agent-date').innerText = date;
-            
-            // Header
-            document.getElementById('dash-title').innerText = ctx.title;
-            document.getElementById('dash-description').innerText = ctx.description;
-            
-            // Viralitas
-            document.getElementById('dash-viral-score').innerText = ctx.viralScore;
-            document.getElementById('dash-viral-momentum').innerText = `Momentum: ${ctx.momentum}`;
-            
-            // Kompetisi
-            const compLevelEl = document.getElementById('dash-comp-level');
-            const compBar = document.getElementById('dash-comp-bar');
-            compLevelEl.innerText = ctx.compLevel;
-            
-            let color = 'bg-emerald-500'; let width = '30%';
-            if(ctx.compLevel.toLowerCase().includes('tinggi')) { color = 'bg-rose-500'; width = '90%'; compLevelEl.className = 'text-xs font-bold text-rose-400'; }
-            else if (ctx.compLevel.toLowerCase().includes('sedang')) { color = 'bg-amber-500'; width = '60%'; compLevelEl.className = 'text-xs font-bold text-amber-400'; }
-            else { compLevelEl.className = 'text-xs font-bold text-emerald-400'; }
-            
-            compBar.className = `h-2 rounded-full transition-all duration-1000 w-0 ${color}`;
-            setTimeout(() => { compBar.style.width = width; }, 500);
-            document.getElementById('dash-comp-desc').innerText = ctx.compReason;
-
-            // Jam Tayang
-            document.getElementById('dash-timing').innerText = ctx.bestTime;
-            document.getElementById('dash-timing-desc').innerText = ctx.timeReason;
-
-            // Monetisasi
-            document.getElementById('dash-mon-cpm').innerText = ctx.estCpm;
-            document.getElementById('dash-mon-strategy').innerText = ctx.monStrategy;
-
-            // Hook & CTA
-            document.getElementById('hook-1').innerText = `"${ctx.hook1}"`;
-            document.getElementById('hook-2').innerText = `"${ctx.hook2}"`;
-            document.getElementById('dash-cta').innerText = `"${ctx.cta}"`;
-
-            // Script
-            document.getElementById('dash-script').value = ctx.script;
-
-            // Render Sources
-            const sourceContainer = document.getElementById('sources-container');
+        function renderSources() {
+            const container = document.getElementById('sources-container');
             const list = document.getElementById('sources-list');
+            if(!container || !list) return;
+            
             if (state.sources && state.sources.length > 0) {
-                sourceContainer.classList.remove('hidden');
+                container.classList.remove('hidden');
                 list.innerHTML = state.sources.slice(0, 4).map((source, idx) => `
                     <a href="${source.uri}" target="_blank" rel="noreferrer" class="p-2 bg-slate-950/60 rounded-lg hover:text-cyan-300 border border-white/5 truncate flex items-center gap-1.5">
                         <span class="text-cyan-400 font-bold">${idx + 1}.</span> ${source.title}
                     </a>
                 `).join('');
             } else {
-                sourceContainer.classList.add('hidden');
+                container.classList.add('hidden');
             }
         }
 
+        function renderScriptPanel() {
+            const mainContainer = document.getElementById('scripts-container');
+            const contentArea = document.getElementById('script-content-area');
+            const btnCopy = document.getElementById('btn-copy-script');
+            if(!mainContainer || !contentArea || !btnCopy) return;
 
-        // =================================================================================
-        // FITUR LAINNYA DIBAWAH INI SAMA PERSIS DENGAN KODE LAMA ANDA
-        // (Dipertahankan sesuai instruksi: "pertahankan pengaturan lainnya")
-        // =================================================================================
+            if (state.isGeneratingScript || state.generatedScript) {
+                mainContainer.classList.remove('hidden');
+            } else {
+                mainContainer.classList.add('hidden');
+                return;
+            }
 
-        // 3. FITUR REPURPOSER
+            if (state.isGeneratingScript) {
+                btnCopy.classList.add('hidden');
+                contentArea.innerHTML = `
+                    <div class="py-12 flex flex-col items-center justify-center space-y-3">
+                        <div class="w-10 h-10 border-4 border-cyan-500/20 border-t-cyan-400 rounded-full animate-spin"></div>
+                        <p class="text-xs text-cyan-300 font-medium animate-pulse">AI Sedang mengkalkulasi retensi dan menulis skrip...</p>
+                    </div>
+                `;
+            } else if (state.generatedScript) {
+                btnCopy.classList.remove('hidden');
+                contentArea.innerHTML = `
+                    <textarea id="script-textarea" readonly class="w-full bg-slate-950/80 p-5 rounded-2xl border border-white/5 text-slate-300 text-xs font-mono leading-relaxed min-h-[350px] focus:outline-none resize-y">${state.generatedScript}</textarea>
+                `;
+            }
+        }
+
+        // Toggles & Events
+        function selectNiche(id) {
+            state.selectedNiche = id;
+            renderNiches();
+            state.dashboardSynced = false; 
+            showToast(`Niche dialihkan ke: ${NICHES.find(n => n.id === id).name}`, 'info');
+        }
+
+        function selectTab(tab) {
+            state.activeTab = tab;
+            renderTabs();
+            renderTrends();
+        }
+
+        function selectTrend(encodedTitle) {
+            const title = decodeURIComponent(encodedTitle);
+            const trend = state.trends.find(t => t.title === title);
+            if(trend) {
+                state.selectedTrend = trend;
+                state.generatedScript = null;
+                renderTrends();
+                renderTrendDetail();
+                renderScriptPanel();
+            }
+        }
+
+        function selectHookAngle(angle, btnElement) {
+            state.selectedHookAngle = angle;
+            document.querySelectorAll('.hook-angle-btn').forEach(btn => {
+                btn.className = "hook-angle-btn p-3 rounded-xl border border-white/10 text-slate-300 text-xs font-semibold hover:bg-white/5 transition-all text-left";
+            });
+            btnElement.className = "hook-angle-btn p-3 rounded-xl border border-white/10 text-slate-300 text-xs font-semibold hover:bg-white/5 transition-all text-left bg-fuchsia-500/15 border-fuchsia-500/30 text-fuchsia-200";
+        }
+
+        // 1. FITUR RAYAP TREN (Live Grounding API)
+        async function triggerNicheCrawling() {
+            if(state.isCrawling) return;
+
+            const btn = document.getElementById('btn-rayap-live');
+            const icon = document.getElementById('icon-rayap');
+            const statusPanel = document.getElementById('crawling-status');
+            const statusText = document.getElementById('crawling-text');
+
+            state.isCrawling = true;
+            if(btn) btn.classList.add('opacity-50', 'cursor-not-allowed');
+            if(icon) icon.classList.add('animate-spin');
+            if(statusPanel) statusPanel.classList.remove('hidden');
+
+            const nicheObj = NICHES.find(n => n.id === state.selectedNiche) || NICHES[0];
+            if(statusText) statusText.innerText = `Menelusuri tren terkini Google Search di Indonesia untuk niche: ${nicheObj.name}...`;
+
+            const systemPrompt = "Anda adalah Analis Tren Media Sosial khusus Facebook Professional (FB Pro). Tugas Anda adalah mendeteksi tren dan topik terpanas di Indonesia dengan perhitungan analitik 100% akurat berbasis data pencarian langsung.";
+            const userQuery = `Gunakan pencarian untuk mendeteksi 4 tren konten termutakhir di Indonesia saat ini untuk niche "${nicheObj.name}" dengan kata kunci pendukung: "${nicheObj.keywords}". Pastikan data yang dihasilkan nyata, aktual, terstruktur, serta diformat dalam bentuk JSON. Evaluasi metrik probabilitas berdasarkan algoritma Meta saat ini. Buat judul tren, rekomendasi audio, kategori konten (Reels, Video, Photo), deskripsi visual terinci, contoh hook pembuka video, AI Score / Kekuatan Tren (0-100), momentum (seperti 'Viral Peak', 'Rising', 'Emerging'), dan strategi retensi penonton.`;
+
+            const jsonSchema = {
+                type: "OBJECT",
+                properties: {
+                    trends: {
+                        type: "ARRAY",
+                        items: {
+                            type: "OBJECT",
+                            properties: {
+                                title: { type: "STRING" }, category: { type: "STRING" }, trendScore: { type: "INTEGER" },
+                                momentum: { type: "STRING" }, hook: { type: "STRING" }, description: { type: "STRING" },
+                                audio: { type: "STRING" }, hashtags: { type: "ARRAY", items: { type: "STRING" } }, retentionStrategy: { type: "STRING" }
+                            }, required: ["title", "category", "trendScore", "momentum", "hook", "description"]
+                        }
+                    }
+                }, required: ["trends"]
+            };
+
+            try {
+                const result = await fetchGeminiAPI(userQuery, systemPrompt, {
+                    tools: [{ "google_search": {} }],
+                    generationConfig: { responseMimeType: "application/json", responseSchema: jsonSchema }
+                });
+
+                const candidate = result.candidates?.[0];
+                if (candidate && candidate.content?.parts?.[0]?.text) {
+                    const gMeta = candidate.groundingMetadata;
+                    state.sources = (gMeta && gMeta.groundingAttributions) 
+                        ? gMeta.groundingAttributions.map(attr => ({ uri: attr.web?.uri, title: attr.web?.title })).filter(src => src.uri) 
+                        : [];
+
+                    const rawJson = JSON.parse(candidate.content.parts[0].text);
+                    if(rawJson.trends && rawJson.trends.length > 0) {
+                        state.trends = rawJson.trends;
+                        state.selectedTrend = rawJson.trends[0];
+                        state.generatedScript = null;
+                        showToast(`Berhasil menemukan ${rawJson.trends.length} tren nyata dari AI & Google Search!`, 'success');
+                    } else throw new Error("Struktur respon tidak valid");
+                }
+            } catch(e) {
+                console.warn(e);
+                showToast("Terjadi kesalahan saat mengambil data dari AI.", "error");
+            } finally {
+                state.isCrawling = false;
+                if(btn) btn.classList.remove('opacity-50', 'cursor-not-allowed');
+                if(icon) icon.classList.remove('animate-spin');
+                if(statusPanel) statusPanel.classList.add('hidden');
+                renderTrends(); renderTrendDetail(); renderSources(); renderScriptPanel();
+            }
+        }
+
+        // 2. FITUR BUAT SKRIP (Text AI)
+        async function handleGenerateScript() {
+            const trend = state.selectedTrend;
+            if(!trend || state.isGeneratingScript) return;
+
+            state.isGeneratingScript = true;
+            state.generatedScript = null;
+            renderScriptPanel();
+
+            const btnIcon = document.getElementById('icon-generate');
+            const btnText = document.getElementById('text-generate');
+            if (btnIcon && btnText) {
+                btnIcon.className = "fa-solid fa-spinner animate-spin";
+                btnText.innerText = "MENYUSUN SKRIP AI...";
+            }
+            const scrContainer = document.getElementById('scripts-container');
+            if (scrContainer) {
+                scrContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+
+            const systemPrompt = "Anda adalah Scriptwriter profesional untuk platform video Meta (Reels & In-Stream Ads). Analisis setiap kata agar memastikan probabilitas FYP 100% berdasarkan struktur naskah.";
+            const userQuery = `Buatkan draf naskah video berdurasi 60-90 detik yang dioptimalkan 100% khusus untuk algoritma FB Pro Indonesia.
+            Judul: "${trend.title}". Kategori: "${trend.category}". Hook: "${trend.hook}". Penjelasan: "${trend.description}".
+            Uraikan: 1. Struktur Waktu (Detik 0-5 Hook dll). 2. Petunjuk Visual Kamera. 3. Narasi Suara (VO) yang natural. 4. Teks Overlay layar.`;
+
+            try {
+                const result = await fetchGeminiAPI(userQuery, systemPrompt);
+                const text = result.candidates?.[0]?.content?.parts?.[0]?.text;
+                if(text) {
+                    state.generatedScript = text;
+                    showToast("Skrip akurat berhasil diproduksi!", "success");
+                } else throw new Error();
+            } catch(e) {
+                showToast("Gagal menyusun skrip. Silakan coba lagi.", "error");
+            } finally {
+                state.isGeneratingScript = false;
+                if (btnIcon && btnText) {
+                    btnIcon.className = "fa-solid fa-wand-magic-sparkles";
+                    btnText.innerText = "BUATKAN SKRIP VIDEO LENGKAP";
+                }
+                renderScriptPanel();
+            }
+        }
+
+        // 3. FITUR REPURPOSER (Text AI)
         async function handleRepurpose() {
             const source = document.getElementById('repurpose-source').value.trim();
             const format = document.getElementById('repurpose-format').value;
@@ -1226,13 +1187,6 @@
         }
 
         // 4. FITUR HOOK & JUDUL (Structured JSON Array)
-        function selectHookAngle(angle, btnElement) {
-            document.querySelectorAll('.hook-angle-btn').forEach(btn => {
-                btn.className = "hook-angle-btn p-3 rounded-xl border border-white/10 text-slate-300 text-xs font-semibold hover:bg-white/5 transition-all text-left";
-            });
-            btnElement.className = "hook-angle-btn p-3 rounded-xl border border-white/10 text-slate-300 text-xs font-semibold hover:bg-white/5 transition-all text-left bg-fuchsia-500/15 border-fuchsia-500/30 text-fuchsia-200";
-        }
-
         async function handleGenerateHooks() {
             const topic = document.getElementById('hook-topic').value.trim();
             if(!topic) { showToast("Masukkan topik atau kata kunci terlebih dahulu!", "error"); return; }
@@ -1247,12 +1201,7 @@
             if(btnIcon) btnIcon.className = "fa-solid fa-spinner animate-spin";
             if(btnText) btnText.innerText = "AI MEMPROSES FORMULA...";
 
-            // Find selected angle
-            let activeAngle = "controversial";
-            const activeBtn = document.querySelector('.hook-angle-btn.bg-fuchsia-500\\/15');
-            if(activeBtn) activeAngle = activeBtn.dataset.angle;
-
-            const prompt = `Analisis algoritma Meta saat ini. Buatkan 3 pilihan Hook dan Judul Video yang 100% terbukti viral untuk topik: "${topic}". Fokuskan angle psikologis ke arah: ${activeAngle}. Jangan gunakan karakter markdown.`;
+            const prompt = `Analisis algoritma Meta saat ini. Buatkan 3 pilihan Hook dan Judul Video yang 100% terbukti viral untuk topik: "${topic}". Fokuskan angle psikologis ke arah: ${state.selectedHookAngle}. Jangan gunakan karakter markdown.`;
             const jsonSchema = { type: "OBJECT", properties: { hooks: { type: "ARRAY", items: { type: "STRING" } } }, required: ["hooks"] };
             
             try {
@@ -1398,7 +1347,7 @@
             }
         }
 
-        // 7. FITUR ANALISIS PERFORMA
+        // 7. FITUR ANALISIS PERFORMA (10 METRIK AI)
         function renderMetric(icon, title, value, type = 'percent') {
             const isPercent = type === 'percent';
             const displayValue = isPercent ? `${value}%` : value;
@@ -1478,6 +1427,7 @@
                 if(text) {
                     const data = JSON.parse(text);
                     
+                    // Render Metrics Grid
                     const gridHtml = `
                         ${renderMetric('🟢', 'AI Score', data.aiScore)}
                         ${renderMetric('🔥', 'FYP Probability', data.fypProbability)}
@@ -1497,6 +1447,7 @@
                     if(diag) diag.innerText = data.diagnose;
                     if(act) act.innerText = data.action;
 
+                    // Animate progress bars after rendering
                     setTimeout(() => {
                         document.querySelectorAll('.progress-bar-fill').forEach(bar => {
                             bar.style.width = bar.getAttribute('data-width');
@@ -1506,6 +1457,7 @@
                     showToast("10 Parameter Audit AI berhasil dikalkulasi secara akurat!", "success");
                 } else throw new Error();
             } catch (e) {
+                console.error(e);
                 showToast("Gagal melakukan analisis performa 10 Metrik AI.", "error");
             } finally {
                 if(loading) loading.classList.add('hidden');
@@ -1513,7 +1465,7 @@
             }
         }
 
-        // 8. DASHBOARD ANALITIK
+        // 8. DASHBOARD ANALITIK DINAMIS (100% AI GENERATED)
         let chartInstance = null;
         function initChart(viewsData = [0,0,0,0,0,0,0], engData = [0,0,0,0,0,0,0]) {
             const ctx = document.getElementById('analyticsChart');
@@ -1586,7 +1538,7 @@
                 } else throw new Error();
             } catch (e) {
                 showToast("Gagal menyinkronkan AI Prediktif Dashboard.", "error");
-                initChart();
+                initChart(); // Fallback empty
             } finally {
                 if(btnIcon) btnIcon.classList.remove('animate-spin');
                 if(loadingOverlay) loadingOverlay.classList.add('hidden');
@@ -1606,9 +1558,9 @@
 
         // On Load Init
         window.addEventListener('DOMContentLoaded', () => {
-            renderNiches(); 
+            renderNiches(); renderTabs(); renderTrends();
             switchView('trends');
-            initChart(); 
+            initChart(); // Render empty chart on load
             simulateLiveEvents();
         });
     </script>
