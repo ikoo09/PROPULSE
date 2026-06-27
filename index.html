@@ -750,7 +750,7 @@
             { id: 'bisnis', name: '💼 Bisnis & Usaha', keywords: 'Ide usaha modal kecil, jualan live, kisah sukses umkm, trik marketing' },
         ];
 
-        // Global State Management
+       // Global State Management
         let state = {
             selectedNiche: 'umum',
             isCrawling: false,
@@ -762,9 +762,9 @@
 
         // --- SISTEM ANTREAN & RATE LIMITING YANG DIPERBARUI ---
         let nextAvailableApiTime = Date.now();
-        // Diubah ke 6500ms (6.5 detik) agar hanya ~9 request per menit. 
-        // Sangat aman untuk lolos dari sensor kuota 15 RPM Gemini Free Tier.
-        const MIN_API_DELAY_MS = 6500; 
+        // Diubah ke 12500ms (12.5 detik) untuk menyesuaikan limit 5 RPM (Gemini 2.5 Flash fallback). 
+        // Ini menjamin request tidak akan pernah menyentuh batas 429, apa pun modelnya.
+        const MIN_API_DELAY_MS = 12500; 
 
         async function fetchGeminiAPI(userQuery, systemPrompt, customPayload = {}) {
             const now = Date.now();
