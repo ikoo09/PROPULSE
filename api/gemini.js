@@ -1,4 +1,3 @@
-// Handler API Serverless Vercel
 module.exports = async function handler(req, res) {
   // Set CORS headers
   res.setHeader('Access-Control-Allow-Credentials', true);
@@ -28,11 +27,9 @@ module.exports = async function handler(req, res) {
   }
 
   try {
-    // Menggunakan alias "-latest" agar Google API dapat menemukan modelnya
-    const modelName = "gemini-3.1-flash-lite"; 
-    
-    // Jika masih gagal juga, Anda bisa mencoba mengubah modelName di atas menjadi:
-    // const modelName = "gemini-pro";
+    // PERBAIKAN: Menggunakan model resmi yang tervalidasi dan sangat cepat.
+    // Hindari nama model yang tidak eksis agar API tidak menolak permintaan.
+    const modelName = "gemini-1.5-flash"; 
 
     const response = await fetch(
       `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${apiKey}`,
