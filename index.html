@@ -666,46 +666,47 @@
             dashboardSynced: false
         };
 
-        // VARIABEL ANTREAN / RATE LIMITING GLOBAL
+        // --- SISTEM ANTREAN & RATE LIMITING YANG DIPERBARUI ---
         let nextAvailableApiTime = Date.now();
-        const MIN_API_DELAY_MS = 3000; // Jeda 3 detik antar setiap permintaan AI apapun
+        const MIN_API_DELAY_MS = 5000; // Ditingkatkan ke 5 Detik agar sangat aman untuk batas 15 Request/Menit di tier gratis
 
-        // Fungsi fetch standar dan aman dengan mekanisme retry (Exponential Backoff) dan Global Rate Limiting
+        // Kunci API (Di Environment Canvas otomatis terisi, jika deploy ulang gunakan endpoint proxy Vercel)
+        const apiKey = ""; 
+
+        // Fungsi fetch tangguh dengan mekanisme Exponential Backoff (1s, 2s, 4s, 8s, 16s)
         async function fetchGeminiAPI(userQuery, systemPrompt, customPayload = {}) {
             
-            // --- LOGIKA JEDA ANTAR PERMINTAAN (Global Queue) ---
+            // 1. Manfaatkan Antrean Global untuk mencegah spam request beruntun
             const now = Date.now();
             if (now < nextAvailableApiTime) {
-                // Jika terlalu cepat, buat antrean / jeda waktu
                 const waitTime = nextAvailableApiTime - now;
-                nextAvailableApiTime += MIN_API_DELAY_MS; // Booking waktu untuk request ini
-                console.log(`Menunggu antrean API: jeda ${waitTime}ms...`);
-                showToast("Menunggu antrean API untuk mencegah limit...", "info");
+                nextAvailableApiTime += MIN_API_DELAY_MS; 
+                showToast("Sistem mengerem permintaan untuk mencegah batas kuota Limit...", "info");
                 await new Promise(resolve => setTimeout(resolve, waitTime));
             } else {
-                // Jika sudah aman, jalankan dan tetapkan batas waktu untuk request berikutnya
-                nextAvailableApiTime = now + MIN_API_DELAY_MS;
+                nextAvailableApiTime = Date.now() + MIN_API_DELAY_MS;
             }
-            // ----------------------------------------------------
 
-            let delay = 1000;
+            // 2. Susun Payload Standar Gemini API
             const payload = {
                 contents: [{
                     role: "user",
-                    parts: [{
-                        text: userQuery
-                    }]
+                    parts: [{ text: userQuery }]
                 }],
                 systemInstruction: {
-                    parts: [{
-                        text: systemPrompt
-                    }]
+                    parts: [{ text: systemPrompt }]
                 },
                 ...customPayload
             };
 
+            // Urutan waktu tunggu eksponensial (dalam milidetik) jika gagal/error
+            const delays = [1000, 2000, 4000, 8000, 16000];
+            
+            // 3. Sistem Loop Retry (Max 5 kali)
             for (let i = 0; i < 5; i++) {
                 try {
+                    // Gunakan URL langsung dari Gemini API. 
+                    // PERHATIAN: Jika ingin kembali men-deploy ini di Vercel, cukup ubah fetch ini menjadi: fetch('/api/gemini', { ... })
                     const response = await fetch('/api/gemini', {
                         method: 'POST',
                         headers: {
@@ -714,22 +715,29 @@
                         body: JSON.stringify(payload)
                     });
 
-                    const data = await response.json();
-
+                    // 4. Tangani Respon Server
                     if (!response.ok) {
-                        throw new Error(data.error || "Terjadi kesalahan pada respon server.");
+                        if (response.status === 429) {
+                            throw new Error("429: Too Many Requests (Batas Kuota / RPM Terlampaui)");
+                        }
+                        const errData = await response.json().catch(() => ({}));
+                        throw new Error(errData.error?.message || `Terjadi kesalahan server. (Kode: ${response.status})`);
                     }
 
-                    return data;
+                    // Berhasil!
+                    return await response.json();
 
                 } catch (error) {
-                    console.error("Percobaan ke-" + (i + 1) + " gagal:", error);
+                    console.warn(`[Auto-Retry] Percobaan ke-${i + 1} gagal karena:`, error.message);
+                    
+                    // Jika sudah percobaan ke-5 (terakhir), tampilkan peringatan ke layar
                     if (i === 4) {
-                        showToast("API Gemini gagal merespon: " + error.message, "error");
+                        showToast("Sistem sibuk atau kuota akun Google Gemini Anda habis. Mohon tunggu beberapa menit lalu coba lagi.", "error");
                         throw error;
                     }
-                    await new Promise(res => setTimeout(res, delay));
-                    delay *= 2;
+                    
+                    // Eksekusi Exponential Backoff (berhenti sejenak, bertambah lama setiap gagal)
+                    await new Promise(res => setTimeout(res, delays[i]));
                 }
             }
         }
@@ -1083,7 +1091,7 @@
                 }
             } catch(e) {
                 console.warn(e);
-                showToast("Pengambilan tren gagal. Cek pengaturan GEMINI_API_KEY Anda di Vercel.", "error");
+                showToast("Pengambilan tren gagal. Proses terlalu cepat atau akun terkendala limit.", "error");
             } finally {
                 state.isCrawling = false;
                 if(btn) btn.classList.remove('opacity-50', 'cursor-not-allowed');
