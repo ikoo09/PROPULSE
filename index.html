@@ -1091,7 +1091,7 @@
                 }
             } catch(e) {
                 console.warn(e);
-                showToast("Pengambilan tren gagal. Proses terlalu cepat atau akun terkendala limit.", "error");
+                showToast("Terjadi kesalahan saat mengambil data dari AI.", "error");
             } finally {
                 state.isCrawling = false;
                 if(btn) btn.classList.remove('opacity-50', 'cursor-not-allowed');
