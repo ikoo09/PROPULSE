@@ -666,8 +666,28 @@
             dashboardSynced: false
         };
 
-        // Fungsi fetch standar dan aman dengan mekanisme retry (Exponential Backoff) ke endpoint Vercel lokal Anda
+        // VARIABEL ANTREAN / RATE LIMITING GLOBAL
+        let nextAvailableApiTime = Date.now();
+        const MIN_API_DELAY_MS = 3000; // Jeda 3 detik antar setiap permintaan AI apapun
+
+        // Fungsi fetch standar dan aman dengan mekanisme retry (Exponential Backoff) dan Global Rate Limiting
         async function fetchGeminiAPI(userQuery, systemPrompt, customPayload = {}) {
+            
+            // --- LOGIKA JEDA ANTAR PERMINTAAN (Global Queue) ---
+            const now = Date.now();
+            if (now < nextAvailableApiTime) {
+                // Jika terlalu cepat, buat antrean / jeda waktu
+                const waitTime = nextAvailableApiTime - now;
+                nextAvailableApiTime += MIN_API_DELAY_MS; // Booking waktu untuk request ini
+                console.log(`Menunggu antrean API: jeda ${waitTime}ms...`);
+                showToast("Menunggu antrean API untuk mencegah limit...", "info");
+                await new Promise(resolve => setTimeout(resolve, waitTime));
+            } else {
+                // Jika sudah aman, jalankan dan tetapkan batas waktu untuk request berikutnya
+                nextAvailableApiTime = now + MIN_API_DELAY_MS;
+            }
+            // ----------------------------------------------------
+
             let delay = 1000;
             const payload = {
                 contents: [{
