@@ -666,14 +666,14 @@
             dashboardSynced: false
         };
 
-        // --- SISTEM ANTREAN & RATE LIMITING YANG DIPERBARUI ---
+        // --- PERBAIKAN SISTEM ANTREAN & RATE LIMITING ---
         let nextAvailableApiTime = Date.now();
-        const MIN_API_DELAY_MS = 5000; // Ditingkatkan ke 5 Detik agar sangat aman untuk batas 15 Request/Menit di tier gratis
+        // Diubah menjadi 6 Detik untuk memastikan maksimal hanya ~10 request per menit 
+        // Sangat aman untuk menjaga batas kuota 15 RPM di Free Tier.
+        const MIN_API_DELAY_MS = 6000; 
 
-        // Kunci API (Di Environment Canvas otomatis terisi, jika deploy ulang gunakan endpoint proxy Vercel)
-        const apiKey = ""; 
-
-        // Fungsi fetch tangguh dengan mekanisme Exponential Backoff (1s, 2s, 4s, 8s, 16s)
+        // Fungsi fetch tangguh dengan mekanisme Exponential Backoff 
+        // yang disesuaikan khusus untuk error 429 Limit Kuota
         async function fetchGeminiAPI(userQuery, systemPrompt, customPayload = {}) {
             
             // 1. Manfaatkan Antrean Global untuk mencegah spam request beruntun
@@ -681,7 +681,7 @@
             if (now < nextAvailableApiTime) {
                 const waitTime = nextAvailableApiTime - now;
                 nextAvailableApiTime += MIN_API_DELAY_MS; 
-                showToast("Sistem mengerem permintaan untuk mencegah batas kuota Limit...", "info");
+                showToast("Sistem mengatur antrean untuk menjaga batas kuota API...", "info");
                 await new Promise(resolve => setTimeout(resolve, waitTime));
             } else {
                 nextAvailableApiTime = Date.now() + MIN_API_DELAY_MS;
@@ -699,14 +699,14 @@
                 ...customPayload
             };
 
-            // Urutan waktu tunggu eksponensial (dalam milidetik) jika gagal/error
-            const delays = [5000, 5000, 5000, 9000, 17000];
+            // Perbaikan Logika Retry: Jika server mengembalikan 429 (Quota Habis Per Menit),
+            // jeda retry harus lebih lama agar API punya waktu untuk mereset kuotanya.
+            // (8 detik, 12 detik, 15 detik, 20 detik)
+            const delays = [8000, 12000, 15000, 20000];
             
             // 3. Sistem Loop Retry (Max 5 kali)
             for (let i = 0; i < 5; i++) {
                 try {
-                    // Gunakan URL langsung dari Gemini API. 
-                    // PERHATIAN: Jika ingin kembali men-deploy ini di Vercel, cukup ubah fetch ini menjadi: fetch('/api/gemini', { ... })
                     const response = await fetch('/api/gemini', {
                         method: 'POST',
                         headers: {
@@ -718,7 +718,7 @@
                     // 4. Tangani Respon Server
                     if (!response.ok) {
                         if (response.status === 429) {
-                            throw new Error("429: Too Many Requests (Batas Kuota / RPM Terlampaui)");
+                            throw new Error("429: Batas Kuota / RPM Terlampaui");
                         }
                         const errData = await response.json().catch(() => ({}));
                         throw new Error(errData.error?.message || `Terjadi kesalahan server. (Kode: ${response.status})`);
@@ -732,10 +732,15 @@
                     
                     // Jika sudah percobaan ke-5 (terakhir), tampilkan peringatan ke layar
                     if (i === 4) {
-                        showToast("Sistem sibuk atau kuota akun Google Gemini Anda habis. Mohon tunggu beberapa menit lalu coba lagi.", "error");
+                        showToast("Sistem sibuk karena batas limit kuota Google AI. Mohon tunggu 1 Menit lalu coba lagi.", "error");
                         throw error;
                     }
                     
+                    // Jika errornya 429, beritahu user bahwa sistem sedang mengerem
+                    if (error.message.includes('429')) {
+                        showToast(`Limit tercapai. Mencoba ulang dalam ${delays[i]/1000} detik...`, "info");
+                    }
+
                     // Eksekusi Exponential Backoff (berhenti sejenak, bertambah lama setiap gagal)
                     await new Promise(res => setTimeout(res, delays[i]));
                 }
@@ -1031,7 +1036,7 @@
             btnElement.className = "hook-angle-btn p-3 rounded-xl border border-white/10 text-slate-300 text-xs font-semibold hover:bg-white/5 transition-all text-left bg-fuchsia-500/15 border-fuchsia-500/30 text-fuchsia-200";
         }
 
-        // 1. FITUR RAYAP TREN (Live Grounding API - Diperbarui agar 100% Analisis AI)
+        // 1. FITUR RAYAP TREN (Live Grounding API)
         async function triggerNicheCrawling() {
             if(state.isCrawling) return;
 

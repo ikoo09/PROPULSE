@@ -1,18 +1,21 @@
-// api/gemini.js
 module.exports = async function handler(req, res) {
+  // Setup CORS agar bisa diakses dari frontend
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
+  // Handle preflight request
   if (req.method === 'OPTIONS') return res.status(200).end();
-  if (req.method !== "POST") return res.status(405).json({ error: "Gunakan POST" });
+  
+  if (req.method !== "POST") return res.status(405).json({ error: "Gunakan metode POST" });
 
   const apiKey = process.env.GEMINI_API_KEY;
-  if (!apiKey) return res.status(500).json({ error: "API Key belum diatur di Vercel." });
+  if (!apiKey) return res.status(500).json({ error: "API Key belum diatur di Environment Variables Vercel." });
 
   try {
-    // Menggunakan gemini-1.5-flash: Sangat cepat dan paling cocok untuk tier gratis (Free Tier)
-    const modelName = "gemini-3.1-flash-lite"; 
+    // Perbaikan: Menggunakan gemini-1.5-flash karena paling stabil untuk tier gratis
+    // dan sepenuhnya mendukung fitur Google Search Grounding.
+    const modelName = "gemini-1.5-flash"; 
     
     const response = await fetch(
       `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${apiKey}`,
@@ -26,19 +29,21 @@ module.exports = async function handler(req, res) {
     const data = await response.json();
 
     if (!response.ok) {
-      // Jika error 429, berikan instruksi spesifik ke frontend
+      // Penanganan khusus jika terkena Rate Limit (429)
       if (response.status === 429) {
         return res.status(429).json({ 
-          error: "Batas limit AI tercapai. Silakan tunggu 60 detik sebelum mencoba lagi.",
+          error: "Batas limit AI tercapai (15 RPM). Sistem mengerem sejenak...",
           type: "RATE_LIMIT"
         });
       }
+      // Return error bawaan dari Google jika ada error lain
       return res.status(response.status).json(data);
     }
 
+    // Jika sukses, kembalikan data ke frontend
     return res.status(200).json(data);
 
   } catch (error) {
-    return res.status(500).json({ error: "Koneksi ke server AI terputus." });
+    return res.status(500).json({ error: "Koneksi ke server Google AI terputus." });
   }
 };
