@@ -14,7 +14,7 @@ module.exports = async function handler(req, res) {
 
   try {
     // Model yang dipertahankan sesuai aslinya
-    const modelName = "gemini-3.1-flash-lite"; 
+    const modelName = "gemini-2.5-flash-lite"; 
     
     const response = await fetch(
       `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${apiKey}`,
