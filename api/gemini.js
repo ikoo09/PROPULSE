@@ -15,7 +15,7 @@ module.exports = async function handler(req, res) {
   try {
     // Membaca model yang dikirimkan dari frontend (Default ke Flash Lite 2.5)
     // Ini mengaktifkan logika penggunaan 2 AI sesuai permintaan
-    const requestedModel = req.body.model || "gemini-2.5-flash-lite"; 
+    const requestedModel = req.body.model || "gemini-3.1-flash-lite"; 
     
     // Menghapus properti 'model' dari body agar tidak bertabrakan dengan schema request Gemini
     const bodyPayload = { ...req.body };
