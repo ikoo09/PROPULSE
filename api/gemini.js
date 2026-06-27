@@ -48,10 +48,7 @@ module.exports = async function handler(req, res) {
     const data = await response.json();
 
     if (!response.ok) {
-      return res.status(response.status).json({
-        error: data.error?.message || "Terjadi kesalahan dari API Gemini.",
-        details: data
-      });
+      return res.status(response.status).json(data);
     }
 
     return res.status(200).json(data);
