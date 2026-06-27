@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+
 <html lang="id">
 <head>
     <meta charset="UTF-8">
@@ -160,7 +160,6 @@
                         <div class="flex flex-wrap gap-2 pt-1" id="niche-container"></div>
                     </div>
                 </div>
-                <!-- Tombol Rayap Tren Live AI dihilangkan -->
             </div>
 
             <!-- Loading State Panel -->
@@ -170,7 +169,7 @@
                         <i class="fa-solid fa-microchip animate-spin text-xl"></i>
                     </div>
                     <div class="space-y-1 w-full">
-                        <h4 class="text-sm font-bold text-cyan-300 uppercase">GEMINI MENGAMBIL DATA OTOMATIS...</h4>
+                        <h4 class="text-sm font-bold text-cyan-300 uppercase">GEMINI 3.1 MENGAMBIL DATA OTOMATIS...</h4>
                         <p class="text-xs text-slate-300 italic" id="crawling-text">Memproses kueri pencarian, mengekstrak metrik FYP, dan memvalidasi tren...</p>
                         <div class="relative h-1.5 w-full bg-slate-950 rounded-full overflow-hidden mt-2">
                             <div class="absolute top-0 left-0 h-full bg-cyan-500 rounded-full animate-shimmer w-1/2"></div>
@@ -629,7 +628,7 @@
     <!-- Footer -->
     <footer class="mt-auto border-t border-white/5 bg-slate-950 py-6 text-center text-xs text-slate-500">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-2">
-            <p>© 2026 ProPulse FB Pro Suite. 100% Terintegrasi dengan Algoritma Google Gemini.</p>
+            <p>© 2026 ProPulse FB Pro Suite. Terintegrasi dengan Multi-Algoritma AI Gemini (Ringan & Berat).</p>
             <p class="text-[10px]">Didesain khusus untuk Kreator Video Meta (Reels & In-Stream) Indonesia.</p>
         </div>
     </footer>
@@ -660,17 +659,14 @@
             dashboardSynced: false
         };
 
-        // --- PERBAIKAN SISTEM ANTREAN & RATE LIMITING ---
+        // --- SISTEM ANTREAN & RATE LIMITING ---
         let nextAvailableApiTime = Date.now();
-        // Diubah menjadi 6 Detik untuk memastikan maksimal hanya ~10 request per menit 
-        // Sangat aman untuk menjaga batas kuota 15 RPM di Free Tier.
         const MIN_API_DELAY_MS = 8000; 
 
-        // Fungsi fetch tangguh dengan mekanisme Exponential Backoff 
-        // yang disesuaikan khusus untuk error 429 Limit Kuota
-        async function fetchGeminiAPI(userQuery, systemPrompt, customPayload = {}) {
+        // Fungsi fetch tangguh dengan mekanisme Exponential Backoff & 2 Model Routing
+        async function fetchGeminiAPI(userQuery, systemPrompt, customPayload = {}, isHeavyTask = false) {
             
-            // 1. Manfaatkan Antrean Global untuk mencegah spam request beruntun
+            // 1. Manfaatkan Antrean Global
             const now = Date.now();
             if (now < nextAvailableApiTime) {
                 const waitTime = nextAvailableApiTime - now;
@@ -681,7 +677,10 @@
                 nextAvailableApiTime = Date.now() + MIN_API_DELAY_MS;
             }
 
-            // 2. Susun Payload Standar Gemini API
+            // 2. Tentukan model (3.1-flash-lite untuk berat, 2.5-flash-lite untuk ringan)
+            const selectedModel = isHeavyTask ? "gemini-3.1-flash-lite" : "gemini-2.5-flash-lite";
+
+            // 3. Susun Payload Standar Gemini API
             const payload = {
                 contents: [{
                     role: "user",
@@ -690,15 +689,13 @@
                 systemInstruction: {
                     parts: [{ text: systemPrompt }]
                 },
+                model: selectedModel, // Disisipkan ke backend routing
                 ...customPayload
             };
 
-            // Perbaikan Logika Retry: Jika server mengembalikan 429 (Quota Habis Per Menit),
-            // jeda retry harus lebih lama agar API punya waktu untuk mereset kuotanya.
-            // (8 detik, 12 detik, 15 detik, 20 detik)
             const delays = [8000, 12000, 15000, 20000];
             
-            // 3. Sistem Loop Retry (Max 5 kali)
+            // 4. Sistem Loop Retry (Max 5 kali)
             for (let i = 0; i < 5; i++) {
                 try {
                     const response = await fetch('/api/gemini', {
@@ -709,7 +706,6 @@
                         body: JSON.stringify(payload)
                     });
 
-                    // 4. Tangani Respon Server
                     if (!response.ok) {
                         if (response.status === 429) {
                             throw new Error("429: Batas Kuota / RPM Terlampaui");
@@ -718,24 +714,20 @@
                         throw new Error(errData.error?.message || `Terjadi kesalahan server. (Kode: ${response.status})`);
                     }
 
-                    // Berhasil!
                     return await response.json();
 
                 } catch (error) {
                     console.warn(`[Auto-Retry] Percobaan ke-${i + 1} gagal karena:`, error.message);
                     
-                    // Jika sudah percobaan ke-5 (terakhir), tampilkan peringatan ke layar
                     if (i === 4) {
-                        showToast("Sistem sibuk karena batas limit kuota Google AI. Mohon tunggu 1 Menit lalu coba lagi.", "error");
+                        showToast("Sistem sibuk karena batas limit kuota Google AI. Mohon tunggu sejenak.", "error");
                         throw error;
                     }
                     
-                    // Jika errornya 429, beritahu user bahwa sistem sedang mengerem
                     if (error.message.includes('429')) {
                         showToast(`Limit tercapai. Mencoba ulang dalam ${delays[i]/1000} detik...`, "info");
                     }
 
-                    // Eksekusi Exponential Backoff (berhenti sejenak, bertambah lama setiap gagal)
                     await new Promise(res => setTimeout(res, delays[i]));
                 }
             }
@@ -1031,7 +1023,7 @@
             btnElement.className = "hook-angle-btn p-3 rounded-xl border border-white/10 text-slate-300 text-xs font-semibold hover:bg-white/5 transition-all text-left bg-fuchsia-500/15 border-fuchsia-500/30 text-fuchsia-200";
         }
 
-        // 1. FITUR RAYAP TREN (Live Grounding API)
+        // 1. FITUR RAYAP TREN (Heavy Task - Gemini 3.1)
         async function triggerNicheCrawling() {
             if(state.isCrawling) return;
 
@@ -1065,10 +1057,11 @@
             };
 
             try {
+                // TRUE flag untuk isHeavyTask -> Menggunakan Gemini 3.1 Flash Lite
                 const result = await fetchGeminiAPI(userQuery, systemPrompt, {
                     tools: [{ "google_search": {} }],
                     generationConfig: { responseMimeType: "application/json", responseSchema: jsonSchema }
-                });
+                }, true);
 
                 const candidate = result.candidates?.[0];
                 if (candidate && candidate.content?.parts?.[0]?.text) {
@@ -1082,7 +1075,7 @@
                         state.trends = rawJson.trends;
                         state.selectedTrend = rawJson.trends[0];
                         state.generatedScript = null;
-                        showToast(`Berhasil menemukan ${rawJson.trends.length} tren nyata dari AI & Google Search!`, 'success');
+                        showToast(`Berhasil menemukan ${rawJson.trends.length} tren nyata dari AI 3.1 & Google Search!`, 'success');
                     } else throw new Error("Struktur respon tidak valid");
                 }
             } catch(e) {
@@ -1095,7 +1088,7 @@
             }
         }
 
-        // 2. FITUR BUAT SKRIP (Text AI)
+        // 2. FITUR BUAT SKRIP (Heavy Task - Gemini 3.1)
         async function handleGenerateScript() {
             const trend = state.selectedTrend;
             if(!trend || state.isGeneratingScript) return;
@@ -1121,11 +1114,12 @@
             Uraikan: 1. Struktur Waktu (Detik 0-5 Hook dll). 2. Petunjuk Visual Kamera. 3. Narasi Suara (VO) yang natural. 4. Teks Overlay layar.`;
 
             try {
-                const result = await fetchGeminiAPI(userQuery, systemPrompt);
+                // TRUE flag untuk isHeavyTask -> Menggunakan Gemini 3.1 Flash Lite
+                const result = await fetchGeminiAPI(userQuery, systemPrompt, {}, true);
                 const text = result.candidates?.[0]?.content?.parts?.[0]?.text;
                 if(text) {
                     state.generatedScript = text;
-                    showToast("Skrip akurat berhasil diproduksi!", "success");
+                    showToast("Skrip akurat berhasil diproduksi oleh AI 3.1!", "success");
                 } else throw new Error();
             } catch(e) {
                 showToast("Gagal menyusun skrip. Silakan coba lagi.", "error");
@@ -1139,7 +1133,7 @@
             }
         }
 
-        // 3. FITUR REPURPOSER (Text AI)
+        // 3. FITUR REPURPOSER (Heavy Task - Gemini 3.1)
         async function handleRepurpose() {
             const source = document.getElementById('repurpose-source').value.trim();
             const format = document.getElementById('repurpose-format').value;
@@ -1159,11 +1153,12 @@
             const userQuery = `Konversi naskah asli berikut ini secara akurat:\n\n"${source}"\n\nUbah ke format: ${format.toUpperCase()}. Jika formatnya Reels, jadikan skrip video pendek dinamis. Jika Korsel, jadikan struktur slide per slide bergambar. Jika Threads, jadikan utas beruntun.`;
 
             try {
-                const result = await fetchGeminiAPI(userQuery, systemPrompt);
+                // TRUE flag untuk isHeavyTask -> Menggunakan Gemini 3.1 Flash Lite
+                const result = await fetchGeminiAPI(userQuery, systemPrompt, {}, true);
                 const text = result.candidates?.[0]?.content?.parts?.[0]?.text;
                 if(text) {
                     if(outputArea) outputArea.value = text;
-                    showToast("Repurposing AI 100% selesai!", "success");
+                    showToast("Repurposing AI 3.1 berhasil diselesaikan!", "success");
                 } else throw new Error();
             } catch(e) {
                 showToast("Gagal melakukan konversi format naskah.", "error");
@@ -1175,7 +1170,7 @@
             }
         }
 
-        // 4. FITUR HOOK & JUDUL (Structured JSON Array)
+        // 4. FITUR HOOK & JUDUL (Light Task - Gemini 2.5)
         async function handleGenerateHooks() {
             const topic = document.getElementById('hook-topic').value.trim();
             if(!topic) { showToast("Masukkan topik atau kata kunci terlebih dahulu!", "error"); return; }
@@ -1194,9 +1189,11 @@
             const jsonSchema = { type: "OBJECT", properties: { hooks: { type: "ARRAY", items: { type: "STRING" } } }, required: ["hooks"] };
             
             try {
+                // FALSE flag untuk isHeavyTask -> Menggunakan Gemini 2.5 Flash Lite
                 const result = await fetchGeminiAPI(prompt, "Anda AI Copywriter cerdas, ahli dalam click-bait berkelas untuk platform Meta yang dapat memprediksi perilaku audiens.", {
                     generationConfig: { responseMimeType: "application/json", responseSchema: jsonSchema }
-                });
+                }, false);
+                
                 const text = result.candidates?.[0]?.content?.parts?.[0]?.text;
                 if(text) {
                     const data = JSON.parse(text);
@@ -1207,7 +1204,7 @@
                         </div>
                     `).join('');
                     if(resultArea) resultArea.innerHTML = `<div class="space-y-3">${htmlList}</div>`;
-                    showToast("Hook viral hasil AI berhasil dirumuskan!", "success");
+                    showToast("Hook viral hasil AI 2.5 berhasil dirumuskan!", "success");
                 } else throw new Error();
             } catch(e) {
                 showToast("Gagal menghasilkan Hook AI.", "error");
@@ -1219,7 +1216,7 @@
             }
         }
 
-        // 5. FITUR ANALISIS SENTIMEN KOMENTAR
+        // 5. FITUR ANALISIS SENTIMEN KOMENTAR (Light Task - Gemini 2.5)
         function loadMockComments() {
             const input = document.getElementById('comments-input');
             if (input) {
@@ -1251,9 +1248,11 @@
             };
 
             try {
+                // FALSE flag untuk isHeavyTask -> Menggunakan Gemini 2.5 Flash Lite
                 const result = await fetchGeminiAPI(userQuery, systemPrompt, {
                     generationConfig: { responseMimeType: "application/json", responseSchema: jsonSchema }
-                });
+                }, false);
+                
                 const text = result.candidates?.[0]?.content?.parts?.[0]?.text;
                 if(text) {
                     const data = JSON.parse(text);
@@ -1278,7 +1277,7 @@
                             </div>
                         `).join('');
                     }
-                    showToast("Sentimen berhasil dibedah oleh AI!", "success");
+                    showToast("Sentimen berhasil dibedah oleh AI 2.5!", "success");
                 } else throw new Error();
             } catch(e) {
                 showToast("Gagal memproses sentimen AI.", "error");
@@ -1288,7 +1287,7 @@
             }
         }
 
-        // 6. FITUR ASISTEN SEO
+        // 6. FITUR ASISTEN SEO (Light Task - Gemini 2.5)
         async function handleGenerateSeo() {
             const title = document.getElementById('seo-title-input').value.trim();
             if(!title) { showToast("Masukkan judul konten terlebih dahulu!", "error"); return; }
@@ -1312,9 +1311,11 @@
             };
 
             try {
+                // FALSE flag untuk isHeavyTask -> Menggunakan Gemini 2.5 Flash Lite
                 const result = await fetchGeminiAPI(userQuery, systemPrompt, {
                     generationConfig: { responseMimeType: "application/json", responseSchema: jsonSchema }
-                });
+                }, false);
+                
                 const text = result.candidates?.[0]?.content?.parts?.[0]?.text;
                 if(text) {
                     const data = JSON.parse(text);
@@ -1326,7 +1327,7 @@
                     if(macro) macro.innerText = data.macroTags;
                     if(med) med.innerText = data.mediumTags;
                     if(mic) mic.innerText = data.microTags;
-                    showToast("Data SEO berhasil di-generate secara akurat!", "success");
+                    showToast("Data SEO berhasil di-generate secara akurat dengan AI 2.5!", "success");
                 } else throw new Error();
             } catch (e) {
                 showToast("Gagal memproses SEO AI.", "error");
@@ -1336,7 +1337,7 @@
             }
         }
 
-        // 7. FITUR ANALISIS PERFORMA (10 METRIK AI)
+        // 7. FITUR ANALISIS PERFORMA (Heavy Task - Gemini 3.1)
         function renderMetric(icon, title, value, type = 'percent') {
             const isPercent = type === 'percent';
             const displayValue = isPercent ? `${value}%` : value;
@@ -1409,9 +1410,11 @@
             };
 
             try {
+                // TRUE flag untuk isHeavyTask -> Menggunakan Gemini 3.1 Flash Lite
                 const result = await fetchGeminiAPI(userQuery, systemPrompt, {
                     generationConfig: { responseMimeType: "application/json", responseSchema: jsonSchema }
-                });
+                }, true);
+                
                 const text = result.candidates?.[0]?.content?.parts?.[0]?.text;
                 if(text) {
                     const data = JSON.parse(text);
@@ -1443,7 +1446,7 @@
                         });
                     }, 50);
 
-                    showToast("10 Parameter Audit AI berhasil dikalkulasi secara akurat!", "success");
+                    showToast("10 Parameter Audit AI berhasil dikalkulasi secara akurat oleh Model 3.1!", "success");
                 } else throw new Error();
             } catch (e) {
                 console.error(e);
@@ -1454,7 +1457,7 @@
             }
         }
 
-        // 8. DASHBOARD ANALITIK DINAMIS (100% AI GENERATED)
+        // 8. DASHBOARD ANALITIK DINAMIS (Heavy Task - Gemini 3.1)
         let chartInstance = null;
         function initChart(viewsData = [0,0,0,0,0,0,0], engData = [0,0,0,0,0,0,0]) {
             const ctx = document.getElementById('analyticsChart');
@@ -1507,9 +1510,11 @@
             };
 
             try {
+                // TRUE flag untuk isHeavyTask -> Menggunakan Gemini 3.1 Flash Lite
                 const result = await fetchGeminiAPI(userQuery, systemPrompt, {
                     generationConfig: { responseMimeType: "application/json", responseSchema: jsonSchema }
-                });
+                }, true);
+                
                 const text = result.candidates?.[0]?.content?.parts?.[0]?.text;
                 if(text) {
                     const data = JSON.parse(text);
@@ -1523,7 +1528,7 @@
                     if(topNiche) topNiche.innerText = data.topNiche;
                     if(hook) hook.innerText = data.avgHook;
                     state.dashboardSynced = true;
-                    showToast("Proyeksi AI Dashboard berhasil diperbarui!", "success");
+                    showToast("Proyeksi AI Dashboard (Model 3.1) berhasil diperbarui!", "success");
                 } else throw new Error();
             } catch (e) {
                 showToast("Gagal menyinkronkan AI Prediktif Dashboard.", "error");
@@ -1537,12 +1542,40 @@
         // Simulate Live Event Push Toasts
         function simulateLiveEvents() {
             const events = [
-                "AI Mendeteksi: Kreator kompetitor Anda baru saja memposting tipe Korsel.", 
+                "AI 3.1 Mendeteksi: Kreator kompetitor Anda baru saja memposting tipe Korsel.", 
                 "Gemini mendeteksi tren musik baru di audiens Meta Indonesia.", 
                 "Algoritma AI: Perubahan minor algoritma monetisasi In-Stream terdeteksi.", 
                 "Proyeksi AI: Lonjakan trafik pengguna FB Pro diprediksi terjadi 2 jam lagi."
             ];
             setInterval(() => showToast(events[Math.floor(Math.random() * events.length)], 'info'), 45000); 
+        }
+
+        // --- SISTEM RESET DATA 30 MENIT ---
+        function resetDataEvery30Min() {
+            showToast("Melakukan reset data otomatis (Siklus 30 Menit)...", "info");
+            
+            // Clear State Memory
+            state.trends = [];
+            state.selectedTrend = null;
+            state.generatedScript = null;
+            state.sources = [];
+            
+            // Clear UI Render
+            const trendsContainer = document.getElementById('trends-feed');
+            if (trendsContainer) trendsContainer.innerHTML = '';
+            
+            const detailPanel = document.getElementById('trend-detail-panel');
+            if (detailPanel) detailPanel.classList.add('hidden');
+            
+            const sourcesContainer = document.getElementById('sources-container');
+            if (sourcesContainer) sourcesContainer.classList.add('hidden');
+            
+            const scriptsContainer = document.getElementById('scripts-container');
+            if (scriptsContainer) scriptsContainer.classList.add('hidden');
+
+            // Trigger Ulang Data Baru
+            triggerNicheCrawling();
+            if (state.dashboardSynced) syncDashboardAI();
         }
 
         // On Load Init
@@ -1555,11 +1588,8 @@
             // OTOMATISASI: Langsung memicu pencarian tren AI saat halaman dimuat
             triggerNicheCrawling();
 
-            // OTOMATISASI: Set Interval agar data diperbarui/direset setiap 30 menit (1800000 milidetik)
-            setInterval(() => {
-                showToast("Memperbarui data tren secara otomatis (Interval 30 Menit)...", "info");
-                triggerNicheCrawling();
-            }, 1800000); 
+            // OTOMATISASI: Memperbarui & mereset data tren secara keseluruhan tiap 30 menit
+            setInterval(resetDataEvery30Min, 1800000); 
         });
     </script>
 </body>

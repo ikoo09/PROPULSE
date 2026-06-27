@@ -13,15 +13,20 @@ module.exports = async function handler(req, res) {
   if (!apiKey) return res.status(500).json({ error: "API Key belum diatur di Environment Variables Vercel." });
 
   try {
-    // Model yang dipertahankan sesuai aslinya
-    const modelName = "gemini-2.5-flash-lite"; 
+    // Membaca model yang dikirimkan dari frontend (Default ke Flash Lite 2.5)
+    // Ini mengaktifkan logika penggunaan 2 AI sesuai permintaan
+    const requestedModel = req.body.model || "gemini-2.5-flash-lite"; 
     
+    // Menghapus properti 'model' dari body agar tidak bertabrakan dengan schema request Gemini
+    const bodyPayload = { ...req.body };
+    delete bodyPayload.model;
+
     const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${apiKey}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/${requestedModel}:generateContent?key=${apiKey}`,
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(req.body)
+        body: JSON.stringify(bodyPayload)
       }
     );
 
