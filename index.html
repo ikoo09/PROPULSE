@@ -762,9 +762,9 @@
 
         // --- SISTEM ANTREAN & RATE LIMITING YANG DIPERBARUI ---
         let nextAvailableApiTime = Date.now();
-        // Diubah ke 4.5 detik untuk memastikan maksimal ~13 request per menit. 
-        // 8 Agent akan selesai dalam ~35-40 detik dengan sangat aman.
-        const MIN_API_DELAY_MS = 4500; 
+        // Diubah ke 6500ms (6.5 detik) agar hanya ~9 request per menit. 
+        // Sangat aman untuk lolos dari sensor kuota 15 RPM Gemini Free Tier.
+        const MIN_API_DELAY_MS = 6500; 
 
         async function fetchGeminiAPI(userQuery, systemPrompt, customPayload = {}) {
             const now = Date.now();
@@ -782,7 +782,9 @@
                 ...customPayload
             };
 
-            const delays = [8000, 12000, 15000, 20000];
+            // Jeda retry di-perlama secara drastis (15s, 30s, 45s, 60s) 
+            // agar sistem memberikan waktu pada server Google mereset limit per menit-nya sebelum mencoba lagi.
+            const delays = [15000, 30000, 45000, 60000];
             
             for (let i = 0; i < 5; i++) {
                 try {
@@ -803,7 +805,7 @@
                     console.warn(`[Auto-Retry] Percobaan ke-${i + 1} gagal:`, error.message);
                     if (i === 4) throw error;
                     if (error.message.includes('429')) {
-                        showToast(`Limit API menyentuh batas. Antre ulang... (${delays[i]/1000}s)`, "info");
+                        showToast(`Limit API menyentuh batas. Antre ulang menunggu reset kuota... (${delays[i]/1000}s)`, "info");
                     }
                     await new Promise(res => setTimeout(res, delays[i]));
                 }
