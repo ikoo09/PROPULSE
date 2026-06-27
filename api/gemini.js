@@ -13,8 +13,8 @@ module.exports = async function handler(req, res) {
   if (!apiKey) return res.status(500).json({ error: "API Key belum diatur di Environment Variables Vercel." });
 
   try {
-    // PERBAIKAN UTAMA: Menggunakan model yang valid dan super cepat untuk tier gratis
-    const modelName = "gemini-1.5-flash"; 
+    // PERBAIKAN UTAMA: Menggunakan model generasi terbaru yang terjamin di Free Tier
+    const modelName = "gemini-3.5-flash"; 
     
     const response = await fetch(
       `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${apiKey}`,
