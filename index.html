@@ -670,7 +670,7 @@
         let nextAvailableApiTime = Date.now();
         // Diubah menjadi 6 Detik untuk memastikan maksimal hanya ~10 request per menit 
         // Sangat aman untuk menjaga batas kuota 15 RPM di Free Tier.
-        const MIN_API_DELAY_MS = 6000; 
+        const MIN_API_DELAY_MS = 8000; 
 
         // Fungsi fetch tangguh dengan mekanisme Exponential Backoff 
         // yang disesuaikan khusus untuk error 429 Limit Kuota
