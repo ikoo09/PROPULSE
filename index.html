@@ -94,7 +94,7 @@
                 <div class="relative max-w-3xl space-y-4">
                     <div class="inline-flex items-center gap-2 px-3 py-1 bg-white/5 rounded-full border border-white/10">
                         <i class="fa-solid fa-wand-magic-sparkles text-cyan-400 text-xs"></i>
-                        <span class="text-[10px] sm:text-xs font-semibold text-slate-300">Ditenagai oleh GPT-5 Mini & Redis Cache</span>
+                        <span class="text-[10px] sm:text-xs font-semibold text-slate-300">Ditenagai oleh GPT-5 Mini & Cache 2 Lapis (Lokal+Redis)</span>
                     </div>
                     <h1 class="text-2xl sm:text-4xl font-black tracking-tight leading-tight">
                         Deteksi Tren Niche Terkini <span class="bg-gradient-to-r from-cyan-400 via-blue-400 to-fuchsia-500 text-gradient">Secara Live.</span>
@@ -106,6 +106,9 @@
                         <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-[10px] font-bold tracking-wider uppercase">
                             <i class="fa-solid fa-globe"></i> Menampilkan Semua Kategori Niche
                         </span>
+                        <button onclick="triggerNicheCrawling(true)" class="ml-2 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 border border-blue-500/20 text-[10px] font-bold tracking-wider uppercase transition-all">
+                            <i class="fa-solid fa-rotate"></i> Refresh Manual
+                        </button>
                     </div>
                 </div>
             </div>
@@ -281,12 +284,12 @@
             copyTextDirectly(text, document.getElementById('btn-copy-script'));
         }
 
-        async function triggerNicheCrawling() {
+        async function triggerNicheCrawling(forceRefresh = false) {
             if (isFetchingTrend) return;
             isFetchingTrend = true;
 
             document.getElementById('crawling-status').classList.remove('hidden');
-            const anim = startProgressAnim('crawling-text', ["🔍 Memeriksa cache sistem...", "📊 Menganalisis algoritma Meta...", "🧠 Menyusun ide dari semua niche...", "✅ Menyiapkan rekomendasi global..."]);
+            const anim = startProgressAnim('crawling-text', ["🔍 Memeriksa cache Lapis 1 & 2...", "📊 Menganalisis algoritma Meta...", "🧠 Menyusun ide dari semua niche...", "✅ Menyiapkan rekomendasi global..."]);
             
             const prompt = `Berikan 7 ide tren konten FB Reels atau Video Pendek paling panas dan viral di Indonesia HARI INI. Berikan 1 tren terbaik untuk masing-masing kategori niche berikut: 1. Umum/Hiburan, 2. Kuliner, 3. Gaming, 4. Edukasi, 5. Vlog Keseharian, 6. Kecantikan/Fashion, 7. Bisnis/Cuan. Buat judul tren, deskripsi singkat, nama kategori, dan contoh ide hook.`;
             
@@ -297,18 +300,19 @@
             };
 
             try {
-                const res = await fetchAI(prompt, schema, "trend");
+                // Menambahkan parameter forceRefresh yang diteruskan ke fetchAI
+                const res = await fetchAI(prompt, schema, "trend", forceRefresh);
                 state.trends = res.data.trends;
                 
                 if (res.metadata && res.metadata.timestamp) {
                     const updateTime = new Date(res.metadata.timestamp);
-                    const nextTime = new Date(res.metadata.timestamp + (6 * 60 * 60 * 1000));
+                    // Hitung mundur 12 Jam sesuai permintaan
+                    const nextTime = new Date(res.metadata.timestamp + (12 * 60 * 60 * 1000));
                     const formatTime = (d) => `${d.getHours().toString().padStart(2, '0')}:${d.getMinutes().toString().padStart(2, '0')} WIB`;
                     
                     document.getElementById('last-update-time').innerHTML = `<i class="fa-regular fa-clock"></i> Diperbarui: ${formatTime(updateTime)}`;
 
                     // --- LIVE COUNTDOWN TIMER & AUTO-REFRESH SYSTEM ---
-                    // Membersihkan timer lama agar tidak menumpuk saat update manual/otomatis terjadi
                     if (window.trendCountdownInterval) clearInterval(window.trendCountdownInterval);
                     
                     const updateLiveCountdown = () => {
@@ -319,14 +323,12 @@
                             clearInterval(window.trendCountdownInterval);
                             document.getElementById('next-update-time').innerHTML = `<i class="fa-solid fa-rotate animate-spin text-cyan-400"></i> Memperbarui Tren Otomatis...`;
                             
-                            // Memicu fetch senyap di latar belakang
-                            showToast("Waktu cache habis. Memperbarui tren live dari AI secara otomatis...", "info");
+                            showToast("Waktu cache 12 jam habis. Memperbarui tren live dari AI secara otomatis...", "info");
                             isFetchingTrend = false; 
-                            triggerNicheCrawling();
+                            triggerNicheCrawling(true); // Paksa Refresh 
                             return;
                         }
                         
-                        // Kalkulasi Jam, Menit, dan Detik untuk dipajang di antarmuka
                         const hrs = Math.floor(timeDifference / (1000 * 60 * 60));
                         const mins = Math.floor((timeDifference % (1000 * 60 * 60)) / (1000 * 60));
                         const secs = Math.floor((timeDifference % (1000 * 60)) / 1000);
@@ -341,10 +343,8 @@
                         `;
                     };
                     
-                    // Jalankan detak pertama langsung, lalu set interval per 1 detik
                     updateLiveCountdown();
                     window.trendCountdownInterval = setInterval(updateLiveCountdown, 1000);
-                    // ---------------------------------------------------
                 }
 
                 document.getElementById('trends-feed').innerHTML = state.trends.map((t, idx) => `
@@ -359,10 +359,13 @@
                     </div>
                 `).join('');
 
-                if (res.metadata && res.metadata.cached) {
-                    showToast("Dimuat dari Cache Sistem (Refresh otomatis 6 jam).", "info");
+                // Menyesuaikan Notifikasi berdasarkan sumber data
+                if (res.metadata && res.metadata.source === 'local') {
+                    showToast("Dimuat instan dari Local Storage (Siklus 12 Jam). ⚡", "info");
+                } else if (res.metadata && res.metadata.source === 'redis') {
+                    showToast("Dimuat dari Redis Cache Server (Siklus 12 Jam). 🚀", "info");
                 } else {
-                    showToast("Tren global berhasil diperbarui dari AI!");
+                    showToast("Tren global berhasil diperbarui langsung dari AI! 🧠");
                 }
 
             } catch(e) {
@@ -383,7 +386,7 @@
             document.getElementById('script-content-area').innerHTML = `<div class="py-12 flex flex-col items-center"><div class="w-8 h-8 border-4 border-emerald-500/20 border-t-emerald-400 rounded-full animate-spin"></div><p class="text-xs text-emerald-400 mt-3" id="script-anim-text">Menganalisis...</p></div>`;
             document.getElementById('ai-scores-container').innerHTML = '';
             
-            const anim = startProgressAnim('script-anim-text', ["🔍 Memeriksa cache script...", "🔍 Menganalisis audiens...", "✍️ Menulis hook & script...", "📝 Menyusun caption & hashtag..."]);
+            const anim = startProgressAnim('script-anim-text', ["🔍 Memeriksa cache Lapis 1 & 2...", "🔍 Menganalisis audiens...", "✍️ Menulis hook & script...", "📝 Menyusun caption & hashtag..."]);
             const prompt = `Buat naskah komprehensif untuk konten FB Reels terkait topik: "${state.selectedTrend.title}". 
             Harus mencakup poin berikut: 1. Analisis tren, 2. Target audiens, 3. Hook 3 detik, 4. Script narasi & visual, 5. CTA, 6. Caption, 7. Hashtag, Serta berikan metrik AI Score (0-100) untuk Viral, Hook, Retensi, dan Potensi Share.`;
 
@@ -395,19 +398,23 @@
             };
 
             try {
-                // Memanggil dengan flag feature "script" untuk mengaktifkan Cache Permanen
+                // Feature script tidak perlu forceRefresh kecuali di-request
                 const res = await fetchAI(prompt, schema, "script");
                 state.scriptData = res.data;
                 const d = state.scriptData;
                 
-                // Menangani Notifikasi dan Waktu berdasarkan Cache Status
-                if (res.metadata && res.metadata.cached) {
-                    const cacheTime = new Date(res.metadata.timestamp).toLocaleString('id-ID');
-                    document.getElementById('script-timestamp').innerText = "Dibuat: " + cacheTime + " (Dari Cache)";
-                    showToast("Script dimuat instan dari Cache Permanen ⚡", "info");
+                // Menangani Notifikasi berdasarkan Sumber Data
+                const cacheTime = res.metadata?.timestamp ? new Date(res.metadata.timestamp).toLocaleString('id-ID') : new Date().toLocaleString('id-ID');
+                
+                if (res.metadata && res.metadata.source === 'local') {
+                    document.getElementById('script-timestamp').innerText = "Dibuat: " + cacheTime + " (Dari Local Storage)";
+                    showToast("Script dimuat sangat instan dari Local Storage browser! ⚡", "info");
+                } else if (res.metadata && res.metadata.source === 'redis') {
+                    document.getElementById('script-timestamp').innerText = "Dibuat: " + cacheTime + " (Dari Redis)";
+                    showToast("Script dimuat dari Redis Server! 🚀", "info");
                 } else {
-                    document.getElementById('script-timestamp').innerText = "Dibuat: " + new Date().toLocaleString('id-ID');
-                    showToast("Script baru berhasil dibuat oleh AI!");
+                    document.getElementById('script-timestamp').innerText = "Dibuat: " + cacheTime;
+                    showToast("Script baru berhasil diracik oleh AI!");
                 }
                 
                 document.getElementById('ai-scores-container').innerHTML = [
@@ -458,7 +465,8 @@
             const schema = { type: "OBJECT", properties: { kelebihan: {type:"ARRAY", items:{type:"STRING"}}, kekurangan: {type:"ARRAY", items:{type:"STRING"}}, hook: {type:"STRING"}, cta: {type:"STRING"}, saran: {type:"STRING"} }, required:["kelebihan","kekurangan","hook","cta","saran"] };
             
             try {
-                const res = await fetchAI(prompt, schema);
+                // Analisis URL di set true untuk forceRefresh (Bypass) secara natural
+                const res = await fetchAI(prompt, schema, null, true);
                 const d = res.data;
                 document.getElementById('url-result-area').innerHTML = `
                     <div class="space-y-4">
