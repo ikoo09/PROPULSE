@@ -36,7 +36,7 @@ module.exports = async function handler(req, res) {
     const feature = body.feature || null; 
 
     // Default Model
-    const model = body.model || "gpt-5-mini";
+    const model = body.model || "openai/gpt-5-mini";
 
     // Prompt utama
     let input = "";
@@ -110,7 +110,7 @@ module.exports = async function handler(req, res) {
     // 2. REQUEST KE OPENAI
     // ==========================
     const response = await fetch(
-      "https://api.openai.com/v1/responses",
+      "https://api.koboillm.com/v1/responses",
       {
         method: "POST",
         headers: {

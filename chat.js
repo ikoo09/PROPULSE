@@ -5,7 +5,7 @@
  * ==========================================
  */
 
-const AI_MODEL = "gpt-5-mini";
+const AI_MODEL = "openai/gpt-5-mini";
 const API_ENDPOINT = "/api/gpt5mini";
 
 /**
