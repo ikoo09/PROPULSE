@@ -68,7 +68,7 @@ async function fetchAI(prompt, schema, feature = null) {
 
     try {
         const parsedJson = JSON.parse(textResult);
-        // Mengembalikan metadata juga agar UI bisa membaca timestamp
+        // Mengembalikan metadata juga agar UI bisa membaca timestamp dan status cache
         return { data: parsedJson, sources: [], metadata: data.metadata || null }; 
     } catch (e) {
         console.error("Gagal parsing JSON dari AI:", textResult);

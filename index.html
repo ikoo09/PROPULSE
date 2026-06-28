@@ -128,7 +128,6 @@
 
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8">
                 <div class="lg:col-span-5 space-y-4">
-                    <!-- Status UI Updated -->
                     <div class="flex flex-col sm:flex-row justify-between border-b border-white/5 pb-3 gap-3">
                         <div class="flex items-center gap-2 self-start sm:self-center">
                             <i class="fa-solid fa-fire text-rose-400 animate-pulse"></i>
@@ -289,7 +288,6 @@
             document.getElementById('crawling-status').classList.remove('hidden');
             const anim = startProgressAnim('crawling-text', ["🔍 Memeriksa cache sistem...", "📊 Menganalisis algoritma Meta...", "🧠 Menyusun ide dari semua niche...", "✅ Menyiapkan rekomendasi global..."]);
             
-            // Perintah statis yang mengambil semua niche sekaligus
             const prompt = `Berikan 7 ide tren konten FB Reels atau Video Pendek paling panas dan viral di Indonesia HARI INI. Berikan 1 tren terbaik untuk masing-masing kategori niche berikut: 1. Umum/Hiburan, 2. Kuliner, 3. Gaming, 4. Edukasi, 5. Vlog Keseharian, 6. Kecantikan/Fashion, 7. Bisnis/Cuan. Buat judul tren, deskripsi singkat, nama kategori, dan contoh ide hook.`;
             
             const schema = {
@@ -299,17 +297,54 @@
             };
 
             try {
-                // Memanggil fetchAI dari chat.js
                 const res = await fetchAI(prompt, schema, "trend");
                 state.trends = res.data.trends;
                 
                 if (res.metadata && res.metadata.timestamp) {
                     const updateTime = new Date(res.metadata.timestamp);
-                    const nextTime = new Date(res.metadata.timestamp + (6 * 60 * 60 * 1000)); // Tambah 6 jam
+                    const nextTime = new Date(res.metadata.timestamp + (6 * 60 * 60 * 1000));
                     const formatTime = (d) => `${d.getHours().toString().padStart(2, '0')}:${d.getMinutes().toString().padStart(2, '0')} WIB`;
                     
                     document.getElementById('last-update-time').innerHTML = `<i class="fa-regular fa-clock"></i> Diperbarui: ${formatTime(updateTime)}`;
-                    document.getElementById('next-update-time').innerHTML = `<i class="fa-solid fa-rotate"></i> Pembaruan berikutnya: ${formatTime(nextTime)}`;
+
+                    // --- LIVE COUNTDOWN TIMER & AUTO-REFRESH SYSTEM ---
+                    // Membersihkan timer lama agar tidak menumpuk saat update manual/otomatis terjadi
+                    if (window.trendCountdownInterval) clearInterval(window.trendCountdownInterval);
+                    
+                    const updateLiveCountdown = () => {
+                        const now = Date.now();
+                        const timeDifference = nextTime.getTime() - now;
+                        
+                        if (timeDifference <= 0) {
+                            clearInterval(window.trendCountdownInterval);
+                            document.getElementById('next-update-time').innerHTML = `<i class="fa-solid fa-rotate animate-spin text-cyan-400"></i> Memperbarui Tren Otomatis...`;
+                            
+                            // Memicu fetch senyap di latar belakang
+                            showToast("Waktu cache habis. Memperbarui tren live dari AI secara otomatis...", "info");
+                            isFetchingTrend = false; 
+                            triggerNicheCrawling();
+                            return;
+                        }
+                        
+                        // Kalkulasi Jam, Menit, dan Detik untuk dipajang di antarmuka
+                        const hrs = Math.floor(timeDifference / (1000 * 60 * 60));
+                        const mins = Math.floor((timeDifference % (1000 * 60 * 60)) / (1000 * 60));
+                        const secs = Math.floor((timeDifference % (1000 * 60)) / 1000);
+                        
+                        const formatDigit = (num) => num.toString().padStart(2, '0');
+                        
+                        document.getElementById('next-update-time').innerHTML = `
+                            <i class="fa-solid fa-rotate text-cyan-400 animate-spin-slow"></i> Next: ${formatTime(nextTime)} 
+                            <span class="ml-1 px-1.5 py-0.5 bg-cyan-500/10 text-cyan-300 border border-cyan-500/20 rounded text-[9px] font-mono font-bold tracking-wider">
+                                ${formatDigit(hrs)}:${formatDigit(mins)}:${formatDigit(secs)}
+                            </span>
+                        `;
+                    };
+                    
+                    // Jalankan detak pertama langsung, lalu set interval per 1 detik
+                    updateLiveCountdown();
+                    window.trendCountdownInterval = setInterval(updateLiveCountdown, 1000);
+                    // ---------------------------------------------------
                 }
 
                 document.getElementById('trends-feed').innerHTML = state.trends.map((t, idx) => `
@@ -332,7 +367,7 @@
 
             } catch(e) {
                 showToast("Gagal memanggil API GPT-5 Mini.", "error");
-                document.getElementById('trends-feed').innerHTML = `<div class="text-center py-10 text-red-500 bg-red-900/10 rounded-2xl border border-red-500/20"><i class="fa-solid fa-triangle-exclamation text-3xl mb-3 block"></i><p class="text-xs font-medium">Gagal terhubung ke /api/gpt5mini.</p></div>`;
+                document.getElementById('trends-feed').innerHTML = `<div class="text-center py-10 text-red-500 bg-red-900/10 rounded-2xl border border-red-500/20"><i class="fa-solid fa-triangle-exclamation text-3xl mb-3 block"></i><p class="text-xs font-medium">Gagal terhubung ke backend AI.</p></div>`;
             } finally {
                 clearInterval(anim);
                 document.getElementById('crawling-status').classList.add('hidden');
@@ -348,7 +383,7 @@
             document.getElementById('script-content-area').innerHTML = `<div class="py-12 flex flex-col items-center"><div class="w-8 h-8 border-4 border-emerald-500/20 border-t-emerald-400 rounded-full animate-spin"></div><p class="text-xs text-emerald-400 mt-3" id="script-anim-text">Menganalisis...</p></div>`;
             document.getElementById('ai-scores-container').innerHTML = '';
             
-            const anim = startProgressAnim('script-anim-text', ["🔍 Menganalisis audiens...", "✍️ Menulis hook & script...", "📝 Menyusun caption & hashtag...", "✅ Menyelesaikan..."]);
+            const anim = startProgressAnim('script-anim-text', ["🔍 Memeriksa cache script...", "🔍 Menganalisis audiens...", "✍️ Menulis hook & script...", "📝 Menyusun caption & hashtag..."]);
             const prompt = `Buat naskah komprehensif untuk konten FB Reels terkait topik: "${state.selectedTrend.title}". 
             Harus mencakup poin berikut: 1. Analisis tren, 2. Target audiens, 3. Hook 3 detik, 4. Script narasi & visual, 5. CTA, 6. Caption, 7. Hashtag, Serta berikan metrik AI Score (0-100) untuk Viral, Hook, Retensi, dan Potensi Share.`;
 
@@ -360,12 +395,20 @@
             };
 
             try {
-                // Tidak memakai feature "trend" -> Bypass Redis
-                const res = await fetchAI(prompt, schema);
+                // Memanggil dengan flag feature "script" untuk mengaktifkan Cache Permanen
+                const res = await fetchAI(prompt, schema, "script");
                 state.scriptData = res.data;
                 const d = state.scriptData;
                 
-                document.getElementById('script-timestamp').innerText = "Dibuat: " + new Date().toLocaleString('id-ID');
+                // Menangani Notifikasi dan Waktu berdasarkan Cache Status
+                if (res.metadata && res.metadata.cached) {
+                    const cacheTime = new Date(res.metadata.timestamp).toLocaleString('id-ID');
+                    document.getElementById('script-timestamp').innerText = "Dibuat: " + cacheTime + " (Dari Cache)";
+                    showToast("Script dimuat instan dari Cache Permanen ⚡", "info");
+                } else {
+                    document.getElementById('script-timestamp').innerText = "Dibuat: " + new Date().toLocaleString('id-ID');
+                    showToast("Script baru berhasil dibuat oleh AI!");
+                }
                 
                 document.getElementById('ai-scores-container').innerHTML = [
                     {k: 'Viral Score', v: d.scores.viral, c: 'text-rose-400', bg:'bg-rose-500'}, {k: 'Kekuatan Hook', v: d.scores.hook, c: 'text-fuchsia-400', bg:'bg-fuchsia-500'},
