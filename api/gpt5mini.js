@@ -31,45 +31,28 @@ module.exports = async function handler(req, res) {
 
   try {
     const body = req.body || {};
-
-    // Tangkap identifikasi fitur dari Frontend
     const feature = body.feature || null; 
-
-    // Default Model
     const model = body.model || "openai/gpt-5-mini";
 
-    // Prompt utama
     let input = "";
-    if (
-      body.contents &&
-      body.contents[0] &&
-      body.contents[0].parts &&
-      body.contents[0].parts[0]
-    ) {
+    if (body.contents && body.contents[0]?.parts?.[0]) {
       input = body.contents[0].parts[0].text;
     }
 
-    // System Prompt
     let systemPrompt = "Kamu adalah AI Facebook Professional Indonesia.";
-    if (
-      body.systemInstruction &&
-      body.systemInstruction.parts &&
-      body.systemInstruction.parts[0]
-    ) {
+    if (body.systemInstruction?.parts?.[0]) {
       systemPrompt = body.systemInstruction.parts[0].text;
     }
 
     // ==========================
-    // 1. CEK CACHE REDIS (KHUSUS TREND) VIA REST API
+    // 1. CEK CACHE REDIS (CACHE 6 JAM)
     // ==========================
     let cacheKey = null;
 
     if (feature === "trend" && input && UPSTASH_URL && UPSTASH_TOKEN) {
-      // Buat key unik (hashing sederhana base64 dari input prompt)
       cacheKey = `fbpro:trend:${Buffer.from(input).toString('base64').substring(0, 150)}`;
       
       try {
-        // Menggunakan fetch murni ke Upstash REST API untuk GET
         const cacheRes = await fetch(UPSTASH_URL, {
           method: "POST",
           headers: {
@@ -83,35 +66,31 @@ module.exports = async function handler(req, res) {
           const cacheData = await cacheRes.json();
           if (cacheData.result) {
             console.log("Redis Cache HIT 🔥 ->", cacheKey);
-            // Jika ada di cache, langsung kembalikan tanpa hit OpenAI
+            
+            // Parsing format penyimpanan baru yang berisi timestamp
+            let parsedCache;
+            try {
+                parsedCache = JSON.parse(cacheData.result);
+            } catch(e) {
+                // Fallback jika format lama masih tersimpan
+                parsedCache = { text: cacheData.result, timestamp: Date.now() };
+            }
+
             return res.status(200).json({
-              candidates: [
-                {
-                  content: {
-                    parts: [
-                      {
-                        text: cacheData.result
-                      }
-                    ]
-                  }
-                }
-              ]
+              candidates: [{ content: { parts: [{ text: parsedCache.text }] } }],
+              metadata: { cached: true, timestamp: parsedCache.timestamp }
             });
           }
         }
-        console.log("Redis Cache MISS ❌ ->", cacheKey);
       } catch (redisError) {
         console.error("Gagal membaca Redis Cache:", redisError.message);
-        // Tetap lanjut ke OpenAI jika Redis bermasalah
       }
     }
 
     // ==========================
     // 2. REQUEST KE OPENAI
     // ==========================
-    const response = await fetch(
-      "https://api.koboillm.com/v1/responses",
-      {
+    const response = await fetch("https://api.koboillm.com/v1/responses", {
         method: "POST",
         headers: {
           Authorization: `Bearer ${apiKey}`,
@@ -120,34 +99,14 @@ module.exports = async function handler(req, res) {
         body: JSON.stringify({
           model,
           input: [
-            {
-              role: "system",
-              content: [
-                {
-                  type: "input_text",
-                  text: systemPrompt
-                }
-              ]
-            },
-            {
-              role: "user",
-              content: [
-                {
-                  type: "input_text",
-                  text: input
-                }
-              ]
-            }
+            { role: "system", content: [{ type: "input_text", text: systemPrompt }] },
+            { role: "user", content: [{ type: "input_text", text: input }] }
           ]
         })
-      }
-    );
+    });
 
     const data = await response.json();
 
-    // ==========================
-    // ERROR DARI OPENAI
-    // ==========================
     if (!response.ok) {
       return res.status(response.status).json({
         error: data.error?.message || "Terjadi kesalahan pada OpenAI.",
@@ -155,60 +114,43 @@ module.exports = async function handler(req, res) {
       });
     }
 
-    // ==========================
-    // Ambil Text
-    // ==========================
     let text = "";
-
     if (data.output) {
       for (const item of data.output) {
         if (!item.content) continue;
         for (const c of item.content) {
-          if (c.text) {
-            text += c.text;
-          }
+          if (c.text) text += c.text;
         }
       }
     }
 
+    const currentTimestamp = Date.now();
+
     // ==========================
-    // 3. SIMPAN KE REDIS (KHUSUS TREND) VIA REST API
+    // 3. SIMPAN KE REDIS (EX: 21600 Detik = 6 Jam)
     // ==========================
     if (feature === "trend" && cacheKey && text && UPSTASH_URL && UPSTASH_TOKEN) {
       try {
-        // Simpan dengan TTL 21600 detik (6 jam) menggunakan sintaks perintah Redis dalam bentuk Array
+        const payloadToSave = JSON.stringify({ text: text, timestamp: currentTimestamp });
+        
         const setRes = await fetch(UPSTASH_URL, {
           method: "POST",
           headers: {
             "Authorization": `Bearer ${UPSTASH_TOKEN}`,
             "Content-Type": "application/json"
           },
-          body: JSON.stringify(["SET", cacheKey, text, "EX", 21600])
+          body: JSON.stringify(["SET", cacheKey, payloadToSave, "EX", 21600])
         });
 
-        if (setRes.ok) {
-          console.log("Berhasil menyimpan ke Redis 💾 ->", cacheKey);
-        }
+        if (setRes.ok) console.log("Berhasil menyimpan ke Redis 💾 ->", cacheKey);
       } catch (redisError) {
         console.error("Gagal menyimpan ke Redis:", redisError.message);
       }
     }
 
-    // ==========================
-    // Balikkan format ke Frontend
-    // ==========================
     return res.status(200).json({
-      candidates: [
-        {
-          content: {
-            parts: [
-              {
-                text
-              }
-            ]
-          }
-        }
-      ]
+      candidates: [{ content: { parts: [{ text }] } }],
+      metadata: { cached: false, timestamp: currentTimestamp }
     });
 
   } catch (err) {

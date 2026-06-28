@@ -1,4 +1,3 @@
-
 <html lang="id">
 <head>
     <meta charset="UTF-8">
@@ -9,6 +8,8 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- FontAwesome for Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Hubungkan script chat.js -->
+    <script src="chat.js"></script>
 
     <script>
         tailwind.config = {
@@ -30,14 +31,11 @@
         }
     </script>
     <style>
-        /* Custom scrollbar for dark theme */
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: #020617; }
         ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 6px; }
         ::-webkit-scrollbar-thumb:hover { background: #334155; }
-        .text-gradient {
-            background-clip: text; -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-        }
+        .text-gradient { background-clip: text; -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
         .scrollbar-none::-webkit-scrollbar { display: none; }
         .scrollbar-none { -ms-overflow-style: none; scrollbar-width: none; }
     </style>
@@ -66,7 +64,6 @@
                 </div>
             </div>
 
-            <!-- Workspace Selector Tabs (Desktop) -->
             <div class="hidden lg:flex items-center gap-1 bg-slate-900/60 p-1 border border-white/5 rounded-2xl text-xs overflow-x-auto">
                 <button onclick="switchView('trends')" class="view-tab-btn px-3 py-1.5 rounded-xl font-semibold transition-all bg-cyan-500 text-slate-950" data-view="trends"><i class="fa-solid fa-fire mr-1.5"></i>Tren Live</button>
                 <button onclick="switchView('url-analysis')" class="view-tab-btn px-3 py-1.5 rounded-xl font-semibold text-slate-400 hover:text-white transition-all" data-view="url-analysis"><i class="fa-solid fa-link mr-1.5"></i>Analisis URL</button>
@@ -82,17 +79,15 @@
         </div>
     </header>
 
-    <!-- Navigation for smaller screens (Mobile) -->
     <nav class="lg:hidden bg-slate-950 border-b border-white/5 px-4 py-2 flex gap-2 overflow-x-auto scrollbar-none w-full">
         <button onclick="switchView('trends')" class="mobile-view-tab-btn shrink-0 px-3 py-1.5 rounded-lg text-xs font-semibold bg-cyan-500 text-slate-950" data-view="trends"><i class="fa-solid fa-fire mr-1"></i> Tren</button>
         <button onclick="switchView('url-analysis')" class="mobile-view-tab-btn shrink-0 px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-900 text-slate-300" data-view="url-analysis"><i class="fa-solid fa-link mr-1"></i> Analisis URL</button>
         <button onclick="switchView('history')" class="mobile-view-tab-btn shrink-0 px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-900 text-slate-300" data-view="history"><i class="fa-solid fa-history mr-1"></i> Riwayat</button>
     </nav>
 
-    <!-- Main Content Area -->
     <main class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 w-full">
         
-        <!-- SECTION 1: DETEKSI TREN LIVE & SCRIPT GENERATOR -->
+        <!-- SECTION 1: DETEKSI TREN LIVE -->
         <div id="view-trends" class="workspace-view space-y-6">
             <div class="relative overflow-hidden rounded-3xl bg-slate-900 border border-white/5 p-5 sm:p-8 shadow-2xl">
                 <div class="absolute top-0 right-0 -translate-y-12 translate-x-12 w-64 h-64 sm:w-96 sm:h-96 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none"></div>
@@ -108,14 +103,13 @@
                         Data diambil dan dianalisis otomatis. Membangun script yang dioptimasi algoritma Meta.
                     </p>
                     <div class="pt-2 space-y-2">
-                        <!-- Updated Niche Title based on image -->
                         <span class="text-[10px] sm:text-[11px] uppercase tracking-wider font-extrabold text-cyan-400 flex items-center gap-1.5"><i class="fa-solid fa-compass"></i> PILIH NICHE KREATOR ANDA:</span>
                         <div class="flex flex-wrap gap-2 pt-1" id="niche-container"></div>
                     </div>
                 </div>
             </div>
 
-            <!-- Loading State Panel (Dynamic text) -->
+            <!-- Loading State Panel -->
             <div id="crawling-status" class="hidden bg-slate-900/80 border border-cyan-500/20 rounded-2xl p-4 sm:p-5 backdrop-blur-md shadow-lg">
                 <div class="flex items-center gap-4">
                     <div class="relative p-2.5 bg-slate-950 border border-cyan-500/40 rounded-full text-cyan-400">
@@ -131,37 +125,29 @@
                 </div>
             </div>
 
-            <!-- Feed Content -->
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8">
-                <!-- Left: Trend List -->
                 <div class="lg:col-span-5 space-y-4">
-                    <div class="flex flex-col sm:flex-row sm:items-center justify-between border-b border-white/5 pb-3 gap-2">
-                        <div class="flex items-center gap-2">
+                    <!-- Status UI Updated -->
+                    <div class="flex flex-col sm:flex-row justify-between border-b border-white/5 pb-3 gap-3">
+                        <div class="flex items-center gap-2 self-start sm:self-center">
                             <i class="fa-solid fa-fire text-rose-400 animate-pulse"></i>
                             <h2 class="font-extrabold text-base sm:text-lg tracking-tight">Top Tren Hari Ini</h2>
                         </div>
-                        <p class="text-[10px] text-slate-400 bg-slate-900 px-2 py-1 rounded-md border border-white/5" id="last-update-time">Belum diperbarui</p>
+                        <div class="flex flex-col text-left sm:text-right bg-slate-900/80 p-2 sm:px-3 sm:py-2 rounded-xl border border-white/5 shadow-inner">
+                            <span class="text-[10px] text-slate-400 font-medium" id="last-update-time"><i class="fa-regular fa-clock"></i> Diperbarui: Menunggu...</span>
+                            <span class="text-[10px] text-cyan-400 font-bold mt-0.5" id="next-update-time"><i class="fa-solid fa-rotate"></i> Pembaruan berikutnya: -</span>
+                        </div>
                     </div>
 
                     <div class="space-y-3" id="trends-feed">
                         <div class="text-center py-10 text-slate-500 bg-slate-900/40 rounded-2xl border border-white/5">
                             <i class="fa-solid fa-satellite-dish text-3xl mb-3 block opacity-50 animate-pulse"></i>
-                            <p class="text-xs font-medium">Menunggu input...<br>Klik niche di atas untuk memulai.</p>
+                            <p class="text-xs font-medium">Sedang memuat data...</p>
                         </div>
-                    </div>
-
-                    <!-- Live Grounding Sources (Hidden as Backend doesn't support it natively, kept for structure) -->
-                    <div id="sources-container" class="hidden bg-slate-900/40 border border-white/5 p-3 sm:p-4 rounded-2xl space-y-2">
-                        <h4 class="text-[10px] uppercase font-extrabold text-slate-400 flex items-center gap-1.5">
-                            <i class="fa-solid fa-link text-cyan-400"></i> Sumber Data:
-                        </h4>
-                        <div class="flex flex-col gap-2 text-[10px] sm:text-xs" id="sources-list"></div>
                     </div>
                 </div>
 
-                <!-- Right: Script Generator Results -->
                 <div class="lg:col-span-7 space-y-6">
-                    <!-- Advanced Script Output -->
                     <div id="scripts-container" class="hidden transition-all duration-500 bg-slate-950 border border-emerald-500/20 rounded-3xl p-4 sm:p-6 space-y-5 shadow-xl shadow-emerald-500/5">
                         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/5 pb-4">
                             <div class="flex items-center gap-3">
@@ -171,17 +157,12 @@
                                     <p class="text-[10px] text-slate-400" id="script-timestamp"></p>
                                 </div>
                             </div>
-                            <button onclick="copyFullScript()" id="btn-copy-script" class="w-full sm:w-auto px-4 py-2 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 text-xs font-semibold rounded-xl border border-emerald-500/20 flex items-center justify-center gap-2 transition-all">
+                            <button onclick="copyFullScript()" id="btn-copy-script" class="w-full sm:w-auto px-4 py-2 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 text-xs font-semibold rounded-xl border border-emerald-500/20 transition-all flex items-center justify-center gap-2">
                                 <i class="fa-solid fa-copy"></i> Salin Semua Script
                             </button>
                         </div>
-                        
-                        <!-- AI Scores -->
                         <div class="grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-3" id="ai-scores-container"></div>
-                        
-                        <div id="script-content-area" class="space-y-4 text-sm text-slate-300">
-                            <!-- Filled dynamically -->
-                        </div>
+                        <div id="script-content-area" class="space-y-4 text-sm text-slate-300"></div>
                     </div>
                 </div>
             </div>
@@ -194,30 +175,26 @@
                     <div class="p-2.5 bg-blue-500/10 text-blue-400 rounded-xl"><i class="fa-brands fa-facebook text-xl"></i></div>
                     <div>
                         <h3 class="font-extrabold text-lg">Analisis Ide URL Video / Reels</h3>
-                        <p class="text-[10px] sm:text-xs text-slate-400 font-medium">Tempelkan link video, AI akan membedah konsep dan memberikan saran konten serupa.</p>
+                        <p class="text-[10px] sm:text-xs text-slate-400 font-medium">Tempelkan link video, AI akan membedah konsep secara instan (Bypass Cache).</p>
                     </div>
                 </div>
 
                 <div class="flex flex-col md:flex-row gap-3">
                     <input type="text" id="fb-url-input" placeholder="https://www.facebook.com/reel/123456789..." class="flex-grow bg-slate-950 border border-white/10 rounded-xl px-4 py-3 text-xs sm:text-sm text-slate-100 focus:outline-none focus:border-blue-500/50 transition-all" />
                     <button onclick="handleURLAnalysis()" id="btn-analyze-url" class="bg-blue-500 hover:bg-blue-400 text-slate-950 font-black text-xs px-6 py-3 rounded-xl uppercase transition-all whitespace-nowrap flex items-center justify-center gap-2">
-                        <i class="fa-solid fa-magnifying-glass" id="url-btn-icon"></i> <span id="url-btn-text">Analisis Video</span>
+                        <i class="fa-solid fa-magnifying-glass"></i> Analisis Video
                     </button>
                 </div>
 
-                <!-- Analysis Results -->
                 <div id="url-loading" class="hidden flex flex-col items-center justify-center space-y-3 py-10">
                     <div class="w-8 h-8 border-4 border-blue-500/20 border-t-blue-400 rounded-full animate-spin"></div>
                     <p class="text-xs text-blue-300 font-medium animate-pulse" id="url-loading-text">Menghubungkan ke server GPT-5 Mini...</p>
                 </div>
-
-                <div id="url-result-area" class="hidden grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 pt-4 border-t border-white/5">
-                    <!-- Dynamic Content -->
-                </div>
+                <div id="url-result-area" class="hidden grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 pt-4 border-t border-white/5"></div>
             </div>
         </div>
 
-        <!-- SECTION 3: RIWAYAT (HISTORY) -->
+        <!-- SECTION 3: RIWAYAT -->
         <div id="view-history" class="workspace-view space-y-6 hidden">
             <div class="bg-slate-900 border border-white/5 p-5 sm:p-8 rounded-3xl space-y-6 min-h-[400px]">
                 <div class="flex flex-col sm:flex-row sm:items-center justify-between border-b border-white/5 pb-4 gap-4">
@@ -230,13 +207,9 @@
                     </div>
                     <button onclick="clearHistory()" class="w-full sm:w-auto px-4 py-2 bg-red-500/10 hover:bg-red-500/20 text-red-400 rounded-xl text-xs font-bold border border-red-500/20 transition-all flex justify-center items-center gap-2"><i class="fa-solid fa-trash"></i> Bersihkan Riwayat</button>
                 </div>
-
-                <div id="history-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    <!-- Filled dynamically -->
-                </div>
+                <div id="history-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
             </div>
         </div>
-
     </main>
 
     <footer class="mt-auto border-t border-white/5 bg-slate-950 py-6 text-center text-xs text-slate-500 px-4">
@@ -244,7 +217,6 @@
     </footer>
 
     <script>
-        // NICHES
         const NICHES = [
             { id: 'umum', name: '🌍 Umum', keywords: 'hiburan, meme, viral Indonesia, tren umum' },
             { id: 'kuliner', name: '🍟 Kuliner / Mukbang', keywords: 'resep masakan, mukbang, review makanan, jajanan viral' },
@@ -255,24 +227,14 @@
             { id: 'bisnis', name: '💼 Bisnis & Usaha', keywords: 'ide bisnis, jualan online, motivasi sukses, tips cuan' },
         ];
 
-        let state = {
-            selectedNiche: 'umum',
-            trends: [],
-            selectedTrend: null,
-            scriptData: null
-        };
+        let state = { selectedNiche: 'umum', trends: [], selectedTrend: null, scriptData: null };
+        let isFetchingTrend = false;
 
-        // --- Core UI Functions ---
-        
         function startProgressAnim(elementId, steps) {
             const el = document.getElementById(elementId);
             if(!el) return null;
-            let i = 0;
-            el.innerText = steps[0];
-            return setInterval(() => {
-                i = (i + 1) % steps.length;
-                el.innerText = steps[i];
-            }, 2000);
+            let i = 0; el.innerText = steps[0];
+            return setInterval(() => { i = (i + 1) % steps.length; el.innerText = steps[i]; }, 2000);
         }
 
         function showToast(message, type = 'success') {
@@ -303,7 +265,6 @@
                     btn.classList.add('text-slate-400');
                 }
             });
-
             if(viewId === 'history') renderHistory();
         }
 
@@ -330,102 +291,24 @@
             copyTextDirectly(text, document.getElementById('btn-copy-script'));
         }
 
-        // ==========================================
-        // GPT-5 MINI Helper (Terhubung ke Backend)
-        // ==========================================
-        
-        const AI_MODEL = "openai/gpt-5-mini";
-        const API_ENDPOINT = "/api/gpt5mini"; 
-
-        function sleep(ms) {
-            return new Promise(resolve => setTimeout(resolve, ms));
-        }
-
-        async function askGPT(payload) {
-            payload.model = AI_MODEL;
-            const MAX_RETRY = 3;
-
-            for (let attempt = 1; attempt <= MAX_RETRY; attempt++) {
-                try {
-                    const controller = new AbortController();
-                    const timeout = setTimeout(() => { controller.abort(); }, 60000);
-
-                    const response = await fetch(API_ENDPOINT, {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify(payload),
-                        signal: controller.signal
-                    });
-
-                    clearTimeout(timeout);
-                    const text = await response.text();
-
-                    if (!response.ok) {
-                        let message = text;
-                        try {
-                            const json = JSON.parse(text);
-                            message = json.error || message;
-                        } catch {}
-                        throw new Error(message);
-                    }
-
-                    return JSON.parse(text);
-                }
-                catch (err) {
-                    console.error("GPT-5 Mini Error (Percobaan " + attempt + "/" + MAX_RETRY + "):", err);
-                    if (attempt >= MAX_RETRY) {
-                        throw err;
-                    }
-                    await sleep(1500);
-                }
-            }
-        }
-
-        /**
-         * Pengganti fetchAI agar kompatibel dengan askGPT backend
-         * [DIPERBARUI] Menerima parameter `feature` untuk identifikasi Redis cache di backend
-         */
-        async function fetchAI(prompt, schema, feature = null) {
-            
-            const enhancedPrompt = prompt + `\n\n[PENTING] Anda WAJIB merespons HANYA dengan format JSON murni yang valid tanpa teks pengantar, tanpa blok kode markdown (\`\`\`json). Struktur JSON wajib:\n${JSON.stringify(schema)}`;
-
-            const payload = {
-                contents: [{ parts: [{ text: enhancedPrompt }] }],
-                systemInstruction: { parts: [{ text: "Anda adalah sistem GPT-5 Mini, konsultan strategi Facebook Pro paling cerdas di dunia. Analisis tren dan buat struktur konten dengan akurasi viral tinggi. Selalu merespons dalam bahasa Indonesia." }] },
-                feature: feature // Dikirim ke backend untuk mengecek cache
-            };
-
-            const data = await askGPT(payload);
-            
-            let textResult = data.candidates?.[0]?.content?.parts?.[0]?.text || "{}";
-            textResult = textResult.replace(/^```json\s*/i, '').replace(/\s*```$/i, '').trim();
-
-            try {
-                const parsedJson = JSON.parse(textResult);
-                return { data: parsedJson, sources: [] }; 
-            } catch (e) {
-                console.error("Gagal parsing JSON dari AI:", textResult);
-                throw new Error("Format respons AI tidak valid. Server sibuk.");
-            }
-        }
-
-        // --- Features ---
-
-        // 1. TREN LIVE
         function renderNiches() {
             document.getElementById('niche-container').innerHTML = NICHES.map(n => `
                 <button onclick="selectNiche('${n.id}')" class="px-3 py-1.5 rounded-lg sm:rounded-xl text-[10px] sm:text-xs font-semibold border border-white/5 transition-all ${state.selectedNiche === n.id ? 'bg-cyan-500 text-slate-950 font-bold shadow-md shadow-cyan-500/20' : 'bg-white/5 text-slate-300 hover:bg-white/10'}">${n.name}</button>
             `).join('');
         }
 
-        async function selectNiche(id) {
-            state.selectedNiche = id; renderNiches();
+        function selectNiche(id) {
+            state.selectedNiche = id; 
+            renderNiches();
             triggerNicheCrawling();
         }
 
         async function triggerNicheCrawling() {
+            if (isFetchingTrend) return;
+            isFetchingTrend = true;
+
             document.getElementById('crawling-status').classList.remove('hidden');
-            const anim = startProgressAnim('crawling-text', ["🔍 Mencari tren via GPT-5 Mini...", "📊 Menganalisis algoritma Meta...", "🧠 Menyusun ide brilian...", "✅ Menyiapkan rekomendasi..."]);
+            const anim = startProgressAnim('crawling-text', ["🔍 Memeriksa cache sistem...", "📊 Menganalisis algoritma Meta...", "🧠 Menyusun ide brilian...", "✅ Menyiapkan rekomendasi..."]);
             
             const niche = NICHES.find(n => n.id === state.selectedNiche);
             const prompt = `Berikan ide 3 tren konten FB Reels atau Video Pendek paling panas di Indonesia HARI INI untuk niche: "${niche.name}" (${niche.keywords}). Buat judul tren, deskripsi singkat, dan contoh ide hook.`;
@@ -437,13 +320,18 @@
             };
 
             try {
-                // MENGIRIM FEATURE "trend" AGAR DIBACA OLEH REDIS BACKEND
+                // Di sini memanggil fetchAI dari chat.js
                 const res = await fetchAI(prompt, schema, "trend");
                 state.trends = res.data.trends;
                 
-                const now = new Date();
-                document.getElementById('last-update-time').innerHTML = `<i class="fa-regular fa-clock"></i> ${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')} WIB`;
-                document.getElementById('sources-container').classList.add('hidden'); 
+                if (res.metadata && res.metadata.timestamp) {
+                    const updateTime = new Date(res.metadata.timestamp);
+                    const nextTime = new Date(res.metadata.timestamp + (6 * 60 * 60 * 1000)); // Tambah 6 jam
+                    const formatTime = (d) => `${d.getHours().toString().padStart(2, '0')}:${d.getMinutes().toString().padStart(2, '0')} WIB`;
+                    
+                    document.getElementById('last-update-time').innerHTML = `<i class="fa-regular fa-clock"></i> Diperbarui: ${formatTime(updateTime)}`;
+                    document.getElementById('next-update-time').innerHTML = `<i class="fa-solid fa-rotate"></i> Pembaruan berikutnya: ${formatTime(nextTime)}`;
+                }
 
                 document.getElementById('trends-feed').innerHTML = state.trends.map((t, idx) => `
                     <div onclick="selectTrend(${idx})" class="group p-4 bg-slate-900/50 hover:bg-slate-800 border border-white/5 hover:border-cyan-500/50 rounded-2xl cursor-pointer transition-all relative overflow-hidden">
@@ -453,40 +341,34 @@
                         <p class="text-[11px] sm:text-xs text-slate-400 mt-2 line-clamp-2">${t.desc}</p>
                     </div>
                 `).join('');
-                showToast("Tren berhasil diperbarui!");
+
+                if (res.metadata && res.metadata.cached) {
+                    showToast("Dimuat dari Cache Sistem.", "info");
+                } else {
+                    showToast("Tren berhasil diperbarui dari AI!");
+                }
+
             } catch(e) {
-                showToast("Gagal memanggil API GPT-5 Mini. Pastikan server backend Anda berjalan.", "error");
+                showToast("Gagal memanggil API GPT-5 Mini.", "error");
                 document.getElementById('trends-feed').innerHTML = `<div class="text-center py-10 text-red-500 bg-red-900/10 rounded-2xl border border-red-500/20"><i class="fa-solid fa-triangle-exclamation text-3xl mb-3 block"></i><p class="text-xs font-medium">Gagal terhubung ke /api/gpt5mini.</p></div>`;
             } finally {
                 clearInterval(anim);
                 document.getElementById('crawling-status').classList.add('hidden');
+                isFetchingTrend = false;
             }
         }
 
-        // 2. SCRIPT GENERATOR
         async function selectTrend(idx) {
             state.selectedTrend = state.trends[idx];
             document.getElementById('scripts-container').classList.remove('hidden');
+            if(window.innerWidth < 1024) setTimeout(() => document.getElementById('scripts-container').scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
             
-            if(window.innerWidth < 1024) {
-                setTimeout(() => document.getElementById('scripts-container').scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
-            }
-
             document.getElementById('script-content-area').innerHTML = `<div class="py-12 flex flex-col items-center"><div class="w-8 h-8 border-4 border-emerald-500/20 border-t-emerald-400 rounded-full animate-spin"></div><p class="text-xs text-emerald-400 mt-3" id="script-anim-text">Menganalisis...</p></div>`;
             document.getElementById('ai-scores-container').innerHTML = '';
             
             const anim = startProgressAnim('script-anim-text', ["🔍 Menganalisis audiens...", "✍️ Menulis hook & script...", "📝 Menyusun caption & hashtag...", "✅ Menyelesaikan..."]);
-
             const prompt = `Buat naskah komprehensif untuk konten FB Reels terkait topik: "${state.selectedTrend.title}". 
-            Harus mencakup poin berikut:
-            1. Analisis tren ini.
-            2. Target audiens spesifik.
-            3. Hook 3 detik yang mengikat secara emosional.
-            4. Script/Naskah lengkap (narasi & aksi visual).
-            5. CTA (Call to Action) untuk mengundang komentar dan share.
-            6. Caption postingan yang menarik.
-            7. Hashtag yang relevan (kombinasi makro, mikro).
-            Serta, berikan metrik AI Score (0-100) untuk Viral, Hook, Retensi, dan Potensi Share.`;
+            Harus mencakup poin berikut: 1. Analisis tren, 2. Target audiens, 3. Hook 3 detik, 4. Script narasi & visual, 5. CTA, 6. Caption, 7. Hashtag, Serta berikan metrik AI Score (0-100) untuk Viral, Hook, Retensi, dan Potensi Share.`;
 
             const schema = {
                 type: "OBJECT", properties: {
@@ -496,7 +378,7 @@
             };
 
             try {
-                // Tidak dikirim feature "trend", bypass cache redis
+                // Tidak memakai feature "trend" -> Bypass Redis
                 const res = await fetchAI(prompt, schema);
                 state.scriptData = res.data;
                 const d = state.scriptData;
@@ -514,13 +396,11 @@
                     </div>
                 `).join('');
 
-                const renderSec = (title, content, icon, color, dataKey) => `
+                const renderSec = (title, content, icon, color) => `
                     <div class="space-y-2 bg-slate-900/30 p-3 sm:p-4 rounded-xl border border-white/5 group">
                         <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2">
                             <span class="text-[10px] sm:text-xs uppercase font-black ${color} flex items-center gap-1.5"><i class="fa-solid ${icon}"></i> ${title}</span>
-                            <button onclick="copyTextDirectly(\`${content.replace(/`/g, "\\`")}\`, this)" class="w-fit text-[10px] px-2 py-1 bg-white/5 hover:bg-white/10 rounded-md text-slate-300 transition-all flex items-center gap-1 border border-white/5">
-                                <i class="fa-solid fa-copy"></i> Copy
-                            </button>
+                            <button onclick="copyTextDirectly(\`${content.replace(/`/g, "\\`")}\`, this)" class="w-fit text-[10px] px-2 py-1 bg-white/5 hover:bg-white/10 rounded-md text-slate-300 transition-all flex items-center gap-1 border border-white/5"><i class="fa-solid fa-copy"></i> Copy</button>
                         </div>
                         <div class="font-mono text-[11px] sm:text-xs whitespace-pre-line leading-relaxed text-slate-300">${content}</div>
                     </div>
@@ -533,15 +413,12 @@
                     ${renderSec('Call to Action (CTA)', d.cta, 'fa-bullhorn', 'text-fuchsia-400')}
                     ${renderSec('Caption & SEO Hashtags', `${d.caption}\n\n${d.hashtags}`, 'fa-hashtag', 'text-cyan-400')}
                 `;
-                
                 saveToHistory('Script', state.selectedTrend.title, d);
-                
             } catch(e) {
-                document.getElementById('script-content-area').innerHTML = `<p class="text-red-400 text-xs text-center py-5">Gagal memproses script. Pastikan API menyala.</p>`;
+                document.getElementById('script-content-area').innerHTML = `<p class="text-red-400 text-xs text-center py-5">Gagal memproses script.</p>`;
             } finally { clearInterval(anim); }
         }
 
-        // 3. ANALISIS URL
         async function handleURLAnalysis() {
             const url = document.getElementById('fb-url-input').value;
             if(!url) return showToast("Masukkan link URL Facebook!", "error");
@@ -550,45 +427,38 @@
             document.getElementById('url-loading').classList.remove('hidden');
             const anim = startProgressAnim('url-loading-text', ["🔄 Memeriksa konteks URL...", "🎥 Menganalisis...", "⚖️ Menimbang kelebihan...", "💡 Merumuskan saran..."]);
             
-            const prompt = `Simulasikan analisis pakar untuk video/ide dari link ini: ${url}. Berikan evaluasi yang mendalam dan tajam (asumsikan konten URL tersebut berdasarkan topiknya).
-            Format JSON harus memiliki:
-            1. Kelebihan (Array string)
-            2. Kekurangan (Array string)
-            3. Hook: Saran hook alternatif yang lebih baik
-            4. CTA: Saran Call-to-action yang lebih baik
-            5. Saran: Strategi perbaikan keseluruhan.`;
+            const prompt = `Simulasikan analisis pakar untuk video/ide dari link ini: ${url}. Berikan evaluasi yang mendalam dan tajam.
+            Format JSON: 1. Kelebihan (Array string), 2. Kekurangan (Array string), 3. Hook, 4. CTA, 5. Saran perbaikan.`;
             
             const schema = { type: "OBJECT", properties: { kelebihan: {type:"ARRAY", items:{type:"STRING"}}, kekurangan: {type:"ARRAY", items:{type:"STRING"}}, hook: {type:"STRING"}, cta: {type:"STRING"}, saran: {type:"STRING"} }, required:["kelebihan","kekurangan","hook","cta","saran"] };
             
             try {
-                // Tidak dikirim feature "trend", bypass cache redis
                 const res = await fetchAI(prompt, schema);
                 const d = res.data;
-                
                 document.getElementById('url-result-area').innerHTML = `
                     <div class="space-y-4">
                         <div class="bg-emerald-500/10 border border-emerald-500/20 p-4 rounded-xl relative group">
-                            <button onclick="copyTextDirectly(\`${d.kelebihan.join('\\n')}\`, this)" class="absolute top-3 right-3 text-[10px] px-2 py-1 bg-emerald-500/20 text-emerald-300 rounded border border-emerald-500/30 opacity-0 group-hover:opacity-100 transition-all"><i class="fa-solid fa-copy"></i> Copy</button>
+                            <button onclick="copyTextDirectly(\`${d.kelebihan.join('\\n')}\`, this)" class="absolute top-3 right-3 text-[10px] px-2 py-1 bg-emerald-500/20 text-emerald-300 rounded border opacity-0 group-hover:opacity-100"><i class="fa-solid fa-copy"></i> Copy</button>
                             <span class="text-[11px] font-bold text-emerald-400 block mb-2"><i class="fa-solid fa-plus-circle"></i> Kelebihan Konten</span>
                             <ul class="text-xs text-emerald-100 space-y-1.5 list-disc pl-4">${d.kelebihan.map(k=>`<li>${k}</li>`).join('')}</ul>
                         </div>
                         <div class="bg-red-500/10 border border-red-500/20 p-4 rounded-xl relative group">
-                            <button onclick="copyTextDirectly(\`${d.kekurangan.join('\\n')}\`, this)" class="absolute top-3 right-3 text-[10px] px-2 py-1 bg-red-500/20 text-red-300 rounded border border-red-500/30 opacity-0 group-hover:opacity-100 transition-all"><i class="fa-solid fa-copy"></i> Copy</button>
-                            <span class="text-[11px] font-bold text-red-400 block mb-2"><i class="fa-solid fa-minus-circle"></i> Kekurangan (Faktor Drop)</span>
+                            <button onclick="copyTextDirectly(\`${d.kekurangan.join('\\n')}\`, this)" class="absolute top-3 right-3 text-[10px] px-2 py-1 bg-red-500/20 text-red-300 rounded border opacity-0 group-hover:opacity-100"><i class="fa-solid fa-copy"></i> Copy</button>
+                            <span class="text-[11px] font-bold text-red-400 block mb-2"><i class="fa-solid fa-minus-circle"></i> Kekurangan (Drop Factor)</span>
                             <ul class="text-xs text-red-100 space-y-1.5 list-disc pl-4">${d.kekurangan.map(k=>`<li>${k}</li>`).join('')}</ul>
                         </div>
                     </div>
                     <div class="space-y-4">
                         <div class="bg-slate-900/60 border border-white/5 p-4 rounded-xl relative group">
-                            <button onclick="copyTextDirectly(\`Hook: ${d.hook}\\nCTA: ${d.cta}\`, this)" class="absolute top-3 right-3 text-[10px] px-2 py-1 bg-white/5 text-slate-300 rounded border border-white/10 opacity-0 group-hover:opacity-100 transition-all"><i class="fa-solid fa-copy"></i> Copy</button>
+                            <button onclick="copyTextDirectly(\`Hook: ${d.hook}\\nCTA: ${d.cta}\`, this)" class="absolute top-3 right-3 text-[10px] px-2 py-1 bg-white/5 text-slate-300 rounded border opacity-0 group-hover:opacity-100"><i class="fa-solid fa-copy"></i> Copy</button>
                             <span class="text-[11px] font-bold text-cyan-400 block mb-1">Rekomendasi Hook Baru</span>
                             <p class="text-xs text-slate-300 italic mb-4">"${d.hook}"</p>
                             <span class="text-[11px] font-bold text-fuchsia-400 block mb-1">Rekomendasi CTA</span>
                             <p class="text-xs text-slate-300 italic">"${d.cta}"</p>
                         </div>
                         <div class="bg-slate-900/60 border border-white/5 p-4 rounded-xl relative group">
-                            <button onclick="copyTextDirectly(\`${d.saran}\`, this)" class="absolute top-3 right-3 text-[10px] px-2 py-1 bg-white/5 text-slate-300 rounded border border-white/10 opacity-0 group-hover:opacity-100 transition-all"><i class="fa-solid fa-copy"></i> Copy</button>
-                            <span class="text-[11px] font-bold text-blue-400 block mb-1">Saran Perbaikan Menyeluruh</span>
+                            <button onclick="copyTextDirectly(\`${d.saran}\`, this)" class="absolute top-3 right-3 text-[10px] px-2 py-1 bg-white/5 text-slate-300 rounded border opacity-0 group-hover:opacity-100"><i class="fa-solid fa-copy"></i> Copy</button>
+                            <span class="text-[11px] font-bold text-blue-400 block mb-1">Saran Perbaikan</span>
                             <p class="text-xs text-slate-300 leading-relaxed">${d.saran}</p>
                         </div>
                     </div>
@@ -600,11 +470,10 @@
             } finally { clearInterval(anim); document.getElementById('url-loading').classList.add('hidden'); }
         }
 
-        // 4. HISTORY LOGIC
         function saveToHistory(type, title, data) {
             let history = JSON.parse(localStorage.getItem('fbpro_history') || '[]');
             history.unshift({ type, title, data, date: new Date().toLocaleString('id-ID') });
-            if(history.length > 30) history = history.slice(0, 30); // Keep max 30
+            if(history.length > 30) history = history.slice(0, 30);
             localStorage.setItem('fbpro_history', JSON.stringify(history));
         }
 
