@@ -100,11 +100,12 @@
                         Deteksi Tren Niche Terkini <span class="bg-gradient-to-r from-cyan-400 via-blue-400 to-fuchsia-500 text-gradient">Secara Live.</span>
                     </h1>
                     <p class="text-slate-300 text-xs sm:text-sm max-w-2xl leading-relaxed">
-                        Data diambil dan dianalisis otomatis. Membangun script yang dioptimasi algoritma Meta.
+                        Data diambil dan dianalisis otomatis dari seluruh kategori niche populer. Membangun script yang dioptimasi algoritma Meta.
                     </p>
-                    <div class="pt-2 space-y-2">
-                        <span class="text-[10px] sm:text-[11px] uppercase tracking-wider font-extrabold text-cyan-400 flex items-center gap-1.5"><i class="fa-solid fa-compass"></i> PILIH NICHE KREATOR ANDA:</span>
-                        <div class="flex flex-wrap gap-2 pt-1" id="niche-container"></div>
+                    <div class="pt-2">
+                        <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-[10px] font-bold tracking-wider uppercase">
+                            <i class="fa-solid fa-globe"></i> Menampilkan Semua Kategori Niche
+                        </span>
                     </div>
                 </div>
             </div>
@@ -217,17 +218,7 @@
     </footer>
 
     <script>
-        const NICHES = [
-            { id: 'umum', name: '🌍 Umum', keywords: 'hiburan, meme, viral Indonesia, tren umum' },
-            { id: 'kuliner', name: '🍟 Kuliner / Mukbang', keywords: 'resep masakan, mukbang, review makanan, jajanan viral' },
-            { id: 'gaming', name: '🎮 Gaming / Streamer', keywords: 'gameplay, Mobile Legends, PUBG, streamer, trik game' },
-            { id: 'edukasi', name: '💡 Tutorial & Edukasi', keywords: 'tutorial bermanfaat, cara ngedit, edukasi unik, lifehacks' },
-            { id: 'vlog', name: '🎬 Daily Vlog', keywords: 'vlog keseharian, a day in my life, mini vlog, cerita hidup' },
-            { id: 'kecantikan', name: '💅 Kecantikan & Fashion', keywords: 'skincare routine, makeup tutorial, ootd, fashion hacks' },
-            { id: 'bisnis', name: '💼 Bisnis & Usaha', keywords: 'ide bisnis, jualan online, motivasi sukses, tips cuan' },
-        ];
-
-        let state = { selectedNiche: 'umum', trends: [], selectedTrend: null, scriptData: null };
+        let state = { trends: [], selectedTrend: null, scriptData: null };
         let isFetchingTrend = false;
 
         function startProgressAnim(elementId, steps) {
@@ -291,36 +282,24 @@
             copyTextDirectly(text, document.getElementById('btn-copy-script'));
         }
 
-        function renderNiches() {
-            document.getElementById('niche-container').innerHTML = NICHES.map(n => `
-                <button onclick="selectNiche('${n.id}')" class="px-3 py-1.5 rounded-lg sm:rounded-xl text-[10px] sm:text-xs font-semibold border border-white/5 transition-all ${state.selectedNiche === n.id ? 'bg-cyan-500 text-slate-950 font-bold shadow-md shadow-cyan-500/20' : 'bg-white/5 text-slate-300 hover:bg-white/10'}">${n.name}</button>
-            `).join('');
-        }
-
-        function selectNiche(id) {
-            state.selectedNiche = id; 
-            renderNiches();
-            triggerNicheCrawling();
-        }
-
         async function triggerNicheCrawling() {
             if (isFetchingTrend) return;
             isFetchingTrend = true;
 
             document.getElementById('crawling-status').classList.remove('hidden');
-            const anim = startProgressAnim('crawling-text', ["🔍 Memeriksa cache sistem...", "📊 Menganalisis algoritma Meta...", "🧠 Menyusun ide brilian...", "✅ Menyiapkan rekomendasi..."]);
+            const anim = startProgressAnim('crawling-text', ["🔍 Memeriksa cache sistem...", "📊 Menganalisis algoritma Meta...", "🧠 Menyusun ide dari semua niche...", "✅ Menyiapkan rekomendasi global..."]);
             
-            const niche = NICHES.find(n => n.id === state.selectedNiche);
-            const prompt = `Berikan ide 3 tren konten FB Reels atau Video Pendek paling panas di Indonesia HARI INI untuk niche: "${niche.name}" (${niche.keywords}). Buat judul tren, deskripsi singkat, dan contoh ide hook.`;
+            // Perintah statis yang mengambil semua niche sekaligus
+            const prompt = `Berikan 7 ide tren konten FB Reels atau Video Pendek paling panas dan viral di Indonesia HARI INI. Berikan 1 tren terbaik untuk masing-masing kategori niche berikut: 1. Umum/Hiburan, 2. Kuliner, 3. Gaming, 4. Edukasi, 5. Vlog Keseharian, 6. Kecantikan/Fashion, 7. Bisnis/Cuan. Buat judul tren, deskripsi singkat, nama kategori, dan contoh ide hook.`;
             
             const schema = {
                 type: "OBJECT", properties: {
-                    trends: { type: "ARRAY", items: { type: "OBJECT", properties: { title: { type: "STRING" }, desc: { type: "STRING" }, hook: { type: "STRING" } }, required: ["title", "desc", "hook"] } }
+                    trends: { type: "ARRAY", items: { type: "OBJECT", properties: { kategori: { type: "STRING" }, title: { type: "STRING" }, desc: { type: "STRING" }, hook: { type: "STRING" } }, required: ["kategori", "title", "desc", "hook"] } }
                 }, required: ["trends"]
             };
 
             try {
-                // Di sini memanggil fetchAI dari chat.js
+                // Memanggil fetchAI dari chat.js
                 const res = await fetchAI(prompt, schema, "trend");
                 state.trends = res.data.trends;
                 
@@ -336,16 +315,19 @@
                 document.getElementById('trends-feed').innerHTML = state.trends.map((t, idx) => `
                     <div onclick="selectTrend(${idx})" class="group p-4 bg-slate-900/50 hover:bg-slate-800 border border-white/5 hover:border-cyan-500/50 rounded-2xl cursor-pointer transition-all relative overflow-hidden">
                         <div class="absolute right-0 top-0 h-full w-1 bg-cyan-500 opacity-0 group-hover:opacity-100 transition-all"></div>
-                        <div class="flex items-center justify-between mb-2"><span class="px-2 py-0.5 rounded text-[9px] font-bold bg-cyan-500/10 text-cyan-400">🔥 POTENSI VIRAL</span></div>
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="px-2 py-0.5 rounded text-[9px] font-bold bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">${t.kategori}</span>
+                            <span class="px-2 py-0.5 rounded text-[9px] font-bold bg-cyan-500/10 text-cyan-400">🔥 VIRAL</span>
+                        </div>
                         <h3 class="font-extrabold text-sm sm:text-base text-white group-hover:text-cyan-300 transition-colors">${t.title}</h3>
                         <p class="text-[11px] sm:text-xs text-slate-400 mt-2 line-clamp-2">${t.desc}</p>
                     </div>
                 `).join('');
 
                 if (res.metadata && res.metadata.cached) {
-                    showToast("Dimuat dari Cache Sistem.", "info");
+                    showToast("Dimuat dari Cache Sistem (Refresh otomatis 6 jam).", "info");
                 } else {
-                    showToast("Tren berhasil diperbarui dari AI!");
+                    showToast("Tren global berhasil diperbarui dari AI!");
                 }
 
             } catch(e) {
@@ -510,7 +492,6 @@
         }
 
         window.addEventListener('DOMContentLoaded', () => {
-            renderNiches();
             switchView('trends');
         });
     </script>
