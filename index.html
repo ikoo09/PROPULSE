@@ -9,8 +9,6 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- FontAwesome for Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Chart.js for Analytics -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <script>
         tailwind.config = {
@@ -33,49 +31,27 @@
     </script>
     <style>
         /* Custom scrollbar for dark theme */
-        ::-webkit-scrollbar {
-            width: 8px;
-            height: 8px;
-        }
-        ::-webkit-scrollbar-track {
-            background: #020617; 
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #1e293b; 
-            border-radius: 6px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: #334155; 
-        }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #020617; }
+        ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 6px; }
+        ::-webkit-scrollbar-thumb:hover { background: #334155; }
         .text-gradient {
-            background-clip: text;
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            background-clip: text; -webkit-background-clip: text; -webkit-text-fill-color: transparent;
         }
-        /* Hide scrollbar for mobile nav */
-        .scrollbar-none::-webkit-scrollbar {
-            display: none;
-        }
-        .scrollbar-none {
-            -ms-overflow-style: none;
-            scrollbar-width: none;
-        }
-        /* Progress Bar Animation */
-        .progress-bar-fill {
-            transition: width 1.5s cubic-bezier(0.4, 0, 0.2, 1);
-        }
+        .scrollbar-none::-webkit-scrollbar { display: none; }
+        .scrollbar-none { -ms-overflow-style: none; scrollbar-width: none; }
     </style>
 </head>
 <body class="bg-slate-950 text-slate-100 font-sans selection:bg-cyan-500 selection:text-slate-950 min-h-screen flex flex-col">
 
-    <!-- Toast Notification Container -->
+    <!-- Toast Notification -->
     <div id="toast-container" class="fixed bottom-6 right-6 z-50 flex flex-col gap-3 max-w-sm pointer-events-none"></div>
 
-    <!-- Top Sticky Header -->
+    <!-- Header -->
     <header class="sticky top-0 z-40 border-b border-white/5 bg-slate-950/85 backdrop-blur-md">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
             <div class="flex items-center gap-3">
-                <div class="relative">
+                <div class="relative hidden sm:block">
                     <div class="absolute inset-0 bg-cyan-500 rounded-lg blur-md opacity-45 animate-pulse"></div>
                     <div class="relative bg-gradient-to-br from-cyan-400 to-indigo-600 p-2 rounded-lg text-slate-950 flex items-center justify-center">
                         <i class="fa-solid fa-fire text-white"></i>
@@ -83,94 +59,71 @@
                 </div>
                 <div>
                     <div class="flex items-center gap-2">
-                        <span class="font-extrabold text-lg tracking-wider bg-gradient-to-r from-white via-slate-100 to-cyan-400 text-gradient">PROPULSE</span>
-                        <span class="bg-gradient-to-r from-rose-500 to-fuchsia-600 text-white text-[9px] font-black uppercase px-1.5 py-0.5 rounded tracking-widest">PRO LIVE</span>
+                        <span class="font-extrabold text-base sm:text-lg tracking-wider bg-gradient-to-r from-white via-slate-100 to-cyan-400 text-gradient">PROPULSE</span>
+                        <span class="bg-gradient-to-r from-rose-500 to-fuchsia-600 text-white text-[9px] font-black uppercase px-1.5 py-0.5 rounded tracking-widest">GPT-5 MINI</span>
                     </div>
-                    <p class="text-[10px] text-slate-400 font-medium">Asisten Tren Real-Time Kreator FB Pro</p>
+                    <p class="text-[10px] text-slate-400 font-medium hidden sm:block">Asisten Tren Real-Time Kreator FB Pro</p>
                 </div>
             </div>
 
             <!-- Workspace Selector Tabs (Desktop) -->
-            <div class="hidden lg:flex items-center gap-2 bg-slate-900/60 p-1 border border-white/5 rounded-2xl text-xs">
-                <button onclick="switchView('trends')" class="view-tab-btn px-3 py-1.5 rounded-xl font-semibold transition-all bg-cyan-500 text-slate-950" data-view="trends">
-                    <i class="fa-solid fa-magnifying-glass-chart mr-1.5"></i>Deteksi Tren Live
-                </button>
-                <button onclick="switchView('repurposer')" class="view-tab-btn px-3 py-1.5 rounded-xl font-semibold text-slate-400 hover:text-white transition-all" data-view="repurposer">
-                    <i class="fa-solid fa-arrows-spin mr-1.5"></i>Repurposing AI
-                </button>
-                <button onclick="switchView('hooks')" class="view-tab-btn px-3 py-1.5 rounded-xl font-semibold text-slate-400 hover:text-white transition-all" data-view="hooks">
-                    <i class="fa-solid fa-bolt mr-1.5"></i>Hook & Judul
-                </button>
-                <button onclick="switchView('sentiment')" class="view-tab-btn px-3 py-1.5 rounded-xl font-semibold text-slate-400 hover:text-white transition-all" data-view="sentiment">
-                    <i class="fa-solid fa-comments mr-1.5"></i>Analisis Komentar
-                </button>
-                <button onclick="switchView('seo')" class="view-tab-btn px-3 py-1.5 rounded-xl font-semibold text-slate-400 hover:text-white transition-all" data-view="seo">
-                    <i class="fa-solid fa-hashtag mr-1.5"></i>Asisten SEO
-                </button>
-                <button onclick="switchView('performance')" class="view-tab-btn px-3 py-1.5 rounded-xl font-semibold text-slate-400 hover:text-white transition-all" data-view="performance">
-                    <i class="fa-solid fa-chart-line mr-1.5"></i>Analitik AI
-                </button>
+            <div class="hidden lg:flex items-center gap-1 bg-slate-900/60 p-1 border border-white/5 rounded-2xl text-xs overflow-x-auto">
+                <button onclick="switchView('trends')" class="view-tab-btn px-3 py-1.5 rounded-xl font-semibold transition-all bg-cyan-500 text-slate-950" data-view="trends"><i class="fa-solid fa-fire mr-1.5"></i>Tren Live</button>
+                <button onclick="switchView('url-analysis')" class="view-tab-btn px-3 py-1.5 rounded-xl font-semibold text-slate-400 hover:text-white transition-all" data-view="url-analysis"><i class="fa-solid fa-link mr-1.5"></i>Analisis URL</button>
+                <button onclick="switchView('history')" class="view-tab-btn px-3 py-1.5 rounded-xl font-semibold text-slate-400 hover:text-white transition-all" data-view="history"><i class="fa-solid fa-clock-rotate-left mr-1.5"></i>Riwayat</button>
             </div>
 
-            <!-- Header Action buttons -->
             <div class="flex items-center gap-3">
-                <div class="hidden md:flex items-center gap-2 bg-slate-900/60 border border-white/5 px-3 py-1.5 rounded-full">
+                <div class="flex items-center gap-2 bg-slate-900/60 border border-white/5 px-3 py-1.5 rounded-full">
                     <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse-fast"></span>
-                    <span class="text-[11px] text-slate-300 font-mono" id="crawl-count">Gemini AI Aktif</span>
+                    <span class="text-[10px] sm:text-[11px] text-slate-300 font-mono font-bold">API Terhubung</span>
                 </div>
             </div>
         </div>
     </header>
 
     <!-- Navigation for smaller screens (Mobile) -->
-    <nav class="lg:hidden bg-slate-950 border-b border-white/5 px-4 py-2 flex gap-1.5 overflow-x-auto scrollbar-none">
-        <button onclick="switchView('trends')" class="mobile-view-tab-btn shrink-0 px-3 py-1.5 rounded-lg text-xs font-semibold bg-cyan-500 text-slate-950" data-view="trends">Tren Live</button>
-        <button onclick="switchView('repurposer')" class="mobile-view-tab-btn shrink-0 px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-900 text-slate-300" data-view="repurposer">Repurpose</button>
-        <button onclick="switchView('hooks')" class="mobile-view-tab-btn shrink-0 px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-900 text-slate-300" data-view="hooks">Hook & Judul</button>
-        <button onclick="switchView('sentiment')" class="mobile-view-tab-btn shrink-0 px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-900 text-slate-300" data-view="sentiment">Komentar</button>
-        <button onclick="switchView('seo')" class="mobile-view-tab-btn shrink-0 px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-900 text-slate-300" data-view="seo">SEO</button>
-        <button onclick="switchView('performance')" class="mobile-view-tab-btn shrink-0 px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-900 text-slate-300" data-view="performance">Analitik</button>
+    <nav class="lg:hidden bg-slate-950 border-b border-white/5 px-4 py-2 flex gap-2 overflow-x-auto scrollbar-none w-full">
+        <button onclick="switchView('trends')" class="mobile-view-tab-btn shrink-0 px-3 py-1.5 rounded-lg text-xs font-semibold bg-cyan-500 text-slate-950" data-view="trends"><i class="fa-solid fa-fire mr-1"></i> Tren</button>
+        <button onclick="switchView('url-analysis')" class="mobile-view-tab-btn shrink-0 px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-900 text-slate-300" data-view="url-analysis"><i class="fa-solid fa-link mr-1"></i> Analisis URL</button>
+        <button onclick="switchView('history')" class="mobile-view-tab-btn shrink-0 px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-900 text-slate-300" data-view="history"><i class="fa-solid fa-history mr-1"></i> Riwayat</button>
     </nav>
 
     <!-- Main Content Area -->
-    <main class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
+    <main class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 w-full">
         
-        <!-- SECTION 1: DETEKSI TREN LIVE -->
-        <div id="view-trends" class="workspace-view space-y-8">
-            <div class="relative overflow-hidden rounded-3xl bg-slate-900 border border-white/5 p-6 sm:p-10 shadow-2xl">
-                <div class="absolute top-0 right-0 -translate-y-12 translate-x-12 w-96 h-96 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none"></div>
-                
+        <!-- SECTION 1: DETEKSI TREN LIVE & SCRIPT GENERATOR -->
+        <div id="view-trends" class="workspace-view space-y-6">
+            <div class="relative overflow-hidden rounded-3xl bg-slate-900 border border-white/5 p-5 sm:p-8 shadow-2xl">
+                <div class="absolute top-0 right-0 -translate-y-12 translate-x-12 w-64 h-64 sm:w-96 sm:h-96 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none"></div>
                 <div class="relative max-w-3xl space-y-4">
                     <div class="inline-flex items-center gap-2 px-3 py-1 bg-white/5 rounded-full border border-white/10">
                         <i class="fa-solid fa-wand-magic-sparkles text-cyan-400 text-xs"></i>
-                        <span class="text-xs font-semibold text-slate-300">Live Niche Trend Crawler (Grounding)</span>
+                        <span class="text-[10px] sm:text-xs font-semibold text-slate-300">Ditenagai oleh GPT-5 Mini & Redis Cache</span>
                     </div>
-                    <h1 class="text-3xl sm:text-5xl font-black tracking-tight leading-tight">
+                    <h1 class="text-2xl sm:text-4xl font-black tracking-tight leading-tight">
                         Deteksi Tren Niche Terkini <span class="bg-gradient-to-r from-cyan-400 via-blue-400 to-fuchsia-500 text-gradient">Secara Live.</span>
                     </h1>
-                    <p class="text-slate-300 text-sm sm:text-base max-w-2xl leading-relaxed">
-                        Data grounding penelusuran Google langsung dari Gemini AI diambil secara otomatis untuk mengikis tren real-time di internet berdasarkan niche pilihan Anda secara presisi. (Auto-refresh 30 Menit)
+                    <p class="text-slate-300 text-xs sm:text-sm max-w-2xl leading-relaxed">
+                        Data diambil dan dianalisis otomatis. Membangun script yang dioptimasi algoritma Meta.
                     </p>
-                    
-                    <!-- Niche Selector -->
-                    <div class="pt-4 space-y-2">
-                        <span class="text-[11px] uppercase tracking-wider font-extrabold text-cyan-400 flex items-center gap-1.5">
-                            <i class="fa-solid fa-compass"></i> Pilih Niche Kreator Anda:
-                        </span>
+                    <div class="pt-2 space-y-2">
+                        <!-- Updated Niche Title based on image -->
+                        <span class="text-[10px] sm:text-[11px] uppercase tracking-wider font-extrabold text-cyan-400 flex items-center gap-1.5"><i class="fa-solid fa-compass"></i> PILIH NICHE KREATOR ANDA:</span>
                         <div class="flex flex-wrap gap-2 pt-1" id="niche-container"></div>
                     </div>
                 </div>
             </div>
 
-            <!-- Loading State Panel -->
-            <div id="crawling-status" class="hidden bg-slate-900/80 border border-cyan-500/20 rounded-2xl p-5 backdrop-blur-md animate-pulse">
+            <!-- Loading State Panel (Dynamic text) -->
+            <div id="crawling-status" class="hidden bg-slate-900/80 border border-cyan-500/20 rounded-2xl p-4 sm:p-5 backdrop-blur-md shadow-lg">
                 <div class="flex items-center gap-4">
                     <div class="relative p-2.5 bg-slate-950 border border-cyan-500/40 rounded-full text-cyan-400">
-                        <i class="fa-solid fa-microchip animate-spin text-xl"></i>
+                        <i class="fa-solid fa-microchip animate-spin text-lg sm:text-xl"></i>
                     </div>
                     <div class="space-y-1 w-full">
-                        <h4 class="text-sm font-bold text-cyan-300 uppercase">GEMINI 3.1 MENGAMBIL DATA OTOMATIS...</h4>
-                        <p class="text-xs text-slate-300 italic" id="crawling-text">Memproses kueri pencarian, mengekstrak metrik FYP, dan memvalidasi tren...</p>
+                        <h4 class="text-xs sm:text-sm font-bold text-cyan-300 uppercase">GPT-5 MINI BEKERJA...</h4>
+                        <p class="text-[11px] sm:text-xs text-slate-300 italic font-medium" id="crawling-text">🔍 Mencari tren terkini...</p>
                         <div class="relative h-1.5 w-full bg-slate-950 rounded-full overflow-hidden mt-2">
                             <div class="absolute top-0 left-0 h-full bg-cyan-500 rounded-full animate-shimmer w-1/2"></div>
                         </div>
@@ -179,1417 +132,517 @@
             </div>
 
             <!-- Feed Content -->
-            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8">
                 <!-- Left: Trend List -->
-                <div class="lg:col-span-7 space-y-6">
-                    <div class="flex items-center justify-between border-b border-white/5 pb-4">
+                <div class="lg:col-span-5 space-y-4">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between border-b border-white/5 pb-3 gap-2">
                         <div class="flex items-center gap-2">
                             <i class="fa-solid fa-fire text-rose-400 animate-pulse"></i>
-                            <h2 class="font-extrabold text-lg sm:text-xl tracking-tight">Data Tren Akurat AI</h2>
+                            <h2 class="font-extrabold text-base sm:text-lg tracking-tight">Top Tren Hari Ini</h2>
                         </div>
-                        <div class="flex bg-white/5 p-1 rounded-xl border border-white/5 text-xs overflow-x-auto scrollbar-none" id="tab-container"></div>
+                        <p class="text-[10px] text-slate-400 bg-slate-900 px-2 py-1 rounded-md border border-white/5" id="last-update-time">Belum diperbarui</p>
                     </div>
 
-                    <div class="space-y-4" id="trends-feed">
-                        <!-- Default Loading State -->
-                        <div class="text-center py-12 text-slate-500 bg-slate-900/40 rounded-2xl border border-white/5">
-                            <i class="fa-solid fa-microchip text-4xl mb-3 block opacity-50 animate-pulse"></i>
-                            <p class="text-xs font-medium">Sedang memindai algoritma dan menarik data tren dari AI...<br>Data diperbarui otomatis setiap 30 menit.</p>
+                    <div class="space-y-3" id="trends-feed">
+                        <div class="text-center py-10 text-slate-500 bg-slate-900/40 rounded-2xl border border-white/5">
+                            <i class="fa-solid fa-satellite-dish text-3xl mb-3 block opacity-50 animate-pulse"></i>
+                            <p class="text-xs font-medium">Menunggu input...<br>Klik niche di atas untuk memulai.</p>
                         </div>
                     </div>
 
-                    <!-- Live Grounding Sources -->
-                    <div id="sources-container" class="hidden bg-slate-900/40 border border-white/5 p-4 rounded-2xl space-y-2">
-                        <h4 class="text-[11px] uppercase font-extrabold text-slate-400 flex items-center gap-1.5">
-                            <i class="fa-solid fa-arrow-up-right-from-square text-cyan-400"></i> Referensi Validasi Data Google Search:
+                    <!-- Live Grounding Sources (Hidden as Backend doesn't support it natively, kept for structure) -->
+                    <div id="sources-container" class="hidden bg-slate-900/40 border border-white/5 p-3 sm:p-4 rounded-2xl space-y-2">
+                        <h4 class="text-[10px] uppercase font-extrabold text-slate-400 flex items-center gap-1.5">
+                            <i class="fa-solid fa-link text-cyan-400"></i> Sumber Data:
                         </h4>
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs" id="sources-list"></div>
+                        <div class="flex flex-col gap-2 text-[10px] sm:text-xs" id="sources-list"></div>
                     </div>
                 </div>
 
-                <!-- Right: Trend Details & Script Generator -->
-                <div class="lg:col-span-5 space-y-6">
-                    <div class="bg-slate-900 border border-white/5 p-6 rounded-3xl space-y-5 sticky top-24 hidden" id="trend-detail-panel"></div>
-                </div>
-            </div>
-
-            <!-- Embedded Script Generator Drawer -->
-            <div id="scripts-container" class="hidden transition-all duration-500 bg-slate-900 border border-cyan-500/20 rounded-3xl p-6 sm:p-8 space-y-6">
-                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/5 pb-4">
-                    <div class="flex items-center gap-3">
-                        <div class="p-2.5 bg-cyan-500/10 text-cyan-400 rounded-xl">
-                            <i class="fa-solid fa-microchip text-xl"></i>
-                        </div>
-                        <div>
-                            <h3 class="font-extrabold text-lg sm:text-xl">Draf Skrip Konten AI Generator</h3>
-                            <p class="text-xs text-slate-400">Dirancang khusus untuk memicu algoritma monetisasi Meta</p>
-                        </div>
-                    </div>
-                    <button onclick="copyToClipboard('script-textarea')" id="btn-copy-script" class="hidden px-4 py-2 bg-white/5 hover:bg-white/10 text-slate-100 text-xs font-semibold rounded-xl border border-white/5 flex items-center gap-2 transition-all">
-                        <i class="fa-solid fa-share-nodes text-cyan-400"></i> Salin Skrip
-                    </button>
-                </div>
-                <div id="script-content-area"></div>
-            </div>
-        </div>
-
-        <!-- SECTION 2: REPURPOSING KONTEN (OTOMATISASI) -->
-        <div id="view-repurposer" class="workspace-view space-y-6 hidden">
-            <div class="bg-slate-900 border border-white/5 p-6 rounded-3xl space-y-6">
-                <div class="flex items-center gap-3 border-b border-white/5 pb-4">
-                    <div class="p-2.5 bg-emerald-500/10 text-emerald-400 rounded-xl">
-                        <i class="fa-solid fa-arrows-spin text-xl"></i>
-                    </div>
-                    <div>
-                        <h3 class="font-extrabold text-lg">Repurposing Konten (Otomatisasi 100% AI)</h3>
-                        <p class="text-xs text-slate-400 font-medium">Ubah format tulisan panjang, naskah blog, atau transkrip video ke format kreatif lainnya dengan retensi maksimal</p>
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-                    <div class="lg:col-span-5 space-y-4">
-                        <div class="space-y-1">
-                            <label class="text-[10px] uppercase font-black text-slate-400 tracking-wider">Sumber Teks Utama</label>
-                            <textarea id="repurpose-source" rows="10" placeholder="Ketik, paste atau masukkan naskah panjang, ringkasan blog atau konten lama Anda di sini..." class="w-full bg-slate-950 border border-white/10 rounded-2xl p-4 text-xs text-slate-100 focus:outline-none focus:border-emerald-500/50 transition-all"></textarea>
-                        </div>
-                        
-                        <div class="space-y-1">
-                            <label class="text-[10px] uppercase font-black text-slate-400 tracking-wider">Format Tujuan</label>
-                            <select id="repurpose-format" class="w-full bg-slate-950 border border-white/10 rounded-2xl p-3.5 text-xs text-slate-100 focus:outline-none focus:border-emerald-500/50 transition-all">
-                                <option value="reels">Facebook Reels (Video Pendek 60 Detik)</option>
-                                <option value="carousels">Postingan Gambar Korsel (Slide per Slide)</option>
-                                <option value="long-video">Naskah Video In-Stream (Dua Kolom - Visual & Audio)</option>
-                                <option value="threads">Kutipan Status Status Interaktif / Thread Pendek</option>
-                            </select>
-                        </div>
-
-                        <button onclick="handleRepurpose()" class="w-full bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-xs py-3.5 rounded-xl uppercase transition-all tracking-wider flex items-center justify-center gap-2">
-                            <i class="fa-solid fa-arrows-spin" id="repurpose-btn-icon"></i> <span id="repurpose-btn-text">MULAI OTOMATISASI AI</span>
-                        </button>
-                    </div>
-
-                    <div class="lg:col-span-7 bg-slate-950/60 border border-white/5 p-5 rounded-2xl flex flex-col min-h-[350px]">
-                        <div class="flex justify-between items-center border-b border-white/5 pb-3 mb-4">
-                            <span class="text-[11px] uppercase font-black text-emerald-400 tracking-wider flex items-center gap-1.5">
-                                <i class="fa-solid fa-terminal"></i> Hasil Format Konversi Akurat
-                            </span>
-                            <button onclick="copyToClipboard('repurpose-output')" class="px-2.5 py-1.5 bg-white/5 hover:bg-white/10 text-slate-300 hover:text-white rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all">
-                                <i class="fa-solid fa-copy"></i> Salin
+                <!-- Right: Script Generator Results -->
+                <div class="lg:col-span-7 space-y-6">
+                    <!-- Advanced Script Output -->
+                    <div id="scripts-container" class="hidden transition-all duration-500 bg-slate-950 border border-emerald-500/20 rounded-3xl p-4 sm:p-6 space-y-5 shadow-xl shadow-emerald-500/5">
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/5 pb-4">
+                            <div class="flex items-center gap-3">
+                                <div class="p-2.5 bg-emerald-500/10 text-emerald-400 rounded-xl"><i class="fa-solid fa-clapperboard text-lg sm:text-xl"></i></div>
+                                <div>
+                                    <h3 class="font-extrabold text-base sm:text-lg">Script & Perencanaan Konten</h3>
+                                    <p class="text-[10px] text-slate-400" id="script-timestamp"></p>
+                                </div>
+                            </div>
+                            <button onclick="copyFullScript()" id="btn-copy-script" class="w-full sm:w-auto px-4 py-2 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 text-xs font-semibold rounded-xl border border-emerald-500/20 flex items-center justify-center gap-2 transition-all">
+                                <i class="fa-solid fa-copy"></i> Salin Semua Script
                             </button>
                         </div>
-                        <div class="flex-grow flex flex-col justify-center">
-                            <div id="repurpose-loading" class="hidden flex flex-col items-center justify-center space-y-3">
-                                <div class="w-8 h-8 border-4 border-emerald-500/20 border-t-emerald-400 rounded-full animate-spin"></div>
-                                <p class="text-xs text-emerald-300 font-medium">Memodelkan ulang struktur sesuai logaritma Meta...</p>
-                            </div>
-                            <textarea id="repurpose-output" readonly placeholder="Output hasil repurposing konten dari AI akan terisi secara detail di sini..." class="w-full flex-grow bg-transparent border-none resize-none font-mono text-xs text-slate-300 focus:outline-none min-h-[300px]"></textarea>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- SECTION 3: GENERATOR HOOK & JUDUL VIRAL -->
-        <div id="view-hooks" class="workspace-view space-y-6 hidden">
-            <div class="bg-slate-900 border border-white/5 p-6 rounded-3xl space-y-6">
-                <div class="flex items-center gap-3 border-b border-white/5 pb-4">
-                    <div class="p-2.5 bg-fuchsia-500/10 text-fuchsia-400 rounded-xl">
-                        <i class="fa-solid fa-bolt text-xl"></i>
-                    </div>
-                    <div>
-                        <h3 class="font-extrabold text-lg">Generator Hook & Judul Viral</h3>
-                        <p class="text-xs text-slate-400 font-medium">Hancurkan rasio retensi penonton Anda dengan formula psikologi viral tingkat tinggi</p>
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-                    <div class="lg:col-span-4 space-y-4">
-                        <div class="space-y-1">
-                            <label class="text-[10px] uppercase font-black text-slate-400 tracking-wider">Topik Utama / Kata Kunci</label>
-                            <input type="text" id="hook-topic" placeholder="Contoh: jualan cilok modal minim, tips cuci ac" class="w-full bg-slate-950 border border-white/10 rounded-xl px-4 py-3 text-xs text-slate-100 focus:outline-none focus:border-fuchsia-500/50 transition-all" />
-                        </div>
-
-                        <div class="space-y-1">
-                            <label class="text-[10px] uppercase font-black text-slate-400 tracking-wider">Angle Psikologi</label>
-                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2" id="hook-angle-grid">
-                                <button onclick="selectHookAngle('controversial', this)" class="hook-angle-btn p-3 rounded-xl border border-white/10 text-slate-300 text-xs font-semibold hover:bg-white/5 transition-all text-left bg-fuchsia-500/15 border-fuchsia-500/30 text-fuchsia-200" data-angle="controversial">
-                                    🤬 Kontroversial
-                                </button>
-                                <button onclick="selectHookAngle('curiosity', this)" class="hook-angle-btn p-3 rounded-xl border border-white/10 text-slate-300 text-xs font-semibold hover:bg-white/5 transition-all text-left" data-angle="curiosity">
-                                    🕵️ Curiosity Gap
-                                </button>
-                                <button onclick="selectHookAngle('fomo', this)" class="hook-angle-btn p-3 rounded-xl border border-white/10 text-slate-300 text-xs font-semibold hover:bg-white/5 transition-all text-left" data-angle="fomo">
-                                    🚨 FOMO / Urgensi
-                                </button>
-                                <button onclick="selectHookAngle('educational', this)" class="hook-angle-btn p-3 rounded-xl border border-white/10 text-slate-300 text-xs font-semibold hover:bg-white/5 transition-all text-left" data-angle="educational">
-                                    💡 Solutif & Edukasi
-                                </button>
-                            </div>
-                        </div>
-
-                        <button onclick="handleGenerateHooks()" class="w-full bg-fuchsia-500 hover:bg-fuchsia-400 text-slate-950 font-black text-xs py-3.5 rounded-xl uppercase transition-all tracking-wider flex items-center justify-center gap-2">
-                            <i class="fa-solid fa-bolt" id="hook-btn-icon"></i> <span id="hook-btn-text">PRODUKSI FORMULA AI</span>
-                        </button>
-                    </div>
-
-                    <div class="lg:col-span-8 bg-slate-950/40 border border-white/5 p-5 rounded-2xl flex flex-col justify-center min-h-[300px]">
-                        <div id="hook-loading" class="hidden flex flex-col items-center justify-center space-y-3 py-12">
-                            <div class="w-8 h-8 border-4 border-fuchsia-500/20 border-t-fuchsia-400 rounded-full animate-spin"></div>
-                            <p class="text-xs text-fuchsia-300 font-medium">Merumuskan trigger emosi target secara akurat...</p>
-                        </div>
                         
-                        <div id="hook-result-area" class="space-y-4">
-                            <div class="text-center py-12 text-slate-500">
-                                <i class="fa-solid fa-box-open text-4xl mb-3 block"></i>
-                                <p class="text-xs">Hasil formulasi Hook & Judul akan muncul di sini</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- SECTION 4: SENTIMENT ANALYSIS (KOMENTAR) -->
-        <div id="view-sentiment" class="workspace-view space-y-6 hidden">
-            <div class="bg-slate-900 border border-white/5 p-6 rounded-3xl space-y-6">
-                <div class="flex items-center gap-3 border-b border-white/5 pb-4">
-                    <div class="p-2.5 bg-indigo-500/10 text-indigo-400 rounded-xl">
-                        <i class="fa-solid fa-comments text-xl"></i>
-                    </div>
-                    <div>
-                        <h3 class="font-extrabold text-lg">Analisis Sentimen Akurat</h3>
-                        <p class="text-xs text-slate-400 font-medium">Pantau atmosfer interaksi penonton Anda, temukan pertanyaan terbanyak, dan buat draf balas instan otomatis</p>
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-                    <div class="lg:col-span-5 space-y-4">
-                        <div class="space-y-1">
-                            <div class="flex justify-between items-center">
-                                <label class="text-[10px] uppercase font-black text-slate-400 tracking-wider">Tempel Teks Komentar</label>
-                                <button onclick="loadMockComments()" class="text-[10px] text-indigo-400 hover:text-indigo-300 font-bold transition-all">Muat Simulasi FB Pro</button>
-                            </div>
-                            <textarea id="comments-input" rows="8" placeholder="Sebutkan atau paste kumpulan komentar dari video Facebook Anda di sini (pisahkan baris komentar dengan menekan Enter)..." class="w-full bg-slate-950 border border-white/10 rounded-2xl p-4 text-xs text-slate-100 focus:outline-none focus:border-indigo-500/50 transition-all"></textarea>
-                        </div>
-
-                        <button onclick="handleSentimentAnalysis()" class="w-full bg-indigo-500 hover:bg-indigo-400 text-slate-950 font-black text-xs py-3.5 rounded-xl uppercase transition-all tracking-wider flex items-center justify-center gap-2">
-                            <i class="fa-solid fa-magnifying-glass-chart" id="sentiment-btn-icon"></i> <span id="sentiment-btn-text">BEDAH SENTIMEN SEKARANG</span>
-                        </button>
-                    </div>
-
-                    <div class="lg:col-span-7 space-y-4 flex flex-col justify-center min-h-[300px]">
-                        <div id="sentiment-loading" class="hidden flex flex-col items-center justify-center space-y-3 py-12">
-                            <div class="w-8 h-8 border-4 border-indigo-500/20 border-t-indigo-400 rounded-full animate-spin"></div>
-                            <p class="text-xs text-indigo-300 font-medium">Mempelajari emosi audiens...</p>
-                        </div>
-
-                        <div id="sentiment-output-area" class="space-y-4 hidden">
-                            <!-- Sentiment score distribution -->
-                            <div class="grid grid-cols-3 gap-3">
-                                <div class="bg-emerald-500/10 border border-emerald-500/20 p-3 rounded-2xl text-center">
-                                    <span class="text-[9px] uppercase font-bold text-slate-400 block mb-1">😃 Positif</span>
-                                    <p id="sentiment-p-val" class="text-xl font-black text-emerald-400">0%</p>
-                                </div>
-                                <div class="bg-slate-950 border border-white/5 p-3 rounded-2xl text-center">
-                                    <span class="text-[9px] uppercase font-bold text-slate-400 block mb-1">😐 Netral</span>
-                                    <p id="sentiment-nu-val" class="text-xl font-black text-slate-300">0%</p>
-                                </div>
-                                <div class="bg-rose-500/10 border border-rose-500/20 p-3 rounded-2xl text-center">
-                                    <span class="text-[9px] uppercase font-bold text-slate-400 block mb-1">😡 Negatif</span>
-                                    <p id="sentiment-n-val" class="text-xl font-black text-rose-400">0%</p>
-                                </div>
-                            </div>
-
-                            <div class="space-y-1">
-                                <span class="text-[9px] uppercase font-black text-slate-400 block">Pertanyaan & Masalah Terpopuler</span>
-                                <div id="sentiment-questions" class="text-xs text-slate-300 bg-slate-950/60 p-4 rounded-xl border border-white/5 space-y-1"></div>
-                            </div>
-
-                            <div class="space-y-1">
-                                <span class="text-[9px] uppercase font-black text-indigo-400 block flex items-center gap-1">
-                                    <i class="fa-solid fa-reply-all"></i> Balasan Pintar AI (Copas-Ready)
-                                </span>
-                                <div id="sentiment-replies" class="text-xs text-indigo-200 bg-indigo-500/5 p-4 rounded-xl border border-indigo-500/10 space-y-2"></div>
-                            </div>
-                        </div>
-
-                        <div id="sentiment-placeholder" class="text-center py-12 text-slate-500">
-                            <i class="fa-solid fa-magnifying-glass text-4xl mb-3 block"></i>
-                            <p class="text-xs">Hasil pengolahan sentimen & asisten balas instan akan muncul di sini</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- SECTION 5: ASISTEN SEO & HASHTAG -->
-        <div id="view-seo" class="workspace-view space-y-6 hidden">
-            <div class="bg-slate-900 border border-white/5 p-6 rounded-3xl space-y-6">
-                <div class="flex items-center gap-3 border-b border-white/5 pb-4">
-                    <div class="p-2.5 bg-rose-500/10 text-rose-400 rounded-xl">
-                        <i class="fa-solid fa-hashtag text-xl"></i>
-                    </div>
-                    <div>
-                        <h3 class="font-extrabold text-lg">Asisten SEO & Hashtag Akurat</h3>
-                        <p class="text-xs text-slate-400 font-medium">Optimasi judul video, deksripsi Meta SEO, dan jajaran tag persaingan rendah-tinggi yang diproses langsung oleh AI</p>
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-                    <div class="lg:col-span-5 space-y-4">
-                        <div class="space-y-1">
-                            <label class="text-[10px] uppercase font-black text-slate-400 tracking-wider">Judul / Ide Konten Utama</label>
-                            <input type="text" id="seo-title-input" placeholder="Misal: resep seblak pedas rumahan praktis" class="w-full bg-slate-950 border border-white/10 rounded-xl px-4 py-3 text-xs text-slate-100 focus:outline-none focus:border-rose-500/50 transition-all" />
-                        </div>
-
-                        <button onclick="handleGenerateSeo()" class="w-full bg-rose-500 hover:bg-rose-400 text-slate-950 font-black text-xs py-3.5 rounded-xl uppercase transition-all tracking-wider flex items-center justify-center gap-2">
-                            <i class="fa-solid fa-hashtag" id="seo-btn-icon"></i> <span id="seo-btn-text">DONGKRAK JANGKAUAN SEO</span>
-                        </button>
-                    </div>
-
-                    <div class="lg:col-span-7 space-y-4 flex flex-col justify-center min-h-[300px]">
-                        <div id="seo-loading" class="hidden flex flex-col items-center justify-center space-y-3 py-12">
-                            <div class="w-8 h-8 border-4 border-rose-500/20 border-t-rose-400 rounded-full animate-spin"></div>
-                            <p class="text-xs text-rose-300 font-medium">Menghitung probabilitas kata kunci berindeks...</p>
-                        </div>
-
-                        <div id="seo-output-area" class="space-y-4 hidden">
-                            <div class="space-y-1">
-                                <div class="flex justify-between items-center">
-                                    <span class="text-[9px] uppercase font-black text-slate-400">Deskripsi Meta SEO Terpilih</span>
-                                    <button onclick="copyToClipboard('seo-description')" class="text-slate-400 hover:text-white text-xs"><i class="fa-solid fa-copy"></i></button>
-                                </div>
-                                <textarea id="seo-description" readonly rows="4" class="w-full bg-slate-950/60 border border-white/5 rounded-xl p-3 text-xs text-slate-300 focus:outline-none font-mono resize-none"></textarea>
-                            </div>
-
-                            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                                <div class="bg-slate-950 border border-white/5 p-3 rounded-2xl">
-                                    <div class="flex justify-between items-center mb-1">
-                                        <span class="text-[9px] uppercase font-bold text-cyan-400">🔥 Hashtag Makro</span>
-                                        <button onclick="copyToClipboard('seo-tags-macro')" class="text-[10px] text-slate-400 hover:text-white"><i class="fa-solid fa-copy"></i></button>
-                                    </div>
-                                    <p id="seo-tags-macro" class="text-xs text-slate-300 font-semibold line-clamp-2"></p>
-                                </div>
-                                <div class="bg-slate-950 border border-white/5 p-3 rounded-2xl">
-                                    <div class="flex justify-between items-center mb-1">
-                                        <span class="text-[9px] uppercase font-bold text-indigo-400">⚖️ Hashtag Medium</span>
-                                        <button onclick="copyToClipboard('seo-tags-medium')" class="text-[10px] text-slate-400 hover:text-white"><i class="fa-solid fa-copy"></i></button>
-                                    </div>
-                                    <p id="seo-tags-medium" class="text-xs text-slate-300 font-semibold line-clamp-2"></p>
-                                </div>
-                                <div class="bg-slate-950 border border-white/5 p-3 rounded-2xl">
-                                    <div class="flex justify-between items-center mb-1">
-                                        <span class="text-[9px] uppercase font-bold text-rose-400">🌱 Hashtag Mikro</span>
-                                        <button onclick="copyToClipboard('seo-tags-micro')" class="text-[10px] text-slate-400 hover:text-white"><i class="fa-solid fa-copy"></i></button>
-                                    </div>
-                                    <p id="seo-tags-micro" class="text-xs text-slate-300 font-semibold line-clamp-2"></p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div id="seo-placeholder" class="text-center py-12 text-slate-500">
-                            <i class="fa-solid fa-wand-magic-sparkles text-4xl mb-3 block"></i>
-                            <p class="text-xs">Hasil deskripsi SEO & struktur klaster hashtag akan muncul di sini</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- SECTION 6: ANALISIS PERFORMA KONTEN -->
-        <div id="view-performance" class="workspace-view space-y-6 hidden">
-            <div class="bg-slate-900 border border-white/5 p-6 rounded-3xl space-y-6">
-                <div class="flex items-center gap-3 border-b border-white/5 pb-4">
-                    <div class="p-2.5 bg-cyan-500/10 text-cyan-400 rounded-xl">
-                        <i class="fa-solid fa-chart-line text-xl"></i>
-                    </div>
-                    <div>
-                        <h3 class="font-extrabold text-lg">Konsultan Analitik Performa 100% AI</h3>
-                        <p class="text-xs text-slate-400 font-medium">Data dianalisis menggunakan 10 metrik penilaian algoritma langsung dari Gemini</p>
-                    </div>
-                </div>
-
-                <!-- Live Performance Inputs & Chart -->
-                <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
-                    <div class="lg:col-span-4 space-y-4">
-                        <h4 class="text-[11px] font-black uppercase text-slate-400 flex items-center gap-1.5">
-                            <i class="fa-solid fa-sliders text-cyan-400"></i> Metrik Input Postingan Aktual
-                        </h4>
+                        <!-- AI Scores -->
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-3" id="ai-scores-container"></div>
                         
-                        <div class="grid grid-cols-2 gap-3">
-                            <div class="space-y-1">
-                                <label class="text-[10px] uppercase font-semibold text-slate-400">Views</label>
-                                <input type="number" id="perf-views" value="15000" class="w-full bg-slate-950 border border-white/10 rounded-xl px-3 py-2 text-xs text-slate-100 focus:outline-none focus:border-cyan-500/50" />
-                            </div>
-                            <div class="space-y-1">
-                                <label class="text-[10px] uppercase font-semibold text-slate-400">Watch Time (s)</label>
-                                <input type="number" id="perf-watch" value="15" class="w-full bg-slate-950 border border-white/10 rounded-xl px-3 py-2 text-xs text-slate-100 focus:outline-none focus:border-cyan-500/50" />
-                            </div>
-                            <div class="space-y-1">
-                                <label class="text-[10px] uppercase font-semibold text-slate-400">CTR (%)</label>
-                                <input type="number" step="0.1" id="perf-ctr" value="5.2" class="w-full bg-slate-950 border border-white/10 rounded-xl px-3 py-2 text-xs text-slate-100 focus:outline-none focus:border-cyan-500/50" />
-                            </div>
-                            <div class="space-y-1">
-                                <label class="text-[10px] uppercase font-semibold text-slate-400">Audience (%)</label>
-                                <input type="number" step="0.1" id="perf-audience" value="38.5" class="w-full bg-slate-950 border border-white/10 rounded-xl px-3 py-2 text-xs text-slate-100 focus:outline-none focus:border-cyan-500/50" />
-                            </div>
-                            <div class="space-y-1">
-                                <label class="text-[10px] uppercase font-semibold text-slate-400">Shares</label>
-                                <input type="number" id="perf-shares" value="120" class="w-full bg-slate-950 border border-white/10 rounded-xl px-3 py-2 text-xs text-slate-100 focus:outline-none focus:border-cyan-500/50" />
-                            </div>
-                            <div class="space-y-1">
-                                <label class="text-[10px] uppercase font-semibold text-slate-400">Comments</label>
-                                <input type="number" id="perf-comments" value="85" class="w-full bg-slate-950 border border-white/10 rounded-xl px-3 py-2 text-xs text-slate-100 focus:outline-none focus:border-cyan-500/50" />
-                            </div>
-                        </div>
-
-                        <button onclick="handlePerformanceAnalysis()" class="w-full bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-black text-xs py-3.5 rounded-xl uppercase transition-all tracking-wider flex items-center justify-center gap-2 shadow-lg shadow-cyan-500/20">
-                            <i class="fa-solid fa-wand-magic-sparkles" id="perf-btn-icon"></i> <span id="perf-btn-text">AUDIT PERFORMA KONTEN (AI)</span>
-                        </button>
-                    </div>
-
-                    <div class="lg:col-span-8 bg-slate-950/40 border border-white/5 p-5 rounded-2xl flex flex-col min-h-[400px]">
-                        <div id="perf-loading" class="hidden flex flex-col items-center justify-center space-y-3 py-20 h-full">
-                            <div class="w-10 h-10 border-4 border-cyan-500/20 border-t-cyan-400 rounded-full animate-spin"></div>
-                            <p class="text-xs text-cyan-300 font-medium">Konsultan AI mengkalkulasi 10 parameter analitik akurat...</p>
-                        </div>
-
-                        <div id="perf-output-area" class="space-y-5 hidden">
-                            <!-- Metric Badges 10 Parameter -->
-                            <div id="ai-metrics-grid" class="grid grid-cols-2 md:grid-cols-3 gap-3"></div>
-
-                            <div class="bg-slate-900/60 p-4 rounded-xl border border-white/5">
-                                <span class="text-[10px] uppercase font-black text-cyan-400 block mb-2 flex items-center gap-1.5">
-                                    <i class="fa-solid fa-lightbulb"></i> Diagnosa Konsultan Meta
-                                </span>
-                                <p id="perf-diagnose" class="text-xs text-slate-300 leading-relaxed"></p>
-                            </div>
-
-                            <div class="bg-indigo-500/5 p-4 rounded-xl border border-indigo-500/10">
-                                <span class="text-[10px] uppercase font-black text-indigo-300 block mb-2 flex items-center gap-1.5">
-                                    <i class="fa-solid fa-screwdriver-wrench"></i> Strategi Aksi Spesifik (Actionable Insight)
-                                </span>
-                                <p id="perf-action" class="text-xs text-indigo-200 leading-relaxed font-semibold"></p>
-                            </div>
-                        </div>
-
-                        <div id="perf-placeholder" class="text-center py-20 text-slate-500 h-full flex flex-col items-center justify-center">
-                            <i class="fa-solid fa-chart-pie text-5xl mb-4 block opacity-50"></i>
-                            <p class="text-xs font-medium">Hasil audit 10 parameter analitik AI akan muncul di sini</p>
+                        <div id="script-content-area" class="space-y-4 text-sm text-slate-300">
+                            <!-- Filled dynamically -->
                         </div>
                     </div>
                 </div>
+            </div>
+        </div>
 
-                <!-- Dashboard Analytics Berbasis AI -->
-                <div id="stats" class="space-y-6 pt-6 border-t border-white/5 relative">
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center gap-2">
-                            <i class="fa-solid fa-chart-column text-indigo-400 text-lg"></i>
-                            <h4 class="font-bold text-sm">Proyeksi AI Insight Mingguan <span id="dash-niche-label" class="text-cyan-400"></span></h4>
-                        </div>
-                        <button onclick="syncDashboardAI()" id="btn-sync-dash" class="text-[10px] px-3 py-1.5 bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-300 rounded-lg border border-indigo-500/20 font-bold transition-all flex items-center gap-1.5">
-                            <i class="fa-solid fa-rotate" id="dash-sync-icon"></i> Perbarui Prediksi AI
-                        </button>
+        <!-- SECTION 2: ANALISIS URL FB -->
+        <div id="view-url-analysis" class="workspace-view space-y-6 hidden">
+            <div class="bg-slate-900 border border-white/5 p-5 sm:p-8 rounded-3xl space-y-6 shadow-2xl">
+                <div class="flex items-center gap-3 border-b border-white/5 pb-4">
+                    <div class="p-2.5 bg-blue-500/10 text-blue-400 rounded-xl"><i class="fa-brands fa-facebook text-xl"></i></div>
+                    <div>
+                        <h3 class="font-extrabold text-lg">Analisis Ide URL Video / Reels</h3>
+                        <p class="text-[10px] sm:text-xs text-slate-400 font-medium">Tempelkan link video, AI akan membedah konsep dan memberikan saran konten serupa.</p>
                     </div>
+                </div>
 
-                    <div class="h-64 w-full relative bg-slate-950/30 rounded-2xl border border-white/5 p-2">
-                        <canvas id="analyticsChart"></canvas>
-                        <!-- Chart Loading Overlay -->
-                        <div id="chart-loading" class="absolute inset-0 bg-slate-950/80 backdrop-blur-sm z-10 flex flex-col items-center justify-center rounded-2xl hidden">
-                            <div class="w-8 h-8 border-4 border-indigo-500/20 border-t-indigo-400 rounded-full animate-spin mb-2"></div>
-                            <span class="text-[10px] font-bold text-indigo-300 uppercase tracking-widest">AI Membangun Proyeksi Data...</span>
+                <div class="flex flex-col md:flex-row gap-3">
+                    <input type="text" id="fb-url-input" placeholder="https://www.facebook.com/reel/123456789..." class="flex-grow bg-slate-950 border border-white/10 rounded-xl px-4 py-3 text-xs sm:text-sm text-slate-100 focus:outline-none focus:border-blue-500/50 transition-all" />
+                    <button onclick="handleURLAnalysis()" id="btn-analyze-url" class="bg-blue-500 hover:bg-blue-400 text-slate-950 font-black text-xs px-6 py-3 rounded-xl uppercase transition-all whitespace-nowrap flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-magnifying-glass" id="url-btn-icon"></i> <span id="url-btn-text">Analisis Video</span>
+                    </button>
+                </div>
+
+                <!-- Analysis Results -->
+                <div id="url-loading" class="hidden flex flex-col items-center justify-center space-y-3 py-10">
+                    <div class="w-8 h-8 border-4 border-blue-500/20 border-t-blue-400 rounded-full animate-spin"></div>
+                    <p class="text-xs text-blue-300 font-medium animate-pulse" id="url-loading-text">Menghubungkan ke server GPT-5 Mini...</p>
+                </div>
+
+                <div id="url-result-area" class="hidden grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 pt-4 border-t border-white/5">
+                    <!-- Dynamic Content -->
+                </div>
+            </div>
+        </div>
+
+        <!-- SECTION 3: RIWAYAT (HISTORY) -->
+        <div id="view-history" class="workspace-view space-y-6 hidden">
+            <div class="bg-slate-900 border border-white/5 p-5 sm:p-8 rounded-3xl space-y-6 min-h-[400px]">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between border-b border-white/5 pb-4 gap-4">
+                    <div class="flex items-center gap-3">
+                        <div class="p-2.5 bg-yellow-500/10 text-yellow-400 rounded-xl"><i class="fa-solid fa-clock-rotate-left text-xl"></i></div>
+                        <div>
+                            <h3 class="font-extrabold text-lg">Riwayat Tersimpan</h3>
+                            <p class="text-[10px] sm:text-xs text-slate-400 font-medium">Data tersimpan di perangkat lokal Anda.</p>
                         </div>
                     </div>
-                    
-                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                        <div class="p-4 bg-slate-950/60 rounded-2xl border border-white/5 relative overflow-hidden">
-                            <span class="text-[10px] text-slate-400 block">Prediksi Puncak Posting</span>
-                            <p id="dash-peak" class="text-lg font-black text-cyan-400 mt-1">-</p>
-                        </div>
-                        <div class="p-4 bg-slate-950/60 rounded-2xl border border-white/5 relative overflow-hidden">
-                            <span class="text-[10px] text-slate-400 block">Est. Rata-rata CPM</span>
-                            <p id="dash-cpm" class="text-lg font-black text-emerald-400 mt-1">-</p>
-                        </div>
-                        <div class="p-4 bg-slate-950/60 rounded-2xl border border-white/5 relative overflow-hidden">
-                            <span class="text-[10px] text-slate-400 block">Sub-Niche Meroket</span>
-                            <p id="dash-topniche" class="text-lg font-black text-indigo-400 mt-1">-</p>
-                        </div>
-                        <div class="p-4 bg-slate-950/60 rounded-2xl border border-white/5 relative overflow-hidden">
-                            <span class="text-[10px] text-slate-400 block">Target Retensi Hook (AI)</span>
-                            <p id="dash-hook" class="text-lg font-black text-rose-400 mt-1">-</p>
-                        </div>
-                    </div>
+                    <button onclick="clearHistory()" class="w-full sm:w-auto px-4 py-2 bg-red-500/10 hover:bg-red-500/20 text-red-400 rounded-xl text-xs font-bold border border-red-500/20 transition-all flex justify-center items-center gap-2"><i class="fa-solid fa-trash"></i> Bersihkan Riwayat</button>
+                </div>
+
+                <div id="history-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <!-- Filled dynamically -->
                 </div>
             </div>
         </div>
 
     </main>
 
-    <!-- Footer -->
-    <footer class="mt-auto border-t border-white/5 bg-slate-950 py-6 text-center text-xs text-slate-500">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-2">
-            <p>© 2026 ProPulse FB Pro Suite. Terintegrasi dengan Multi-Algoritma AI Gemini (Ringan & Berat).</p>
-            <p class="text-[10px]">Didesain khusus untuk Kreator Video Meta (Reels & In-Stream) Indonesia.</p>
-        </div>
+    <footer class="mt-auto border-t border-white/5 bg-slate-950 py-6 text-center text-xs text-slate-500 px-4">
+        <p>© 2026 ProPulse FB Pro Suite. Terhubung dengan GPT-5 Mini Backend via API.</p>
     </footer>
 
     <script>
-        // DAFTAR NICHE
+        // NICHES
         const NICHES = [
-            { id: 'umum', name: '🌍 Umum', keywords: 'Kreator umum, hiburan, meme, viral Indonesia' },
-            { id: 'kuliner', name: '🍟 Kuliner / Mukbang', keywords: 'Resep masakan rumah, mukbang pedas, kuliner kaki lima, jajanan viral' },
-            { id: 'gaming', name: '🎮 Gaming / Streamer', keywords: 'Mobile Legends, PUBG, kelucuan game, trik rahasia game' },
-            { id: 'tutorial', name: '💡 Tutorial & Edukasi', keywords: 'Cara monetisasi, tutorial ngedit di HP, belajar canva, tips keuangan' },
-            { id: 'vlog', name: '🎥 Daily Vlog', keywords: 'Keseharian ibu rumah tangga, drama keluarga, prank bersih rumah' },
-            { id: 'beauty', name: '💅 Kecantikan & Fashion', keywords: 'Makeup pemula, transisi makeup, outfit murah Shopee, skincare routine' },
-            { id: 'bisnis', name: '💼 Bisnis & Usaha', keywords: 'Ide usaha modal kecil, jualan live, kisah sukses umkm, trik marketing' },
+            { id: 'umum', name: '🌍 Umum', keywords: 'hiburan, meme, viral Indonesia, tren umum' },
+            { id: 'kuliner', name: '🍟 Kuliner / Mukbang', keywords: 'resep masakan, mukbang, review makanan, jajanan viral' },
+            { id: 'gaming', name: '🎮 Gaming / Streamer', keywords: 'gameplay, Mobile Legends, PUBG, streamer, trik game' },
+            { id: 'edukasi', name: '💡 Tutorial & Edukasi', keywords: 'tutorial bermanfaat, cara ngedit, edukasi unik, lifehacks' },
+            { id: 'vlog', name: '🎬 Daily Vlog', keywords: 'vlog keseharian, a day in my life, mini vlog, cerita hidup' },
+            { id: 'kecantikan', name: '💅 Kecantikan & Fashion', keywords: 'skincare routine, makeup tutorial, ootd, fashion hacks' },
+            { id: 'bisnis', name: '💼 Bisnis & Usaha', keywords: 'ide bisnis, jualan online, motivasi sukses, tips cuan' },
         ];
 
-        // Global State Management
         let state = {
             selectedNiche: 'umum',
-            activeTab: 'all',
-            trends: [], 
+            trends: [],
             selectedTrend: null,
-            isCrawling: false,
-            isGeneratingScript: false,
-            generatedScript: null,
-            sources: [],
-            selectedHookAngle: 'controversial',
-            dashboardSynced: false
+            scriptData: null
         };
 
-        // --- SISTEM ANTREAN & RATE LIMITING ---
-        let nextAvailableApiTime = Date.now();
-        const MIN_API_DELAY_MS = 8000; 
-
-        // Fungsi fetch tangguh dengan mekanisme Exponential Backoff & 2 Model Routing
-        async function fetchGeminiAPI(userQuery, systemPrompt, customPayload = {}, isHeavyTask = false) {
-            
-            // 1. Manfaatkan Antrean Global
-            const now = Date.now();
-            if (now < nextAvailableApiTime) {
-                const waitTime = nextAvailableApiTime - now;
-                nextAvailableApiTime += MIN_API_DELAY_MS; 
-                showToast("Sistem mengatur antrean untuk menjaga batas kuota API...", "info");
-                await new Promise(resolve => setTimeout(resolve, waitTime));
-            } else {
-                nextAvailableApiTime = Date.now() + MIN_API_DELAY_MS;
-            }
-
-            // 2. Tentukan model (3.1-flash-lite untuk berat, 2.5-flash-lite untuk ringan)
-            const selectedModel = isHeavyTask ? "gemini-3.1-flash-lite" : "gemini-2.5-flash-lite";
-
-            // 3. Susun Payload Standar Gemini API
-            const payload = {
-                contents: [{
-                    role: "user",
-                    parts: [{ text: userQuery }]
-                }],
-                systemInstruction: {
-                    parts: [{ text: systemPrompt }]
-                },
-                model: selectedModel, // Disisipkan ke backend routing
-                ...customPayload
-            };
-
-            const delays = [8000, 12000, 15000, 20000];
-            
-            // 4. Sistem Loop Retry (Max 5 kali)
-            for (let i = 0; i < 5; i++) {
-                try {
-                    const response = await fetch('/api/gemini', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify(payload)
-                    });
-
-                    if (!response.ok) {
-                        if (response.status === 429) {
-                            throw new Error("429: Batas Kuota / RPM Terlampaui");
-                        }
-                        const errData = await response.json().catch(() => ({}));
-                        throw new Error(errData.error?.message || `Terjadi kesalahan server. (Kode: ${response.status})`);
-                    }
-
-                    return await response.json();
-
-                } catch (error) {
-                    console.warn(`[Auto-Retry] Percobaan ke-${i + 1} gagal karena:`, error.message);
-                    
-                    if (i === 4) {
-                        showToast("Sistem sibuk karena batas limit kuota Google AI. Mohon tunggu sejenak.", "error");
-                        throw error;
-                    }
-                    
-                    if (error.message.includes('429')) {
-                        showToast(`Limit tercapai. Mencoba ulang dalam ${delays[i]/1000} detik...`, "info");
-                    }
-
-                    await new Promise(res => setTimeout(res, delays[i]));
-                }
-            }
+        // --- Core UI Functions ---
+        
+        function startProgressAnim(elementId, steps) {
+            const el = document.getElementById(elementId);
+            if(!el) return null;
+            let i = 0;
+            el.innerText = steps[0];
+            return setInterval(() => {
+                i = (i + 1) % steps.length;
+                el.innerText = steps[i];
+            }, 2000);
         }
 
-        // Global Toasts Helper
         function showToast(message, type = 'success') {
             const container = document.getElementById('toast-container');
-            if(!container) return;
             const toast = document.createElement('div');
+            let icon = '<i class="fa-solid fa-check text-emerald-400"></i>';
+            let bg = 'bg-emerald-500/15 border-emerald-500/30 text-emerald-200';
+            if (type === 'error') { icon = '<i class="fa-solid fa-xmark text-red-400"></i>'; bg = 'bg-red-500/15 border-red-500/30 text-red-200'; }
+            if (type === 'info') { icon = '<i class="fa-solid fa-info text-cyan-400"></i>'; bg = 'bg-cyan-500/15 border-cyan-500/30 text-cyan-200'; }
             
-            let icon = '<i class="fa-solid fa-circle-check text-emerald-400"></i>';
-            let bgClass = 'bg-emerald-500/15 border-emerald-500/30 text-emerald-200';
-            
-            if (type === 'error') {
-                icon = '<i class="fa-solid fa-circle-exclamation text-red-400"></i>';
-                bgClass = 'bg-red-500/15 border-red-500/30 text-red-200';
-            } else if (type === 'info') {
-                icon = '<i class="fa-solid fa-microchip text-cyan-400 animate-pulse"></i>';
-                bgClass = 'bg-cyan-500/15 border-cyan-500/30 text-cyan-200';
-            }
-
-            toast.className = `flex items-center gap-3 px-5 py-4 rounded-xl shadow-2xl transition-all duration-500 transform translate-y-10 opacity-0 border backdrop-blur-md pointer-events-auto ${bgClass}`;
-            toast.innerHTML = `${icon}<p class="text-xs font-medium leading-relaxed">${message}</p>`;
-
+            toast.className = `flex items-center gap-3 px-4 py-3 rounded-xl shadow-2xl transition-all duration-500 transform translate-y-10 opacity-0 border backdrop-blur-md ${bg}`;
+            toast.innerHTML = `${icon}<p class="text-xs font-medium">${message}</p>`;
             container.appendChild(toast);
             setTimeout(() => toast.classList.remove('translate-y-10', 'opacity-0'), 10);
-
-            setTimeout(() => {
-                toast.classList.add('opacity-0', 'scale-95');
-                setTimeout(() => toast.remove(), 500);
-            }, 5000);
+            setTimeout(() => { toast.classList.add('opacity-0'); setTimeout(() => toast.remove(), 500); }, 3500);
         }
 
-        // Navigation View Toggler
         function switchView(viewId) {
-            document.querySelectorAll('.workspace-view').forEach(view => view.classList.add('hidden'));
-            const targetView = document.getElementById(`view-${viewId}`);
-            if (targetView) targetView.classList.remove('hidden');
-
-            document.querySelectorAll('.view-tab-btn').forEach(btn => {
-                btn.className = btn.dataset.view === viewId 
-                    ? "view-tab-btn px-3 py-1.5 rounded-xl font-semibold transition-all bg-cyan-500 text-slate-950"
-                    : "view-tab-btn px-3 py-1.5 rounded-xl font-semibold text-slate-400 hover:text-white transition-all";
+            document.querySelectorAll('.workspace-view').forEach(v => v.classList.add('hidden'));
+            document.getElementById(`view-${viewId}`).classList.remove('hidden');
+            
+            document.querySelectorAll('.view-tab-btn, .mobile-view-tab-btn').forEach(btn => {
+                if(btn.dataset.view === viewId) {
+                    btn.classList.add('bg-cyan-500', 'text-slate-950');
+                    btn.classList.remove('text-slate-400', 'bg-slate-900');
+                } else {
+                    btn.classList.remove('bg-cyan-500', 'text-slate-950');
+                    btn.classList.add('text-slate-400');
+                }
             });
 
-            document.querySelectorAll('.mobile-view-tab-btn').forEach(btn => {
-                btn.className = btn.dataset.view === viewId
-                    ? "mobile-view-tab-btn shrink-0 px-3 py-1.5 rounded-lg text-xs font-semibold bg-cyan-500 text-slate-950"
-                    : "mobile-view-tab-btn shrink-0 px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-900 text-slate-300";
-            });
-
-            if (viewId === 'performance' && !state.dashboardSynced) {
-                syncDashboardAI();
-            }
+            if(viewId === 'history') renderHistory();
         }
 
-        function copyTextDirectly(text) {
-            if(!text) {
-                showToast("Tidak ada teks yang dapat disalin!", "error"); return;
-            }
+        function copyTextDirectly(text, btnElement = null) {
             const temp = document.createElement('textarea');
             temp.value = text;
             document.body.appendChild(temp);
             temp.select();
-            try {
-                document.execCommand('copy');
-                showToast('Salinan berhasil disimpan ke clipboard!', 'success');
-            } catch(e) {
-                showToast('Salinan gagal diproses.', 'error');
-            }
+            document.execCommand('copy');
             document.body.removeChild(temp);
+            
+            if(btnElement) {
+                const originalHtml = btnElement.innerHTML;
+                btnElement.innerHTML = '<i class="fa-solid fa-check text-emerald-400"></i> Disalin';
+                setTimeout(() => btnElement.innerHTML = originalHtml, 2000);
+            } else {
+                showToast('Berhasil disalin!', 'success');
+            }
         }
 
-        function copyToClipboard(elementId) {
-            const el = document.getElementById(elementId);
-            if (!el) return;
-            let text = (el.tagName === "TEXTAREA" || el.tagName === "INPUT") ? el.value : el.innerText;
-            copyTextDirectly(text);
+        function copyFullScript() {
+            if(!state.scriptData) return;
+            const text = `Judul: ${state.selectedTrend.title}\n\n=== ANALISIS & AUDIENS ===\n${state.scriptData.analisis}\nTarget Audiens: ${state.scriptData.target_audiens}\n\n=== HOOK ===\n${state.scriptData.hook}\n\n=== SCRIPT ===\n${state.scriptData.script}\n\n=== CTA ===\n${state.scriptData.cta}\n\n=== CAPTION ===\n${state.scriptData.caption}\n\n=== HASHTAG ===\n${state.scriptData.hashtags}`;
+            copyTextDirectly(text, document.getElementById('btn-copy-script'));
         }
 
-        // Render functions for Trends Feed Dashboard
+        // ==========================================
+        // GPT-5 MINI Helper (Terhubung ke Backend)
+        // ==========================================
+        
+        const AI_MODEL = "gpt-5-mini";
+        const API_ENDPOINT = "/api/gpt5mini"; 
+
+        function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+
+        async function askGPT(payload) {
+            payload.model = AI_MODEL;
+            const MAX_RETRY = 3;
+
+            for (let attempt = 1; attempt <= MAX_RETRY; attempt++) {
+                try {
+                    const controller = new AbortController();
+                    const timeout = setTimeout(() => { controller.abort(); }, 60000);
+
+                    const response = await fetch(API_ENDPOINT, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify(payload),
+                        signal: controller.signal
+                    });
+
+                    clearTimeout(timeout);
+                    const text = await response.text();
+
+                    if (!response.ok) {
+                        let message = text;
+                        try {
+                            const json = JSON.parse(text);
+                            message = json.error || message;
+                        } catch {}
+                        throw new Error(message);
+                    }
+
+                    return JSON.parse(text);
+                }
+                catch (err) {
+                    console.error("GPT-5 Mini Error (Percobaan " + attempt + "/" + MAX_RETRY + "):", err);
+                    if (attempt >= MAX_RETRY) {
+                        throw err;
+                    }
+                    await sleep(1500);
+                }
+            }
+        }
+
+        /**
+         * Pengganti fetchAI agar kompatibel dengan askGPT backend
+         * [DIPERBARUI] Menerima parameter `feature` untuk identifikasi Redis cache di backend
+         */
+        async function fetchAI(prompt, schema, feature = null) {
+            
+            const enhancedPrompt = prompt + `\n\n[PENTING] Anda WAJIB merespons HANYA dengan format JSON murni yang valid tanpa teks pengantar, tanpa blok kode markdown (\`\`\`json). Struktur JSON wajib:\n${JSON.stringify(schema)}`;
+
+            const payload = {
+                contents: [{ parts: [{ text: enhancedPrompt }] }],
+                systemInstruction: { parts: [{ text: "Anda adalah sistem GPT-5 Mini, konsultan strategi Facebook Pro paling cerdas di dunia. Analisis tren dan buat struktur konten dengan akurasi viral tinggi. Selalu merespons dalam bahasa Indonesia." }] },
+                feature: feature // Dikirim ke backend untuk mengecek cache
+            };
+
+            const data = await askGPT(payload);
+            
+            let textResult = data.candidates?.[0]?.content?.parts?.[0]?.text || "{}";
+            textResult = textResult.replace(/^```json\s*/i, '').replace(/\s*```$/i, '').trim();
+
+            try {
+                const parsedJson = JSON.parse(textResult);
+                return { data: parsedJson, sources: [] }; 
+            } catch (e) {
+                console.error("Gagal parsing JSON dari AI:", textResult);
+                throw new Error("Format respons AI tidak valid. Server sibuk.");
+            }
+        }
+
+        // --- Features ---
+
+        // 1. TREN LIVE
         function renderNiches() {
-            const container = document.getElementById('niche-container');
-            if(!container) return;
-            container.innerHTML = NICHES.map(niche => `
-                <button onclick="selectNiche('${niche.id}')" 
-                    class="px-3 py-1.5 rounded-xl text-xs font-semibold transition-all border border-white/5 ${
-                        state.selectedNiche === niche.id 
-                            ? 'bg-cyan-500 text-slate-950 font-bold shadow-md shadow-cyan-500/10 scale-105' 
-                            : 'bg-white/5 text-slate-300 hover:bg-white/10'
-                    }">
-                    ${niche.name}
-                </button>
-            `).join('');
-            const nicheLabel = document.getElementById('dash-niche-label');
-            if (nicheLabel) {
-                nicheLabel.innerText = `(${NICHES.find(n=>n.id===state.selectedNiche).name})`;
-            }
-        }
-
-        function renderTabs() {
-            const tabs = ['all', 'Reels', 'Video', 'Photo'];
-            const container = document.getElementById('tab-container');
-            if(!container) return;
-            container.innerHTML = tabs.map(tab => `
-                <button onclick="selectTab('${tab}')" 
-                    class="shrink-0 px-3 py-1.5 rounded-lg font-bold transition-all ${
-                        state.activeTab === tab ? 'bg-slate-950 text-cyan-400' : 'text-slate-400 hover:text-white'
-                    }">
-                    ${tab === 'all' ? 'Semua' : tab}
-                </button>
+            document.getElementById('niche-container').innerHTML = NICHES.map(n => `
+                <button onclick="selectNiche('${n.id}')" class="px-3 py-1.5 rounded-lg sm:rounded-xl text-[10px] sm:text-xs font-semibold border border-white/5 transition-all ${state.selectedNiche === n.id ? 'bg-cyan-500 text-slate-950 font-bold shadow-md shadow-cyan-500/20' : 'bg-white/5 text-slate-300 hover:bg-white/10'}">${n.name}</button>
             `).join('');
         }
 
-        function renderTrends() {
-            const container = document.getElementById('trends-feed');
-            if(!container) return;
-            
-            if(state.trends.length === 0) {
-                container.innerHTML = `
-                    <div class="text-center py-12 text-slate-500 bg-slate-900/40 rounded-2xl border border-white/5">
-                        <i class="fa-solid fa-microchip text-4xl mb-3 block opacity-50 animate-pulse"></i>
-                        <p class="text-xs font-medium">Sedang memindai algoritma dan menarik data tren dari AI...<br>Data diperbarui otomatis setiap 30 menit.</p>
-                    </div>`;
-                const panel = document.getElementById('trend-detail-panel');
-                if (panel) panel.classList.add('hidden');
-                return;
-            }
-
-            const filteredTrends = state.activeTab === 'all' ? state.trends : state.trends.filter(item => {
-                if (state.activeTab === 'Reels') return item.category.toLowerCase().includes('reels');
-                if (state.activeTab === 'Video') return item.category.toLowerCase().includes('video');
-                if (state.activeTab === 'Photo') return item.category.toLowerCase().includes('photo');
-                return true;
-            });
-
-            container.innerHTML = filteredTrends.map((trend) => {
-                const isSelected = state.selectedTrend && state.selectedTrend.title === trend.title;
-                const encodedTitle = encodeURIComponent(trend.title);
-                return `
-                <div onclick="selectTrend('${encodedTitle}')" 
-                    class="group relative p-5 rounded-2xl transition-all duration-300 cursor-pointer border ${
-                        isSelected ? 'bg-slate-900 border-cyan-500/30 shadow-lg shadow-cyan-500/5' : 'bg-slate-900/40 hover:bg-slate-900/70 border-white/5'
-                    }">
-                    <div class="flex items-start justify-between gap-4">
-                        <div class="flex items-center gap-2">
-                            <span class="px-2.5 py-0.5 rounded-md text-[10px] font-black uppercase bg-indigo-500/15 text-indigo-400 border border-indigo-500/20">${trend.category}</span>
-                            <span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-cyan-500/10 text-cyan-400 border border-cyan-500/15">📈 ${trend.momentum || 'Trending'}</span>
-                        </div>
-                        <div class="flex items-center gap-1.5">
-                            <span class="text-[10px] text-slate-400 uppercase font-black">AI Score</span>
-                            <span class="text-sm font-mono font-black text-cyan-400">${trend.trendScore}%</span>
-                        </div>
-                    </div>
-                    <h3 class="mt-3 font-extrabold text-base sm:text-lg group-hover:text-cyan-300 transition-colors">${trend.title}</h3>
-                    <div class="mt-3 p-3 bg-slate-950/60 rounded-xl border border-white/5">
-                        <p class="text-xs text-cyan-200 font-medium italic line-clamp-2">${trend.hook}</p>
-                    </div>
-                </div>
-            `}).join('');
-        }
-
-        function renderTrendDetail() {
-            const container = document.getElementById('trend-detail-panel');
-            if(!container) return;
-            const trend = state.selectedTrend;
-            
-            if(!trend) {
-                container.classList.add('hidden');
-                return;
-            }
-            
-            container.classList.remove('hidden');
-            container.innerHTML = `
-                <div class="flex items-center justify-between border-b border-white/5 pb-3">
-                    <h3 class="font-extrabold text-sm uppercase text-cyan-400 flex items-center gap-1.5">
-                        <i class="fa-solid fa-layer-group"></i> Eksekusi Tren AI
-                    </h3>
-                </div>
-                <div>
-                    <span class="px-2.5 py-0.5 rounded-md text-[10px] font-black uppercase bg-indigo-500/15 text-indigo-400 border border-indigo-500/20">${trend.category}</span>
-                    <h2 class="text-xl font-extrabold leading-tight mt-2">${trend.title}</h2>
-                </div>
-                <div class="space-y-1">
-                    <span class="text-[10px] uppercase font-black text-slate-400">Konsep Konten 100% Akurat</span>
-                    <p class="text-xs sm:text-sm text-slate-300 bg-slate-950/40 p-3 rounded-xl border border-white/5">${trend.description}</p>
-                </div>
-                <div class="space-y-1">
-                    <span class="text-[10px] uppercase font-black text-rose-400 flex items-center gap-1.5">
-                        <i class="fa-solid fa-play"></i> Hook Utama (3 Detik Pertama)
-                    </span>
-                    <p class="text-xs sm:text-sm text-rose-200 font-bold italic bg-rose-500/5 p-3 rounded-xl border border-rose-500/10">${trend.hook}</p>
-                </div>
-                <div class="grid grid-cols-2 gap-4">
-                    <div class="bg-slate-950/40 p-3 rounded-xl border border-white/5">
-                        <span class="text-[9px] uppercase font-bold text-slate-400 block mb-1">Rekomendasi Musik</span>
-                        <p class="text-xs font-semibold text-indigo-300 truncate" title="${trend.audio}">${trend.audio || 'Original Trending Audio'}</p>
-                    </div>
-                    <div class="bg-slate-950/40 p-3 rounded-xl border border-white/5">
-                        <span class="text-[9px] uppercase font-bold text-slate-400 block mb-1">Taktik Retensi AI</span>
-                        <p class="text-xs font-semibold text-emerald-300 line-clamp-2" title="${trend.retentionStrategy}">${trend.retentionStrategy || 'Pacing cepat di bawah 1.5 detik'}</p>
-                    </div>
-                </div>
-                <div class="pt-2">
-                    <button onclick="handleGenerateScript()" id="btn-generate"
-                        class="w-full bg-slate-950 hover:bg-slate-900 text-cyan-400 border border-cyan-500/30 px-4 py-3 rounded-xl text-xs font-black uppercase transition-all flex items-center justify-center gap-2 shadow shadow-cyan-500/10">
-                        <i class="fa-solid fa-wand-magic-sparkles" id="icon-generate"></i>
-                        <span id="text-generate">BUATKAN SKRIP VIDEO LENGKAP</span>
-                    </button>
-                </div>
-            `;
-        }
-
-        function renderSources() {
-            const container = document.getElementById('sources-container');
-            const list = document.getElementById('sources-list');
-            if(!container || !list) return;
-            
-            if (state.sources && state.sources.length > 0) {
-                container.classList.remove('hidden');
-                list.innerHTML = state.sources.slice(0, 4).map((source, idx) => `
-                    <a href="${source.uri}" target="_blank" rel="noreferrer" class="p-2 bg-slate-950/60 rounded-lg hover:text-cyan-300 border border-white/5 truncate flex items-center gap-1.5">
-                        <span class="text-cyan-400 font-bold">${idx + 1}.</span> ${source.title}
-                    </a>
-                `).join('');
-            } else {
-                container.classList.add('hidden');
-            }
-        }
-
-        function renderScriptPanel() {
-            const mainContainer = document.getElementById('scripts-container');
-            const contentArea = document.getElementById('script-content-area');
-            const btnCopy = document.getElementById('btn-copy-script');
-            if(!mainContainer || !contentArea || !btnCopy) return;
-
-            if (state.isGeneratingScript || state.generatedScript) {
-                mainContainer.classList.remove('hidden');
-            } else {
-                mainContainer.classList.add('hidden');
-                return;
-            }
-
-            if (state.isGeneratingScript) {
-                btnCopy.classList.add('hidden');
-                contentArea.innerHTML = `
-                    <div class="py-12 flex flex-col items-center justify-center space-y-3">
-                        <div class="w-10 h-10 border-4 border-cyan-500/20 border-t-cyan-400 rounded-full animate-spin"></div>
-                        <p class="text-xs text-cyan-300 font-medium animate-pulse">AI Sedang mengkalkulasi retensi dan menulis skrip...</p>
-                    </div>
-                `;
-            } else if (state.generatedScript) {
-                btnCopy.classList.remove('hidden');
-                contentArea.innerHTML = `
-                    <textarea id="script-textarea" readonly class="w-full bg-slate-950/80 p-5 rounded-2xl border border-white/5 text-slate-300 text-xs font-mono leading-relaxed min-h-[350px] focus:outline-none resize-y">${state.generatedScript}</textarea>
-                `;
-            }
-        }
-
-        function selectNiche(id) {
-            state.selectedNiche = id;
-            renderNiches();
-            state.dashboardSynced = false; 
-            showToast(`Niche dialihkan ke: ${NICHES.find(n => n.id === id).name}`, 'info');
-            // Memicu pencarian tren AI otomatis saat niche diubah
+        async function selectNiche(id) {
+            state.selectedNiche = id; renderNiches();
             triggerNicheCrawling();
         }
 
-        function selectTab(tab) {
-            state.activeTab = tab;
-            renderTabs();
-            renderTrends();
-        }
-
-        function selectTrend(encodedTitle) {
-            const title = decodeURIComponent(encodedTitle);
-            const trend = state.trends.find(t => t.title === title);
-            if(trend) {
-                state.selectedTrend = trend;
-                state.generatedScript = null;
-                renderTrends();
-                renderTrendDetail();
-                renderScriptPanel();
-            }
-        }
-
-        function selectHookAngle(angle, btnElement) {
-            state.selectedHookAngle = angle;
-            document.querySelectorAll('.hook-angle-btn').forEach(btn => {
-                btn.className = "hook-angle-btn p-3 rounded-xl border border-white/10 text-slate-300 text-xs font-semibold hover:bg-white/5 transition-all text-left";
-            });
-            btnElement.className = "hook-angle-btn p-3 rounded-xl border border-white/10 text-slate-300 text-xs font-semibold hover:bg-white/5 transition-all text-left bg-fuchsia-500/15 border-fuchsia-500/30 text-fuchsia-200";
-        }
-
-        // 1. FITUR RAYAP TREN (Heavy Task - Gemini 3.1)
         async function triggerNicheCrawling() {
-            if(state.isCrawling) return;
-
-            const statusPanel = document.getElementById('crawling-status');
-            const statusText = document.getElementById('crawling-text');
-
-            state.isCrawling = true;
-            if(statusPanel) statusPanel.classList.remove('hidden');
-
-            const nicheObj = NICHES.find(n => n.id === state.selectedNiche) || NICHES[0];
-            if(statusText) statusText.innerText = `Menelusuri tren terkini Google Search di Indonesia untuk niche: ${nicheObj.name}...`;
-
-            const systemPrompt = "Anda adalah Analis Tren Media Sosial khusus Facebook Professional (FB Pro). Tugas Anda adalah mendeteksi tren dan topik terpanas di Indonesia dengan perhitungan analitik 100% akurat berbasis data pencarian langsung.";
-            const userQuery = `Gunakan pencarian untuk mendeteksi 4 tren konten termutakhir di Indonesia saat ini untuk niche "${nicheObj.name}" dengan kata kunci pendukung: "${nicheObj.keywords}". Pastikan data yang dihasilkan nyata, aktual, terstruktur, serta diformat dalam bentuk JSON. Evaluasi metrik probabilitas berdasarkan algoritma Meta saat ini. Buat judul tren, rekomendasi audio, kategori konten (Reels, Video, Photo), deskripsi visual terinci, contoh hook pembuka video, AI Score / Kekuatan Tren (0-100), momentum (seperti 'Viral Peak', 'Rising', 'Emerging'), dan strategi retensi penonton.`;
-
-            const jsonSchema = {
-                type: "OBJECT",
-                properties: {
-                    trends: {
-                        type: "ARRAY",
-                        items: {
-                            type: "OBJECT",
-                            properties: {
-                                title: { type: "STRING" }, category: { type: "STRING" }, trendScore: { type: "INTEGER" },
-                                momentum: { type: "STRING" }, hook: { type: "STRING" }, description: { type: "STRING" },
-                                audio: { type: "STRING" }, hashtags: { type: "ARRAY", items: { type: "STRING" } }, retentionStrategy: { type: "STRING" }
-                            }, required: ["title", "category", "trendScore", "momentum", "hook", "description"]
-                        }
-                    }
+            document.getElementById('crawling-status').classList.remove('hidden');
+            const anim = startProgressAnim('crawling-text', ["🔍 Mencari tren via GPT-5 Mini...", "📊 Menganalisis algoritma Meta...", "🧠 Menyusun ide brilian...", "✅ Menyiapkan rekomendasi..."]);
+            
+            const niche = NICHES.find(n => n.id === state.selectedNiche);
+            const prompt = `Berikan ide 3 tren konten FB Reels atau Video Pendek paling panas di Indonesia HARI INI untuk niche: "${niche.name}" (${niche.keywords}). Buat judul tren, deskripsi singkat, dan contoh ide hook.`;
+            
+            const schema = {
+                type: "OBJECT", properties: {
+                    trends: { type: "ARRAY", items: { type: "OBJECT", properties: { title: { type: "STRING" }, desc: { type: "STRING" }, hook: { type: "STRING" } }, required: ["title", "desc", "hook"] } }
                 }, required: ["trends"]
             };
 
             try {
-                // TRUE flag untuk isHeavyTask -> Menggunakan Gemini 3.1 Flash Lite
-                const result = await fetchGeminiAPI(userQuery, systemPrompt, {
-                    tools: [{ "google_search": {} }],
-                    generationConfig: { responseMimeType: "application/json", responseSchema: jsonSchema }
-                }, true);
-
-                const candidate = result.candidates?.[0];
-                if (candidate && candidate.content?.parts?.[0]?.text) {
-                    const gMeta = candidate.groundingMetadata;
-                    state.sources = (gMeta && gMeta.groundingAttributions) 
-                        ? gMeta.groundingAttributions.map(attr => ({ uri: attr.web?.uri, title: attr.web?.title })).filter(src => src.uri) 
-                        : [];
-
-                    const rawJson = JSON.parse(candidate.content.parts[0].text);
-                    if(rawJson.trends && rawJson.trends.length > 0) {
-                        state.trends = rawJson.trends;
-                        state.selectedTrend = rawJson.trends[0];
-                        state.generatedScript = null;
-                        showToast(`Berhasil menemukan ${rawJson.trends.length} tren nyata dari AI 3.1 & Google Search!`, 'success');
-                    } else throw new Error("Struktur respon tidak valid");
-                }
-            } catch(e) {
-                console.warn(e);
-                showToast("Terjadi kesalahan saat mengambil data dari AI.", "error");
-            } finally {
-                state.isCrawling = false;
-                if(statusPanel) statusPanel.classList.add('hidden');
-                renderTrends(); renderTrendDetail(); renderSources(); renderScriptPanel();
-            }
-        }
-
-        // 2. FITUR BUAT SKRIP (Heavy Task - Gemini 3.1)
-        async function handleGenerateScript() {
-            const trend = state.selectedTrend;
-            if(!trend || state.isGeneratingScript) return;
-
-            state.isGeneratingScript = true;
-            state.generatedScript = null;
-            renderScriptPanel();
-
-            const btnIcon = document.getElementById('icon-generate');
-            const btnText = document.getElementById('text-generate');
-            if (btnIcon && btnText) {
-                btnIcon.className = "fa-solid fa-spinner animate-spin";
-                btnText.innerText = "MENYUSUN SKRIP AI...";
-            }
-            const scrContainer = document.getElementById('scripts-container');
-            if (scrContainer) {
-                scrContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            }
-
-            const systemPrompt = "Anda adalah Scriptwriter profesional untuk platform video Meta (Reels & In-Stream Ads). Analisis setiap kata agar memastikan probabilitas FYP 100% berdasarkan struktur naskah.";
-            const userQuery = `Buatkan draf naskah video berdurasi 60-90 detik yang dioptimalkan 100% khusus untuk algoritma FB Pro Indonesia.
-            Judul: "${trend.title}". Kategori: "${trend.category}". Hook: "${trend.hook}". Penjelasan: "${trend.description}".
-            Uraikan: 1. Struktur Waktu (Detik 0-5 Hook dll). 2. Petunjuk Visual Kamera. 3. Narasi Suara (VO) yang natural. 4. Teks Overlay layar.`;
-
-            try {
-                // TRUE flag untuk isHeavyTask -> Menggunakan Gemini 3.1 Flash Lite
-                const result = await fetchGeminiAPI(userQuery, systemPrompt, {}, true);
-                const text = result.candidates?.[0]?.content?.parts?.[0]?.text;
-                if(text) {
-                    state.generatedScript = text;
-                    showToast("Skrip akurat berhasil diproduksi oleh AI 3.1!", "success");
-                } else throw new Error();
-            } catch(e) {
-                showToast("Gagal menyusun skrip. Silakan coba lagi.", "error");
-            } finally {
-                state.isGeneratingScript = false;
-                if (btnIcon && btnText) {
-                    btnIcon.className = "fa-solid fa-wand-magic-sparkles";
-                    btnText.innerText = "BUATKAN SKRIP VIDEO LENGKAP";
-                }
-                renderScriptPanel();
-            }
-        }
-
-        // 3. FITUR REPURPOSER (Heavy Task - Gemini 3.1)
-        async function handleRepurpose() {
-            const source = document.getElementById('repurpose-source').value.trim();
-            const format = document.getElementById('repurpose-format').value;
-            const outputArea = document.getElementById('repurpose-output');
-            const loading = document.getElementById('repurpose-loading');
-            const btnIcon = document.getElementById('repurpose-btn-icon');
-            const btnText = document.getElementById('repurpose-btn-text');
-
-            if(!source) { showToast("Mohon isi sumber teks utama terlebih dahulu!", "error"); return; }
-
-            if(outputArea) outputArea.classList.add('hidden');
-            if(loading) loading.classList.remove('hidden');
-            if(btnIcon) btnIcon.className = "fa-solid fa-spinner animate-spin";
-            if(btnText) btnText.innerText = "AI SEDANG MERAKIT...";
-
-            const systemPrompt = "Anda adalah AI Ahli Konversi Konten (Repurposer) tingkat tinggi. Hitung probabilitas engagement secara diam-diam dan modifikasi teks agar selalu memiliki retensi tinggi.";
-            const userQuery = `Konversi naskah asli berikut ini secara akurat:\n\n"${source}"\n\nUbah ke format: ${format.toUpperCase()}. Jika formatnya Reels, jadikan skrip video pendek dinamis. Jika Korsel, jadikan struktur slide per slide bergambar. Jika Threads, jadikan utas beruntun.`;
-
-            try {
-                // TRUE flag untuk isHeavyTask -> Menggunakan Gemini 3.1 Flash Lite
-                const result = await fetchGeminiAPI(userQuery, systemPrompt, {}, true);
-                const text = result.candidates?.[0]?.content?.parts?.[0]?.text;
-                if(text) {
-                    if(outputArea) outputArea.value = text;
-                    showToast("Repurposing AI 3.1 berhasil diselesaikan!", "success");
-                } else throw new Error();
-            } catch(e) {
-                showToast("Gagal melakukan konversi format naskah.", "error");
-            } finally {
-                if(loading) loading.classList.add('hidden');
-                if(outputArea) outputArea.classList.remove('hidden');
-                if(btnIcon) btnIcon.className = "fa-solid fa-arrows-spin";
-                if(btnText) btnText.innerText = "MULAI OTOMATISASI FORMAT";
-            }
-        }
-
-        // 4. FITUR HOOK & JUDUL (Light Task - Gemini 2.5)
-        async function handleGenerateHooks() {
-            const topic = document.getElementById('hook-topic').value.trim();
-            if(!topic) { showToast("Masukkan topik atau kata kunci terlebih dahulu!", "error"); return; }
-
-            const loading = document.getElementById('hook-loading');
-            const resultArea = document.getElementById('hook-result-area');
-            const btnIcon = document.getElementById('hook-btn-icon');
-            const btnText = document.getElementById('hook-btn-text');
-
-            if(resultArea) resultArea.classList.add('hidden');
-            if(loading) loading.classList.remove('hidden');
-            if(btnIcon) btnIcon.className = "fa-solid fa-spinner animate-spin";
-            if(btnText) btnText.innerText = "AI MEMPROSES FORMULA...";
-
-            const prompt = `Analisis algoritma Meta saat ini. Buatkan 3 pilihan Hook dan Judul Video yang 100% terbukti viral untuk topik: "${topic}". Fokuskan angle psikologis ke arah: ${state.selectedHookAngle}. Jangan gunakan karakter markdown.`;
-            const jsonSchema = { type: "OBJECT", properties: { hooks: { type: "ARRAY", items: { type: "STRING" } } }, required: ["hooks"] };
-            
-            try {
-                // FALSE flag untuk isHeavyTask -> Menggunakan Gemini 2.5 Flash Lite
-                const result = await fetchGeminiAPI(prompt, "Anda AI Copywriter cerdas, ahli dalam click-bait berkelas untuk platform Meta yang dapat memprediksi perilaku audiens.", {
-                    generationConfig: { responseMimeType: "application/json", responseSchema: jsonSchema }
-                }, false);
+                // MENGIRIM FEATURE "trend" AGAR DIBACA OLEH REDIS BACKEND
+                const res = await fetchAI(prompt, schema, "trend");
+                state.trends = res.data.trends;
                 
-                const text = result.candidates?.[0]?.content?.parts?.[0]?.text;
-                if(text) {
-                    const data = JSON.parse(text);
-                    const htmlList = data.hooks.map(line => `
-                        <div class="bg-slate-950/60 p-4 rounded-xl border border-fuchsia-500/20 text-fuchsia-100 text-sm font-semibold flex justify-between items-center gap-3">
-                            <span class="pr-2">${line}</span>
-                            <button onclick="copyTextDirectly('${line.replace(/['"\\]/g, '\\$&')}')" class="text-fuchsia-400 hover:text-white shrink-0"><i class="fa-solid fa-copy"></i></button>
+                const now = new Date();
+                document.getElementById('last-update-time').innerHTML = `<i class="fa-regular fa-clock"></i> ${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')} WIB`;
+                document.getElementById('sources-container').classList.add('hidden'); 
+
+                document.getElementById('trends-feed').innerHTML = state.trends.map((t, idx) => `
+                    <div onclick="selectTrend(${idx})" class="group p-4 bg-slate-900/50 hover:bg-slate-800 border border-white/5 hover:border-cyan-500/50 rounded-2xl cursor-pointer transition-all relative overflow-hidden">
+                        <div class="absolute right-0 top-0 h-full w-1 bg-cyan-500 opacity-0 group-hover:opacity-100 transition-all"></div>
+                        <div class="flex items-center justify-between mb-2"><span class="px-2 py-0.5 rounded text-[9px] font-bold bg-cyan-500/10 text-cyan-400">🔥 POTENSI VIRAL</span></div>
+                        <h3 class="font-extrabold text-sm sm:text-base text-white group-hover:text-cyan-300 transition-colors">${t.title}</h3>
+                        <p class="text-[11px] sm:text-xs text-slate-400 mt-2 line-clamp-2">${t.desc}</p>
+                    </div>
+                `).join('');
+                showToast("Tren berhasil diperbarui!");
+            } catch(e) {
+                showToast("Gagal memanggil API GPT-5 Mini. Pastikan server backend Anda berjalan.", "error");
+                document.getElementById('trends-feed').innerHTML = `<div class="text-center py-10 text-red-500 bg-red-900/10 rounded-2xl border border-red-500/20"><i class="fa-solid fa-triangle-exclamation text-3xl mb-3 block"></i><p class="text-xs font-medium">Gagal terhubung ke /api/gpt5mini.</p></div>`;
+            } finally {
+                clearInterval(anim);
+                document.getElementById('crawling-status').classList.add('hidden');
+            }
+        }
+
+        // 2. SCRIPT GENERATOR
+        async function selectTrend(idx) {
+            state.selectedTrend = state.trends[idx];
+            document.getElementById('scripts-container').classList.remove('hidden');
+            
+            if(window.innerWidth < 1024) {
+                setTimeout(() => document.getElementById('scripts-container').scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
+            }
+
+            document.getElementById('script-content-area').innerHTML = `<div class="py-12 flex flex-col items-center"><div class="w-8 h-8 border-4 border-emerald-500/20 border-t-emerald-400 rounded-full animate-spin"></div><p class="text-xs text-emerald-400 mt-3" id="script-anim-text">Menganalisis...</p></div>`;
+            document.getElementById('ai-scores-container').innerHTML = '';
+            
+            const anim = startProgressAnim('script-anim-text', ["🔍 Menganalisis audiens...", "✍️ Menulis hook & script...", "📝 Menyusun caption & hashtag...", "✅ Menyelesaikan..."]);
+
+            const prompt = `Buat naskah komprehensif untuk konten FB Reels terkait topik: "${state.selectedTrend.title}". 
+            Harus mencakup poin berikut:
+            1. Analisis tren ini.
+            2. Target audiens spesifik.
+            3. Hook 3 detik yang mengikat secara emosional.
+            4. Script/Naskah lengkap (narasi & aksi visual).
+            5. CTA (Call to Action) untuk mengundang komentar dan share.
+            6. Caption postingan yang menarik.
+            7. Hashtag yang relevan (kombinasi makro, mikro).
+            Serta, berikan metrik AI Score (0-100) untuk Viral, Hook, Retensi, dan Potensi Share.`;
+
+            const schema = {
+                type: "OBJECT", properties: {
+                    analisis: {type: "STRING"}, target_audiens: {type: "STRING"}, hook: {type: "STRING"}, script: {type: "STRING"}, cta: {type: "STRING"}, caption: {type: "STRING"}, hashtags: {type: "STRING"},
+                    scores: { type: "OBJECT", properties: { viral: {type: "INTEGER"}, hook: {type: "INTEGER"}, retensi: {type: "INTEGER"}, share: {type: "INTEGER"} } }
+                }, required: ["analisis", "target_audiens", "hook", "script", "cta", "caption", "hashtags", "scores"]
+            };
+
+            try {
+                // Tidak dikirim feature "trend", bypass cache redis
+                const res = await fetchAI(prompt, schema);
+                state.scriptData = res.data;
+                const d = state.scriptData;
+                
+                document.getElementById('script-timestamp').innerText = "Dibuat: " + new Date().toLocaleString('id-ID');
+                
+                document.getElementById('ai-scores-container').innerHTML = [
+                    {k: 'Viral Score', v: d.scores.viral, c: 'text-rose-400', bg:'bg-rose-500'}, {k: 'Kekuatan Hook', v: d.scores.hook, c: 'text-fuchsia-400', bg:'bg-fuchsia-500'},
+                    {k: 'Retensi', v: d.scores.retensi, c: 'text-cyan-400', bg:'bg-cyan-500'}, {k: 'Potensi Share', v: d.scores.share, c: 'text-emerald-400', bg:'bg-emerald-500'}
+                ].map(s => `
+                    <div class="bg-slate-900/60 p-2 sm:p-3 rounded-xl border border-white/5 flex flex-col justify-center">
+                        <span class="text-[8px] sm:text-[9px] uppercase font-bold text-slate-400 block">${s.k}</span>
+                        <div class="flex items-center justify-between mt-1"><span class="text-sm sm:text-lg font-black ${s.c}">${s.v}/100</span></div>
+                        <div class="w-full bg-slate-950 rounded-full h-1 mt-1"><div class="h-1 rounded-full ${s.bg}" style="width: ${s.v}%"></div></div>
+                    </div>
+                `).join('');
+
+                const renderSec = (title, content, icon, color, dataKey) => `
+                    <div class="space-y-2 bg-slate-900/30 p-3 sm:p-4 rounded-xl border border-white/5 group">
+                        <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2">
+                            <span class="text-[10px] sm:text-xs uppercase font-black ${color} flex items-center gap-1.5"><i class="fa-solid ${icon}"></i> ${title}</span>
+                            <button onclick="copyTextDirectly(\`${content.replace(/`/g, "\\`")}\`, this)" class="w-fit text-[10px] px-2 py-1 bg-white/5 hover:bg-white/10 rounded-md text-slate-300 transition-all flex items-center gap-1 border border-white/5">
+                                <i class="fa-solid fa-copy"></i> Copy
+                            </button>
                         </div>
-                    `).join('');
-                    if(resultArea) resultArea.innerHTML = `<div class="space-y-3">${htmlList}</div>`;
-                    showToast("Hook viral hasil AI 2.5 berhasil dirumuskan!", "success");
-                } else throw new Error();
-            } catch(e) {
-                showToast("Gagal menghasilkan Hook AI.", "error");
-            } finally {
-                if(loading) loading.classList.add('hidden');
-                if(resultArea) resultArea.classList.remove('hidden');
-                if(btnIcon) btnIcon.className = "fa-solid fa-bolt";
-                if(btnText) btnText.innerText = "PRODUKSI FORMULA AI";
-            }
-        }
+                        <div class="font-mono text-[11px] sm:text-xs whitespace-pre-line leading-relaxed text-slate-300">${content}</div>
+                    </div>
+                `;
 
-        // 5. FITUR ANALISIS SENTIMEN KOMENTAR (Light Task - Gemini 2.5)
-        function loadMockComments() {
-            const input = document.getElementById('comments-input');
-            if (input) {
-                input.value = `Bang, resepnya susah banget bahan-bahannya cari dimana?\nWah keren banget, akhirnya bisa fyp juga berkat trik ini!\nKak bahas dong soal pembaruan kebijakan monetisasi yang baru, bingung nih.\nAudio nya kebesaran, suaranya kurang jelas min.\nTerima kasih ilmunya suhu, sehat selalu.`;
-            }
-        }
-
-        async function handleSentimentAnalysis() {
-            const comments = document.getElementById('comments-input').value.trim();
-            if(!comments) { showToast("Tempelkan komentar terlebih dahulu!", "error"); return; }
-
-            const placeholder = document.getElementById('sentiment-placeholder');
-            const outputArea = document.getElementById('sentiment-output-area');
-            const loading = document.getElementById('sentiment-loading');
-
-            if(placeholder) placeholder.classList.add('hidden');
-            if(outputArea) outputArea.classList.add('hidden');
-            if(loading) loading.classList.remove('hidden');
-
-            const systemPrompt = "Anda adalah AI Analis Sentimen Media Sosial yang 100% akurat. Anda menggunakan model NLP (Natural Language Processing) untuk memahami konteks dan emosi.";
-            const userQuery = `Lakukan NLP dan analisis sentimen akurat terhadap kumpulan komentar ini:\n\n"${comments}"\n\nTentukan persentase sentimen (positif, netral, negatif total 100%). Identifikasi 2 keluhan/pertanyaan utama yang paling penting dijawab. Buatkan 2 draf balasan pintar AI yang terbukti secara algoritmik dapat meningkatkan interaksi thread.`;
-
-            const jsonSchema = {
-                type: "OBJECT",
-                properties: {
-                    positive: { type: "INTEGER" }, neutral: { type: "INTEGER" }, negative: { type: "INTEGER" },
-                    questions: { type: "ARRAY", items: { type: "STRING" } }, replies: { type: "ARRAY", items: { type: "STRING" } }
-                }, required: ["positive", "neutral", "negative", "questions", "replies"]
-            };
-
-            try {
-                // FALSE flag untuk isHeavyTask -> Menggunakan Gemini 2.5 Flash Lite
-                const result = await fetchGeminiAPI(userQuery, systemPrompt, {
-                    generationConfig: { responseMimeType: "application/json", responseSchema: jsonSchema }
-                }, false);
+                document.getElementById('script-content-area').innerHTML = `
+                    ${renderSec('Analisis & Target Audiens', `Analisis: ${d.analisis}\n\nTarget Audiens: ${d.target_audiens}`, 'fa-magnifying-glass-chart', 'text-blue-400')}
+                    ${renderSec('Hook Utama (3 Detik)', d.hook, 'fa-bolt', 'text-rose-400')}
+                    ${renderSec('Naskah & Visual Lengkap', d.script, 'fa-video', 'text-emerald-400')}
+                    ${renderSec('Call to Action (CTA)', d.cta, 'fa-bullhorn', 'text-fuchsia-400')}
+                    ${renderSec('Caption & SEO Hashtags', `${d.caption}\n\n${d.hashtags}`, 'fa-hashtag', 'text-cyan-400')}
+                `;
                 
-                const text = result.candidates?.[0]?.content?.parts?.[0]?.text;
-                if(text) {
-                    const data = JSON.parse(text);
-                    const pVal = document.getElementById('sentiment-p-val');
-                    const nuVal = document.getElementById('sentiment-nu-val');
-                    const nVal = document.getElementById('sentiment-n-val');
-                    if (pVal) pVal.innerText = `${data.positive}%`;
-                    if (nuVal) nuVal.innerText = `${data.neutral}%`;
-                    if (nVal) nVal.innerText = `${data.negative}%`;
-
-                    const qDiv = document.getElementById('sentiment-questions');
-                    if (qDiv) {
-                        qDiv.innerHTML = data.questions.map((q, i) => `<p class="mb-1"><span class="text-cyan-400 font-bold">Q${i+1}:</span> "${q}"</p>`).join('');
-                    }
-                    
-                    const rDiv = document.getElementById('sentiment-replies');
-                    if (rDiv) {
-                        rDiv.innerHTML = data.replies.map(r => `
-                            <div class="p-2 bg-indigo-500/10 rounded flex justify-between items-center group">
-                                <span class="pr-2 text-indigo-100">"${r}"</span>
-                                <button onclick="copyTextDirectly('${r.replace(/['"\\]/g, '\\$&')}')" class="text-indigo-400 hover:text-white shrink-0"><i class="fa-solid fa-copy"></i></button>
-                            </div>
-                        `).join('');
-                    }
-                    showToast("Sentimen berhasil dibedah oleh AI 2.5!", "success");
-                } else throw new Error();
-            } catch(e) {
-                showToast("Gagal memproses sentimen AI.", "error");
-            } finally {
-                if(loading) loading.classList.add('hidden');
-                if(outputArea) outputArea.classList.remove('hidden');
-            }
-        }
-
-        // 6. FITUR ASISTEN SEO (Light Task - Gemini 2.5)
-        async function handleGenerateSeo() {
-            const title = document.getElementById('seo-title-input').value.trim();
-            if(!title) { showToast("Masukkan judul konten terlebih dahulu!", "error"); return; }
-            
-            const placeholder = document.getElementById('seo-placeholder');
-            const outputArea = document.getElementById('seo-output-area');
-            const loading = document.getElementById('seo-loading');
-
-            if(placeholder) placeholder.classList.add('hidden');
-            if(outputArea) outputArea.classList.add('hidden');
-            if(loading) loading.classList.remove('hidden');
-
-            const systemPrompt = "Anda adalah AI Pakar SEO Media Sosial dengan basis data pengetahuan pengindeksan Meta.";
-            const userQuery = `Kalkulasikan probabilitas pencarian dan buatkan deskripsi meta SEO 100% teroptimasi beserta struktur klaster hashtag untuk judul konten: "${title}". Berikan hashtag Makro (populer), Medium (spesifik niche), dan Mikro (spesifik/long-tail) yang tepat sasaran.`;
-
-            const jsonSchema = {
-                type: "OBJECT",
-                properties: {
-                    description: { type: "STRING" }, macroTags: { type: "STRING" }, mediumTags: { type: "STRING" }, microTags: { type: "STRING" }
-                }, required: ["description", "macroTags", "mediumTags", "microTags"]
-            };
-
-            try {
-                // FALSE flag untuk isHeavyTask -> Menggunakan Gemini 2.5 Flash Lite
-                const result = await fetchGeminiAPI(userQuery, systemPrompt, {
-                    generationConfig: { responseMimeType: "application/json", responseSchema: jsonSchema }
-                }, false);
+                saveToHistory('Script', state.selectedTrend.title, d);
                 
-                const text = result.candidates?.[0]?.content?.parts?.[0]?.text;
-                if(text) {
-                    const data = JSON.parse(text);
-                    const desc = document.getElementById('seo-description');
-                    const macro = document.getElementById('seo-tags-macro');
-                    const med = document.getElementById('seo-tags-medium');
-                    const mic = document.getElementById('seo-tags-micro');
-                    if(desc) desc.value = data.description;
-                    if(macro) macro.innerText = data.macroTags;
-                    if(med) med.innerText = data.mediumTags;
-                    if(mic) mic.innerText = data.microTags;
-                    showToast("Data SEO berhasil di-generate secara akurat dengan AI 2.5!", "success");
-                } else throw new Error();
-            } catch (e) {
-                showToast("Gagal memproses SEO AI.", "error");
-            } finally {
-                if(loading) loading.classList.add('hidden');
-                if(outputArea) outputArea.classList.remove('hidden');
-            }
+            } catch(e) {
+                document.getElementById('script-content-area').innerHTML = `<p class="text-red-400 text-xs text-center py-5">Gagal memproses script. Pastikan API menyala.</p>`;
+            } finally { clearInterval(anim); }
         }
 
-        // 7. FITUR ANALISIS PERFORMA (Heavy Task - Gemini 3.1)
-        function renderMetric(icon, title, value, type = 'percent') {
-            const isPercent = type === 'percent';
-            const displayValue = isPercent ? `${value}%` : value;
-            const colorClass = isPercent && value >= 80 ? 'bg-emerald-500' : isPercent && value >= 50 ? 'bg-cyan-500' : isPercent ? 'bg-rose-500' : 'bg-fuchsia-500';
+        // 3. ANALISIS URL
+        async function handleURLAnalysis() {
+            const url = document.getElementById('fb-url-input').value;
+            if(!url) return showToast("Masukkan link URL Facebook!", "error");
             
-            let progressBar = '';
-            if (isPercent) {
-                progressBar = `
-                <div class="w-full bg-slate-900 rounded-full h-1.5 mt-2 overflow-hidden border border-white/5">
-                    <div class="h-1.5 rounded-full ${colorClass} progress-bar-fill" style="width: 0%" data-width="${value}%"></div>
-                </div>`;
+            document.getElementById('url-result-area').classList.add('hidden');
+            document.getElementById('url-loading').classList.remove('hidden');
+            const anim = startProgressAnim('url-loading-text', ["🔄 Memeriksa konteks URL...", "🎥 Menganalisis...", "⚖️ Menimbang kelebihan...", "💡 Merumuskan saran..."]);
+            
+            const prompt = `Simulasikan analisis pakar untuk video/ide dari link ini: ${url}. Berikan evaluasi yang mendalam dan tajam (asumsikan konten URL tersebut berdasarkan topiknya).
+            Format JSON harus memiliki:
+            1. Kelebihan (Array string)
+            2. Kekurangan (Array string)
+            3. Hook: Saran hook alternatif yang lebih baik
+            4. CTA: Saran Call-to-action yang lebih baik
+            5. Saran: Strategi perbaikan keseluruhan.`;
+            
+            const schema = { type: "OBJECT", properties: { kelebihan: {type:"ARRAY", items:{type:"STRING"}}, kekurangan: {type:"ARRAY", items:{type:"STRING"}}, hook: {type:"STRING"}, cta: {type:"STRING"}, saran: {type:"STRING"} }, required:["kelebihan","kekurangan","hook","cta","saran"] };
+            
+            try {
+                // Tidak dikirim feature "trend", bypass cache redis
+                const res = await fetchAI(prompt, schema);
+                const d = res.data;
+                
+                document.getElementById('url-result-area').innerHTML = `
+                    <div class="space-y-4">
+                        <div class="bg-emerald-500/10 border border-emerald-500/20 p-4 rounded-xl relative group">
+                            <button onclick="copyTextDirectly(\`${d.kelebihan.join('\\n')}\`, this)" class="absolute top-3 right-3 text-[10px] px-2 py-1 bg-emerald-500/20 text-emerald-300 rounded border border-emerald-500/30 opacity-0 group-hover:opacity-100 transition-all"><i class="fa-solid fa-copy"></i> Copy</button>
+                            <span class="text-[11px] font-bold text-emerald-400 block mb-2"><i class="fa-solid fa-plus-circle"></i> Kelebihan Konten</span>
+                            <ul class="text-xs text-emerald-100 space-y-1.5 list-disc pl-4">${d.kelebihan.map(k=>`<li>${k}</li>`).join('')}</ul>
+                        </div>
+                        <div class="bg-red-500/10 border border-red-500/20 p-4 rounded-xl relative group">
+                            <button onclick="copyTextDirectly(\`${d.kekurangan.join('\\n')}\`, this)" class="absolute top-3 right-3 text-[10px] px-2 py-1 bg-red-500/20 text-red-300 rounded border border-red-500/30 opacity-0 group-hover:opacity-100 transition-all"><i class="fa-solid fa-copy"></i> Copy</button>
+                            <span class="text-[11px] font-bold text-red-400 block mb-2"><i class="fa-solid fa-minus-circle"></i> Kekurangan (Faktor Drop)</span>
+                            <ul class="text-xs text-red-100 space-y-1.5 list-disc pl-4">${d.kekurangan.map(k=>`<li>${k}</li>`).join('')}</ul>
+                        </div>
+                    </div>
+                    <div class="space-y-4">
+                        <div class="bg-slate-900/60 border border-white/5 p-4 rounded-xl relative group">
+                            <button onclick="copyTextDirectly(\`Hook: ${d.hook}\\nCTA: ${d.cta}\`, this)" class="absolute top-3 right-3 text-[10px] px-2 py-1 bg-white/5 text-slate-300 rounded border border-white/10 opacity-0 group-hover:opacity-100 transition-all"><i class="fa-solid fa-copy"></i> Copy</button>
+                            <span class="text-[11px] font-bold text-cyan-400 block mb-1">Rekomendasi Hook Baru</span>
+                            <p class="text-xs text-slate-300 italic mb-4">"${d.hook}"</p>
+                            <span class="text-[11px] font-bold text-fuchsia-400 block mb-1">Rekomendasi CTA</span>
+                            <p class="text-xs text-slate-300 italic">"${d.cta}"</p>
+                        </div>
+                        <div class="bg-slate-900/60 border border-white/5 p-4 rounded-xl relative group">
+                            <button onclick="copyTextDirectly(\`${d.saran}\`, this)" class="absolute top-3 right-3 text-[10px] px-2 py-1 bg-white/5 text-slate-300 rounded border border-white/10 opacity-0 group-hover:opacity-100 transition-all"><i class="fa-solid fa-copy"></i> Copy</button>
+                            <span class="text-[11px] font-bold text-blue-400 block mb-1">Saran Perbaikan Menyeluruh</span>
+                            <p class="text-xs text-slate-300 leading-relaxed">${d.saran}</p>
+                        </div>
+                    </div>
+                `;
+                document.getElementById('url-result-area').classList.remove('hidden');
+                saveToHistory('Analisis URL', url, d);
+            } catch(e) {
+                showToast("Analisis gagal. Pastikan API menyala.", "error");
+            } finally { clearInterval(anim); document.getElementById('url-loading').classList.add('hidden'); }
+        }
+
+        // 4. HISTORY LOGIC
+        function saveToHistory(type, title, data) {
+            let history = JSON.parse(localStorage.getItem('fbpro_history') || '[]');
+            history.unshift({ type, title, data, date: new Date().toLocaleString('id-ID') });
+            if(history.length > 30) history = history.slice(0, 30); // Keep max 30
+            localStorage.setItem('fbpro_history', JSON.stringify(history));
+        }
+
+        function clearHistory() {
+            if(!confirm("Yakin ingin menghapus semua riwayat lokal?")) return;
+            localStorage.removeItem('fbpro_history');
+            renderHistory();
+            showToast("Riwayat dibersihkan.");
+        }
+
+        function renderHistory() {
+            const container = document.getElementById('history-container');
+            const history = JSON.parse(localStorage.getItem('fbpro_history') || '[]');
+            
+            if(history.length === 0) {
+                container.innerHTML = `<div class="col-span-1 md:col-span-2 lg:col-span-3 text-center py-12 text-slate-500"><i class="fa-solid fa-folder-open text-4xl mb-3 block opacity-50"></i><p class="text-sm font-medium">Belum ada riwayat tersimpan.</p></div>`;
+                return;
             }
 
-            return `
-            <div class="bg-slate-950/80 p-3 rounded-xl border border-white/5 relative overflow-hidden group hover:border-cyan-500/30 transition-all">
-                <div class="flex justify-between items-start mb-1">
-                    <span class="text-[9px] uppercase font-bold text-slate-400 flex items-center gap-1.5">
-                        ${icon} ${title}
-                    </span>
-                    <span class="text-sm font-black text-slate-100">${displayValue}</span>
+            container.innerHTML = history.map(item => `
+                <div class="bg-slate-950/60 p-4 sm:p-5 rounded-2xl border border-white/5 flex flex-col justify-between group hover:border-cyan-500/30 transition-all">
+                    <div>
+                        <div class="flex justify-between items-start mb-3">
+                            <span class="px-2 py-1 rounded-md text-[9px] font-bold ${item.type === 'Script' ? 'bg-emerald-500/10 text-emerald-400' : 'bg-blue-500/10 text-blue-400'} uppercase border border-white/5">${item.type}</span>
+                            <span class="text-[9px] text-slate-500 flex flex-col items-end"><i class="fa-regular fa-calendar text-[10px] mb-0.5"></i> ${item.date.split(',')[0]}</span>
+                        </div>
+                        <h4 class="font-bold text-sm text-slate-200 line-clamp-2 leading-snug">${item.title}</h4>
+                    </div>
+                    <div class="mt-4 pt-4 border-t border-white/5 flex flex-col gap-2">
+                        <button onclick='copyTextDirectly(${JSON.stringify(JSON.stringify(item.data, null, 2)).replace(/'/g, "&#39;")}, this)' class="w-full text-[10px] px-3 py-2 bg-white/5 text-slate-300 rounded-lg hover:bg-white/10 transition-all border border-white/5 flex items-center justify-center gap-1.5"><i class="fa-solid fa-copy"></i> Salin Raw JSON</button>
+                    </div>
                 </div>
-                ${progressBar}
-            </div>`;
+            `).join('');
         }
 
-        async function handlePerformanceAnalysis() {
-            const views = document.getElementById('perf-views').value;
-            const watchTime = document.getElementById('perf-watch').value;
-            const ctr = document.getElementById('perf-ctr').value;
-            const audience = document.getElementById('perf-audience').value;
-            const shares = document.getElementById('perf-shares').value;
-            const comments = document.getElementById('perf-comments').value;
-            
-            const placeholder = document.getElementById('perf-placeholder');
-            const outputArea = document.getElementById('perf-output-area');
-            const loading = document.getElementById('perf-loading');
-
-            if(placeholder) placeholder.classList.add('hidden');
-            if(outputArea) outputArea.classList.add('hidden');
-            if(loading) loading.classList.remove('hidden');
-
-            const systemPrompt = "Anda adalah Super AI Konsultan Meta tingkat dewa. Anda menghitung algoritma secara presisi 100% dan menghasilkan data analitik mentah yang sangat akurat tanpa basa-basi.";
-            const userQuery = `Lakukan perhitungan algoritma Meta yang 100% akurat berdasarkan data input ini:
-            Views: ${views}, Watch Time: ${watchTime}s, CTR: ${ctr}%, Retensi: ${audience}%, Shares: ${shares}, Comments: ${comments}.
-            
-            Hitung dan keluarkan data json berikut ini:
-            1. AI Score (Integer 0-100)
-            2. FYP Probability (Integer 0-100)
-            3. Trend Momentum (String, misal: "Sangat Tinggi", "Sedang", dll)
-            4. Trend Lifetime (String, misal: "3-5 Hari", "Panjang", dll)
-            5. Audience Interest (Integer 0-100)
-            6. Best Posting Time (String, misal: "19:00 - 20:00 WIB")
-            7. Competition Score (Integer 0-100)
-            8. Viral Potential (Integer 0-100)
-            9. Monetization Score (Integer 0-100)
-            10. AI Confidence (Integer 0-100, seberapa yakin AI dengan hasil ini)
-            
-            Sertakan juga 'diagnose' (evaluasi profesional) dan 'action' (strategi 1 tindakan spesifik).`;
-
-            const jsonSchema = {
-                type: "OBJECT",
-                properties: { 
-                    diagnose: { type: "STRING" }, action: { type: "STRING" },
-                    aiScore: { type: "INTEGER" }, fypProbability: { type: "INTEGER" },
-                    trendMomentum: { type: "STRING" }, trendLifetime: { type: "STRING" },
-                    audienceInterest: { type: "INTEGER" }, bestPostingTime: { type: "STRING" },
-                    competitionScore: { type: "INTEGER" }, viralPotential: { type: "INTEGER" },
-                    monetizationScore: { type: "INTEGER" }, aiConfidence: { type: "INTEGER" }
-                }, required: ["diagnose", "action", "aiScore", "fypProbability", "trendMomentum", "trendLifetime", "audienceInterest", "bestPostingTime", "competitionScore", "viralPotential", "monetizationScore", "aiConfidence"]
-            };
-
-            try {
-                // TRUE flag untuk isHeavyTask -> Menggunakan Gemini 3.1 Flash Lite
-                const result = await fetchGeminiAPI(userQuery, systemPrompt, {
-                    generationConfig: { responseMimeType: "application/json", responseSchema: jsonSchema }
-                }, true);
-                
-                const text = result.candidates?.[0]?.content?.parts?.[0]?.text;
-                if(text) {
-                    const data = JSON.parse(text);
-                    
-                    // Render Metrics Grid
-                    const gridHtml = `
-                        ${renderMetric('🟢', 'AI Score', data.aiScore)}
-                        ${renderMetric('🔥', 'FYP Probability', data.fypProbability)}
-                        ${renderMetric('🚀', 'Viral Potential', data.viralPotential)}
-                        ${renderMetric('👥', 'Audience Interest', data.audienceInterest)}
-                        ${renderMetric('🎯', 'Competition Score', data.competitionScore)}
-                        ${renderMetric('💰', 'Monetization Score', data.monetizationScore)}
-                        ${renderMetric('⭐', 'AI Confidence', data.aiConfidence)}
-                        ${renderMetric('📈', 'Trend Momentum', data.trendMomentum, 'string')}
-                        ${renderMetric('⏳', 'Trend Lifetime', data.trendLifetime, 'string')}
-                        ${renderMetric('🕒', 'Best Posting Time', data.bestPostingTime, 'string')}
-                    `;
-                    const mGrid = document.getElementById('ai-metrics-grid');
-                    const diag = document.getElementById('perf-diagnose');
-                    const act = document.getElementById('perf-action');
-                    if(mGrid) mGrid.innerHTML = gridHtml;
-                    if(diag) diag.innerText = data.diagnose;
-                    if(act) act.innerText = data.action;
-
-                    // Animate progress bars after rendering
-                    setTimeout(() => {
-                        document.querySelectorAll('.progress-bar-fill').forEach(bar => {
-                            bar.style.width = bar.getAttribute('data-width');
-                        });
-                    }, 50);
-
-                    showToast("10 Parameter Audit AI berhasil dikalkulasi secara akurat oleh Model 3.1!", "success");
-                } else throw new Error();
-            } catch (e) {
-                console.error(e);
-                showToast("Gagal melakukan analisis performa 10 Metrik AI.", "error");
-            } finally {
-                if(loading) loading.classList.add('hidden');
-                if(outputArea) outputArea.classList.remove('hidden');
-            }
-        }
-
-        // 8. DASHBOARD ANALITIK DINAMIS (Heavy Task - Gemini 3.1)
-        let chartInstance = null;
-        function initChart(viewsData = [0,0,0,0,0,0,0], engData = [0,0,0,0,0,0,0]) {
-            const ctx = document.getElementById('analyticsChart');
-            if(!ctx) return;
-            if(chartInstance) chartInstance.destroy();
-
-            Chart.defaults.color = '#94a3b8';
-            Chart.defaults.font.family = 'Inter, sans-serif';
-
-            chartInstance = new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: ['Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab', 'Min'],
-                    datasets: [
-                        { label: 'Proyeksi Views AI (Ribuan)', data: viewsData, borderColor: '#22d3ee', backgroundColor: 'rgba(34, 211, 238, 0.1)', borderWidth: 3, tension: 0.4, fill: true, pointBackgroundColor: '#0f172a', pointBorderColor: '#22d3ee', pointBorderWidth: 2, pointRadius: 4, pointHoverRadius: 6 },
-                        { label: 'Proyeksi Interaksi AI (Ribuan)', data: engData, borderColor: '#818cf8', backgroundColor: 'transparent', borderWidth: 2, tension: 0.4, borderDash: [5, 5], pointRadius: 0, pointHoverRadius: 4 }
-                    ]
-                },
-                options: {
-                    responsive: true, maintainAspectRatio: false,
-                    plugins: { legend: { position: 'top', labels: { boxWidth: 12, usePointStyle: true, pointStyle: 'circle' } }, tooltip: { backgroundColor: 'rgba(15, 23, 42, 0.9)', titleColor: '#fff', padding: 12, cornerRadius: 8 } },
-                    scales: { y: { beginAtZero: true, grid: { color: 'rgba(255, 255, 255, 0.05)' }, border: { dash: [4, 4] } }, x: { grid: { display: false } } }
-                }
-            });
-        }
-
-        async function syncDashboardAI() {
-            const nicheObj = NICHES.find(n => n.id === state.selectedNiche) || NICHES[0];
-            const btnIcon = document.getElementById('dash-sync-icon');
-            const loadingOverlay = document.getElementById('chart-loading');
-            
-            if(btnIcon) btnIcon.classList.add('animate-spin');
-            if(loadingOverlay) loadingOverlay.classList.remove('hidden');
-
-            const systemPrompt = "Anda adalah AI prediktif yang menghitung statistik masa depan berdasarkan algoritma terkini.";
-            const userQuery = `Lakukan perhitungan probabilitas dan buatkan estimasi performa data realistis mingguan (7 hari) untuk niche Kreator "${nicheObj.name}". 
-            Berikan array viewsMingguan (7 angka integer, skala ribuan), interaksiMingguan (7 angka integer, skala ribuan).
-            Tentukan juga Jam Puncak Posting terbaik (ex: "19:00 WIB"), Estimasi RPM/CPM (ex: "$1.2 - $2.5"), Sub-niche paling meroket minggu ini (ex: "Jajanan Pedas"), dan Target Retensi Hook akurat (ex: "8.5 Detik").`;
-
-            const jsonSchema = {
-                type: "OBJECT",
-                properties: {
-                    viewsMingguan: { type: "ARRAY", items: { type: "INTEGER" } },
-                    interaksiMingguan: { type: "ARRAY", items: { type: "INTEGER" } },
-                    puncakPosting: { type: "STRING" },
-                    estCPM: { type: "STRING" },
-                    topNiche: { type: "STRING" },
-                    avgHook: { type: "STRING" }
-                }, required: ["viewsMingguan", "interaksiMingguan", "puncakPosting", "estCPM", "topNiche", "avgHook"]
-            };
-
-            try {
-                // TRUE flag untuk isHeavyTask -> Menggunakan Gemini 3.1 Flash Lite
-                const result = await fetchGeminiAPI(userQuery, systemPrompt, {
-                    generationConfig: { responseMimeType: "application/json", responseSchema: jsonSchema }
-                }, true);
-                
-                const text = result.candidates?.[0]?.content?.parts?.[0]?.text;
-                if(text) {
-                    const data = JSON.parse(text);
-                    initChart(data.viewsMingguan, data.interaksiMingguan);
-                    const peak = document.getElementById('dash-peak');
-                    const cpm = document.getElementById('dash-cpm');
-                    const topNiche = document.getElementById('dash-topniche');
-                    const hook = document.getElementById('dash-hook');
-                    if(peak) peak.innerText = data.puncakPosting;
-                    if(cpm) cpm.innerText = data.estCPM;
-                    if(topNiche) topNiche.innerText = data.topNiche;
-                    if(hook) hook.innerText = data.avgHook;
-                    state.dashboardSynced = true;
-                    showToast("Proyeksi AI Dashboard (Model 3.1) berhasil diperbarui!", "success");
-                } else throw new Error();
-            } catch (e) {
-                showToast("Gagal menyinkronkan AI Prediktif Dashboard.", "error");
-                initChart(); // Fallback empty
-            } finally {
-                if(btnIcon) btnIcon.classList.remove('animate-spin');
-                if(loadingOverlay) loadingOverlay.classList.add('hidden');
-            }
-        }
-
-        // Simulate Live Event Push Toasts
-        function simulateLiveEvents() {
-            const events = [
-                "AI 3.1 Mendeteksi: Kreator kompetitor Anda baru saja memposting tipe Korsel.", 
-                "Gemini mendeteksi tren musik baru di audiens Meta Indonesia.", 
-                "Algoritma AI: Perubahan minor algoritma monetisasi In-Stream terdeteksi.", 
-                "Proyeksi AI: Lonjakan trafik pengguna FB Pro diprediksi terjadi 2 jam lagi."
-            ];
-            setInterval(() => showToast(events[Math.floor(Math.random() * events.length)], 'info'), 45000); 
-        }
-
-        // --- SISTEM RESET DATA 30 MENIT ---
-        function resetDataEvery30Min() {
-            showToast("Melakukan reset data otomatis (Siklus 30 Menit)...", "info");
-            
-            // Clear State Memory
-            state.trends = [];
-            state.selectedTrend = null;
-            state.generatedScript = null;
-            state.sources = [];
-            
-            // Clear UI Render
-            const trendsContainer = document.getElementById('trends-feed');
-            if (trendsContainer) trendsContainer.innerHTML = '';
-            
-            const detailPanel = document.getElementById('trend-detail-panel');
-            if (detailPanel) detailPanel.classList.add('hidden');
-            
-            const sourcesContainer = document.getElementById('sources-container');
-            if (sourcesContainer) sourcesContainer.classList.add('hidden');
-            
-            const scriptsContainer = document.getElementById('scripts-container');
-            if (scriptsContainer) scriptsContainer.classList.add('hidden');
-
-            // Trigger Ulang Data Baru
-            triggerNicheCrawling();
-            if (state.dashboardSynced) syncDashboardAI();
-        }
-
-        // On Load Init
         window.addEventListener('DOMContentLoaded', () => {
-            renderNiches(); renderTabs(); renderTrends();
+            renderNiches();
             switchView('trends');
-            initChart(); // Render empty chart on load
-            simulateLiveEvents();
-
-            // OTOMATISASI: Langsung memicu pencarian tren AI saat halaman dimuat
-            triggerNicheCrawling();
-
-            // OTOMATISASI: Memperbarui & mereset data tren secara keseluruhan tiap 30 menit
-            setInterval(resetDataEvery30Min, 1800000); 
         });
     </script>
 </body>
