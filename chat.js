@@ -6,7 +6,7 @@
  */
 
 const AI_MODEL = "openai/gpt-5-mini";
-const API_ENDPOINT = "/api/gpt5mini";
+const API_ENDPOINT = "/api/openai/gpt-5-mini";
 
 /**
  * Delay
