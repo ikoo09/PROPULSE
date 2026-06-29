@@ -1,7 +1,7 @@
 // api/cron.js
 // Endpoint ini yang dipanggil langsung oleh Vercel secara otomatis sesuai jadwal di vercel.json
 
-export default async function handler(req, res) {
+module.exports = async function handler(req, res) {
     try {
         // Kita meneruskan request ke API generator
         // Menggunakan fetch tanpa 'await' karena proses AI generate bisa > 10 detik (hindari Timeout limit cron vercel)

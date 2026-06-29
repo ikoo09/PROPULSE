@@ -3,7 +3,7 @@
 
 const AI_MODEL = "openai/gpt-5-mini";
 
-export default async function handler(req, res) {
+module.exports = async function handler(req, res) {
     // Keamanan: Hanya eksekusi jika dipanggil oleh sistem / cron rahasia
     const authHeader = req.headers.authorization;
     if (process.env.CRON_SECRET && authHeader !== `Bearer ${process.env.CRON_SECRET}`) {

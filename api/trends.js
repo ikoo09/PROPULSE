@@ -2,7 +2,7 @@
 // Endpoint untuk Frontend (chat.js) membaca tren.
 // SANGAT CEPAT, 0% Penggunaan AI, Murni membaca Redis.
 
-export default async function handler(req, res) {
+module.exports = async function handler(req, res) {
     const UPSTASH_URL = process.env.UPSTASH_REDIS_REST_URL;
     const UPSTASH_TOKEN = process.env.UPSTASH_REDIS_REST_TOKEN;
 
