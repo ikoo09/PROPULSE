@@ -1,6 +1,4 @@
 // api/gpt5mini.js
-// Fungsi AI Khusus Analisis URL & Pengelola Riwayat Global
-
 let memoryHistory = [];
 
 module.exports = async function handler(req, res) {
@@ -11,24 +9,17 @@ module.exports = async function handler(req, res) {
     if (req.method === "OPTIONS") return res.status(200).end();
     if (req.method !== "POST") return res.status(405).json({ error: "Gunakan POST." });
 
-    const UPSTASH_URL = process.env.STORAGE_KV_REST_API_URL;
-    const UPSTASH_TOKEN = process.env.STORAGE_KV_REST_API_TOKEN;
+    const UPSTASH_URL = process.env.UPSTASH_REDIS_REST_URL || process.env.KV_REST_API_URL || process.env.STORAGE_KV_REST_API_URL;
+    const UPSTASH_TOKEN = process.env.UPSTASH_REDIS_REST_TOKEN || process.env.KV_REST_API_TOKEN || process.env.STORAGE_KV_REST_API_TOKEN;
     const body = req.body || {};
     const action = body.action || null;
 
-    // --- FITUR RIWAYAT GLOBAL ---
     if (action === 'history_save') {
         if (UPSTASH_URL) {
             try {
                 const itemStr = JSON.stringify(body.item);
-                await fetch(UPSTASH_URL, {
-                     method: "POST", headers: { "Authorization": `Bearer ${UPSTASH_TOKEN}`, "Content-Type": "application/json" },
-                     body: JSON.stringify(["LPUSH", "fbpro:global_history", itemStr])
-                });
-                await fetch(UPSTASH_URL, {
-                     method: "POST", headers: { "Authorization": `Bearer ${UPSTASH_TOKEN}`, "Content-Type": "application/json" },
-                     body: JSON.stringify(["LTRIM", "fbpro:global_history", "0", "14"])
-                });
+                await fetch(UPSTASH_URL, { method: "POST", headers: { "Authorization": `Bearer ${UPSTASH_TOKEN}`, "Content-Type": "application/json" }, body: JSON.stringify(["LPUSH", "fbpro:global_history", itemStr]) });
+                await fetch(UPSTASH_URL, { method: "POST", headers: { "Authorization": `Bearer ${UPSTASH_TOKEN}`, "Content-Type": "application/json" }, body: JSON.stringify(["LTRIM", "fbpro:global_history", "0", "14"]) });
             } catch(e) {}
         } else {
             memoryHistory.unshift(body.item);
@@ -40,10 +31,7 @@ module.exports = async function handler(req, res) {
     if (action === 'history_get') {
         if (UPSTASH_URL) {
             try {
-                const resRedis = await fetch(UPSTASH_URL, {
-                     method: "POST", headers: { "Authorization": `Bearer ${UPSTASH_TOKEN}`, "Content-Type": "application/json" },
-                     body: JSON.stringify(["LRANGE", "fbpro:global_history", "0", "-1"])
-                });
+                const resRedis = await fetch(UPSTASH_URL, { method: "POST", headers: { "Authorization": `Bearer ${UPSTASH_TOKEN}`, "Content-Type": "application/json" }, body: JSON.stringify(["LRANGE", "fbpro:global_history", "0", "-1"]) });
                 const d = await resRedis.json();
                 const history = (d.result || []).map(x => JSON.parse(x));
                 return res.status(200).json({ history });
@@ -53,14 +41,11 @@ module.exports = async function handler(req, res) {
     }
 
     if (action === 'history_clear') {
-        if (UPSTASH_URL) {
-            await fetch(UPSTASH_URL, { method: "POST", headers: { "Authorization": `Bearer ${UPSTASH_TOKEN}`, "Content-Type": "application/json" }, body: JSON.stringify(["DEL", "fbpro:global_history"]) });
-        }
+        if (UPSTASH_URL) await fetch(UPSTASH_URL, { method: "POST", headers: { "Authorization": `Bearer ${UPSTASH_TOKEN}`, "Content-Type": "application/json" }, body: JSON.stringify(["DEL", "fbpro:global_history"]) });
         memoryHistory = [];
         return res.status(200).json({ success: true });
     }
 
-    // --- FITUR ANALISIS URL ---
     const apiKey = process.env.OPENAI_API_KEY;
     if (!apiKey) return res.status(500).json({ error: "OPENAI_API_KEY belum diatur." });
 
@@ -88,17 +73,9 @@ module.exports = async function handler(req, res) {
         if (!response.ok) throw new Error(data.error?.message || "Kesalahan API AI");
 
         let text = "";
-        if (data.output) {
-            for (const item of data.output) {
-                if (!item.content) continue;
-                for (const c of item.content) if (c.text) text += c.text;
-            }
-        }
-
-        return res.status(200).json({
-            candidates: [{ content: { parts: [{ text }] } }],
-            metadata: { cached: false, source: 'ai_direct' }
-        });
+        if (data.output) for (const item of data.output) if (item.content) for (const c of item.content) if (c.text) text += c.text;
+        
+        return res.status(200).json({ candidates: [{ content: { parts: [{ text }] } }], metadata: { cached: false, source: 'ai_direct' } });
     } catch (err) {
         return res.status(500).json({ error: "Gagal memproses Analisis.", details: err.message });
     }
