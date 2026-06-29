@@ -128,7 +128,7 @@ function selectTrend(idx) {
     
     setTimeout(() => {
         document.getElementById('script-timestamp').innerText = "Load Speed: 0ms (Redis Pre-Generated) ⚡";
-        showToast("Redis HIT: Script dimuat dari Server! 🚀", "info");
+        showToast("Script dimuat dari Server! 🚀", "info");
         
         const safeScore = (val, defaultVal) => val ? val : defaultVal;
         
@@ -267,7 +267,7 @@ async function renderHistory() {
                     <h4 class="font-bold text-sm text-slate-200 line-clamp-2 leading-snug">${item.title}</h4>
                 </div>
                 <div class="mt-4 pt-4 border-t border-white/5 flex flex-col gap-2">
-                    <button onclick='copyTextDirectly(${JSON.stringify(JSON.stringify(item.data, null, 2)).replace(/'/g, "&#39;")}, this)' class="w-full text-[10px] px-3 py-2 bg-white/5 text-slate-300 rounded-lg hover:bg-white/10 transition-all border border-white/5 flex items-center justify-center gap-1.5"><i class="fa-solid fa-copy"></i> Salin Raw JSON</button>
+                    <button onclick='copyTextDirectly(${JSON.stringify(JSON.stringify(item.data, null, 2)).replace(/'/g, "&#39;")}, this)' class="w-full text-[10px] px-3 py-2 bg-white/5 text-slate-300 rounded-lg hover:bg-white/10 transition-all border border-white/5 flex items-center justify-center gap-1.5"><i class="fa-solid fa-copy"></i> Salin </button>
                 </div>
             </div>
         `).join('');
