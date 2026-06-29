@@ -3,9 +3,9 @@
 // SANGAT CEPAT, 0% Penggunaan AI, Murni membaca Redis.
 
 module.exports = async function handler(req, res) {
-    const UPSTASH_URL = process.env.UPSTASH_REDIS_REST_URL;
-    const UPSTASH_TOKEN = process.env.UPSTASH_REDIS_REST_TOKEN;
-
+   const UPSTASH_URL = process.env.STORAGE_KV_REST_API_URL;
+    const UPSTASH_TOKEN = process.env.STORAGE_KV_REST_API_TOKEN;
+    
     if (!UPSTASH_URL) {
         return res.status(500).json({ error: "Redis (Upstash) belum dikonfigurasi di Environment." });
     }

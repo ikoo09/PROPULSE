@@ -11,8 +11,8 @@ module.exports = async function handler(req, res) {
     if (req.method === "OPTIONS") return res.status(200).end();
     if (req.method !== "POST") return res.status(405).json({ error: "Gunakan POST." });
 
-    const UPSTASH_URL = process.env.UPSTASH_REDIS_REST_URL;
-    const UPSTASH_TOKEN = process.env.UPSTASH_REDIS_REST_TOKEN;
+    const UPSTASH_URL = process.env.STORAGE_KV_REST_API_URL;
+    const UPSTASH_TOKEN = process.env.STORAGE_KV_REST_API_TOKEN;
     const body = req.body || {};
     const action = body.action || null;
 
