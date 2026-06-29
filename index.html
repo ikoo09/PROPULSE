@@ -261,20 +261,29 @@
             if(viewId === 'history') renderHistory();
         }
 
-        function copyTextDirectly(text, btnElement = null) {
-            const temp = document.createElement('textarea');
-            temp.value = text;
-            document.body.appendChild(temp);
-            temp.select();
-            document.execCommand('copy');
-            document.body.removeChild(temp);
-            
-            if(btnElement) {
-                const originalHtml = btnElement.innerHTML;
-                btnElement.innerHTML = '<i class="fa-solid fa-check text-emerald-400"></i> Disalin';
-                setTimeout(() => btnElement.innerHTML = originalHtml, 2000);
-            } else {
-                showToast('Berhasil disalin!', 'success');
+        async function copyTextDirectly(text, btnElement = null) {
+            try {
+                if (navigator.clipboard && window.isSecureContext) {
+                    await navigator.clipboard.writeText(text);
+                } else {
+                    // Fallback
+                    const temp = document.createElement('textarea');
+                    temp.value = text;
+                    document.body.appendChild(temp);
+                    temp.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(temp);
+                }
+                
+                if(btnElement) {
+                    const originalHtml = btnElement.innerHTML;
+                    btnElement.innerHTML = '<i class="fa-solid fa-check text-emerald-400"></i> Disalin';
+                    setTimeout(() => btnElement.innerHTML = originalHtml, 2000);
+                } else {
+                    showToast('Berhasil disalin!', 'success');
+                }
+            } catch (err) {
+                showToast('Gagal menyalin teks.', 'error');
             }
         }
 
@@ -300,13 +309,13 @@
             };
 
             try {
-                // Menambahkan parameter forceRefresh yang diteruskan ke fetchAI
-                const res = await fetchAI(prompt, schema, "trend", forceRefresh);
+                // Memberikan cacheId stabil 'global_trends_v1'
+                const res = await fetchAI(prompt, schema, "trend", forceRefresh, "global_trends_v1");
                 state.trends = res.data.trends;
                 
                 if (res.metadata && res.metadata.timestamp) {
                     const updateTime = new Date(res.metadata.timestamp);
-                    // Hitung mundur 12 Jam sesuai permintaan
+                    // Hitung mundur 12 Jam
                     const nextTime = new Date(res.metadata.timestamp + (12 * 60 * 60 * 1000));
                     const formatTime = (d) => `${d.getHours().toString().padStart(2, '0')}:${d.getMinutes().toString().padStart(2, '0')} WIB`;
                     
@@ -361,11 +370,11 @@
 
                 // Menyesuaikan Notifikasi berdasarkan sumber data
                 if (res.metadata && res.metadata.source === 'local') {
-                    showToast("Dimuat instan dari Local Storage (Siklus 12 Jam). ⚡", "info");
+                    showToast("Local HIT: Dimuat instan dari cache browser ⚡", "info");
                 } else if (res.metadata && res.metadata.source === 'redis') {
-                    showToast("Dimuat dari Redis Cache Server (Siklus 12 Jam). 🚀", "info");
+                    showToast("Redis HIT: Dimuat dari server cache 🚀", "info");
                 } else {
-                    showToast("Tren global berhasil diperbarui langsung dari AI! 🧠");
+                    showToast("AI Generate: Tren global berhasil diperbarui AI! 🧠");
                 }
 
             } catch(e) {
@@ -398,8 +407,8 @@
             };
 
             try {
-                // Feature script tidak perlu forceRefresh kecuali di-request
-                const res = await fetchAI(prompt, schema, "script");
+                // Feature script diteruskan dengan cacheId menggunakan judul tren yang bersih
+                const res = await fetchAI(prompt, schema, "script", false, state.selectedTrend.title);
                 state.scriptData = res.data;
                 const d = state.scriptData;
                 
@@ -408,13 +417,13 @@
                 
                 if (res.metadata && res.metadata.source === 'local') {
                     document.getElementById('script-timestamp').innerText = "Dibuat: " + cacheTime + " (Dari Local Storage)";
-                    showToast("Script dimuat sangat instan dari Local Storage browser! ⚡", "info");
+                    showToast("Local HIT: Script dimuat sangat instan! ⚡", "info");
                 } else if (res.metadata && res.metadata.source === 'redis') {
                     document.getElementById('script-timestamp').innerText = "Dibuat: " + cacheTime + " (Dari Redis)";
-                    showToast("Script dimuat dari Redis Server! 🚀", "info");
+                    showToast("Redis HIT: Script dimuat dari Server! 🚀", "info");
                 } else {
                     document.getElementById('script-timestamp').innerText = "Dibuat: " + cacheTime;
-                    showToast("Script baru berhasil diracik oleh AI!");
+                    showToast("AI Generate: Script berhasil diracik oleh AI! 🧠");
                 }
                 
                 document.getElementById('ai-scores-container').innerHTML = [
@@ -465,7 +474,7 @@
             const schema = { type: "OBJECT", properties: { kelebihan: {type:"ARRAY", items:{type:"STRING"}}, kekurangan: {type:"ARRAY", items:{type:"STRING"}}, hook: {type:"STRING"}, cta: {type:"STRING"}, saran: {type:"STRING"} }, required:["kelebihan","kekurangan","hook","cta","saran"] };
             
             try {
-                // Analisis URL di set true untuk forceRefresh (Bypass) secara natural
+                // Analisis URL tidak dicache secara lokal (Bypass)
                 const res = await fetchAI(prompt, schema, null, true);
                 const d = res.data;
                 document.getElementById('url-result-area').innerHTML = `
@@ -504,10 +513,33 @@
         }
 
         function saveToHistory(type, title, data) {
-            let history = JSON.parse(localStorage.getItem('fbpro_history') || '[]');
-            history.unshift({ type, title, data, date: new Date().toLocaleString('id-ID') });
-            if(history.length > 30) history = history.slice(0, 30);
-            localStorage.setItem('fbpro_history', JSON.stringify(history));
+            let history = [];
+            try {
+                history = JSON.parse(localStorage.getItem('fbpro_history') || '[]');
+            } catch(e) {}
+            
+            // Limitasi Ukuran Data History: Jangan simpan seluruh script
+            let dataToSave = data;
+            if (type === 'Script') {
+                dataToSave = {
+                    analisis: data.analisis,
+                    hook: data.hook,
+                    scores: data.scores // Simpan info penting saja untuk history
+                };
+            }
+
+            history.unshift({ type, title, data: dataToSave, date: new Date().toLocaleString('id-ID') });
+            
+            // Kurangi batas maksimal history dari 30 menjadi 15 item
+            if(history.length > 15) history = history.slice(0, 15); 
+            
+            try {
+                localStorage.setItem('fbpro_history', JSON.stringify(history));
+            } catch(e) {
+                console.warn("Storage Penuh saat menyimpan history. Menghapus item lama...");
+                history = history.slice(0, 5); // Potong agresif jika error quota
+                localStorage.setItem('fbpro_history', JSON.stringify(history));
+            }
         }
 
         function clearHistory() {

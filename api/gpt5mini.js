@@ -33,6 +33,7 @@ module.exports = async function handler(req, res) {
     const body = req.body || {};
     const feature = body.feature || null; 
     const bypassCache = body.bypassCache || false; // Menerima sinyal bypass dari frontend
+    const cacheId = body.cacheId || null; // Identifier cache yang stabil dari frontend
     const model = body.model || "openai/gpt-5-mini";
 
     let input = "";
@@ -46,18 +47,21 @@ module.exports = async function handler(req, res) {
     }
 
     // ==========================
-    // 1. CEK LAYER 2: CACHE REDIS (Siklus 12 Jam untuk Trend, Permanen untuk Script)
+    // 1. CEK LAYER 2: CACHE REDIS (Siklus 12 Jam)
     // ==========================
     let cacheKey = null;
 
-    // Abaikan pembacaan Redis jika bypassCache true
-    if ((feature === "trend" || feature === "script") && input && UPSTASH_URL && UPSTASH_TOKEN) {
+    if ((feature === "trend" || feature === "script") && UPSTASH_URL && UPSTASH_TOKEN) {
+      // Gunakan cacheId yang stabil jika ada (misal judul), atau fallback hash prompt panjang
+      if (cacheId) {
+          cacheKey = `fbpro:${feature}:${cacheId.replace(/[^a-zA-Z0-9]/g, '_')}`;
+      } else if (input) {
+          const crypto = require('crypto');
+          const hash = crypto.createHash('sha256').update(input).digest('hex');
+          cacheKey = `fbpro:${feature}:${hash}`;
+      }
       
-      const crypto = require('crypto');
-      const hash = crypto.createHash('sha256').update(input).digest('hex');
-      cacheKey = `fbpro:${feature}:${hash}`;
-      
-      if (!bypassCache) {
+      if (cacheKey && !bypassCache) {
         try {
           const cacheRes = await fetch(UPSTASH_URL, {
             method: "POST",
@@ -71,7 +75,7 @@ module.exports = async function handler(req, res) {
           if (cacheRes.ok) {
             const cacheData = await cacheRes.json();
             if (cacheData.result) {
-              console.log(`Lapis 2 (Redis) HIT 🔥 -> ${cacheKey}`);
+              console.log(`🚀 Lapis 2 (Redis) HIT -> ${cacheKey}`);
               
               let parsedCache;
               try {
@@ -89,8 +93,8 @@ module.exports = async function handler(req, res) {
         } catch (redisError) {
           console.error("Gagal membaca Redis Cache:", redisError.message);
         }
-      } else {
-        console.log(`Sinyal Bypass Diterima: Melewati pembacaan Redis -> ${cacheKey}`);
+      } else if (bypassCache) {
+        console.log(`⏩ Sinyal Bypass Diterima: Melewati pembacaan Redis -> ${cacheKey}`);
       }
     }
 
@@ -144,21 +148,15 @@ module.exports = async function handler(req, res) {
           JSON.parse(cleanText);
           isValidJson = true;
       } catch(e) {
-          console.warn("Respons AI bukan JSON yang valid. Melewati penyimpanan Redis.");
+          console.warn("⚠️ Respons AI bukan JSON yang valid. Membatalkan penyimpanan ke Redis untuk mencegah cache rusak.");
       }
 
       if (isValidJson) {
           try {
             const payloadToSave = JSON.stringify({ text: text, timestamp: currentTimestamp });
             
-            let redisCommand;
-            if (feature === "trend") {
-                // Diperbarui: Cache Redis kini di set 12 Jam (43200 Detik) menyesuaikan permintaan
-                redisCommand = ["SET", cacheKey, payloadToSave, "EX", 43200];
-            } else {
-                // Cache Script tetap permanen
-                redisCommand = ["SET", cacheKey, payloadToSave];
-            }
+            // KEDUANYA (Trend dan Script) di set cache 12 Jam (43200 Detik)
+            const redisCommand = ["SET", cacheKey, payloadToSave, "EX", 43200];
 
             const setRes = await fetch(UPSTASH_URL, {
               method: "POST",
@@ -169,9 +167,20 @@ module.exports = async function handler(req, res) {
               body: JSON.stringify(redisCommand)
             });
 
-            if (setRes.ok) console.log(`Berhasil menyimpan/memperbarui Redis 💾 -> ${cacheKey}`);
+            // Tambahkan pengecekan keberhasilan Redis yang lebih ketat
+            if (setRes.ok) {
+                const resData = await setRes.json();
+                if (resData.result === "OK") {
+                    console.log(`✅ Berhasil menyimpan Redis (TTL 12 Jam) -> ${cacheKey}`);
+                } else {
+                    console.warn(`⚠️ Redis merespons tidak OK saat SET -> ${cacheKey}`, resData);
+                }
+            } else {
+                console.error(`❌ Gagal menyimpan ke Redis (HTTP ${setRes.status}) -> ${cacheKey}`);
+            }
+
           } catch (redisError) {
-            console.error("Gagal menyimpan ke Redis:", redisError.message);
+            console.error("❌ Exception saat proses Redis SET:", redisError.message);
           }
       }
     }
