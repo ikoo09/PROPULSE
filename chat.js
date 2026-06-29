@@ -98,7 +98,7 @@ async function triggerNicheCrawling() {
             </div>
         `).join('');
 
-        showToast("Redis HIT: Data termuat sangat cepat! 🚀", "info");
+        showToast("LOADING...! 🚀", "info");
 
     } catch(e) {
         showToast("Koneksi ke Edge Server gagal.", "error");
