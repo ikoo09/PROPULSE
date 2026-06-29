@@ -1,11 +1,9 @@
-
+<!DOCTYPE html>
 <html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- NAMA ASLI DIKEMBALIKAN -->
     <title>ProPulse FB Pro</title>
-    <!-- LOGO ASLI ANDA -->
     <link rel="icon" type="image/png" href="propulse.png">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -15,8 +13,14 @@
         tailwind.config = {
             theme: {
                 extend: {
-                    animation: { 'pulse-fast': 'pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite', 'shimmer': 'shimmer 2s infinite' },
-                    keyframes: { shimmer: { '0%': { transform: 'translateX(-100%)' }, '100%': { transform: 'translateX(100%)' } } }
+                    animation: {
+                        'spin-slow': 'spin 3s linear infinite',
+                        'pulse-fast': 'pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'shimmer': 'shimmer 2s infinite',
+                    },
+                    keyframes: {
+                        shimmer: { '0%': { transform: 'translateX(-100%)' }, '100%': { transform: 'translateX(100%)' } }
+                    }
                 }
             }
         }
@@ -25,100 +29,136 @@
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: #020617; }
         ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 6px; }
+        ::-webkit-scrollbar-thumb:hover { background: #334155; }
         .text-gradient { background-clip: text; -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .scrollbar-none::-webkit-scrollbar { display: none; }
+        .scrollbar-none { -ms-overflow-style: none; scrollbar-width: none; }
     </style>
 </head>
 <body class="bg-slate-950 text-slate-100 font-sans selection:bg-cyan-500 selection:text-slate-950 min-h-screen flex flex-col">
 
+    <!-- Toast Notification -->
     <div id="toast-container" class="fixed bottom-6 right-6 z-50 flex flex-col gap-3 max-w-sm pointer-events-none"></div>
 
+    <!-- Header -->
     <header class="sticky top-0 z-40 border-b border-white/5 bg-slate-950/85 backdrop-blur-md">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
             <div class="flex items-center gap-3">
                 <div class="relative hidden sm:block">
                     <div class="absolute inset-0 bg-cyan-500 rounded-lg blur-md opacity-45 animate-pulse"></div>
                     <div class="relative bg-gradient-to-br from-cyan-400 to-indigo-600 p-2 rounded-lg text-slate-950 flex items-center justify-center">
-                        <!-- ICON API DIKEMBALIKAN -->
                         <i class="fa-solid fa-fire text-white"></i>
                     </div>
                 </div>
                 <div>
                     <div class="flex items-center gap-2">
                         <span class="font-extrabold text-base sm:text-lg tracking-wider bg-gradient-to-r from-white via-slate-100 to-cyan-400 text-gradient">PROPULSE</span>
-                        <!-- BADGE FB PRO DIKEMBALIKAN -->
                         <span class="bg-gradient-to-r from-rose-500 to-fuchsia-600 text-white text-[9px] font-black uppercase px-1.5 py-0.5 rounded tracking-widest">FB PRO</span>
                     </div>
-                    <!-- TEKS ASLI DIKEMBALIKAN -->
                     <p class="text-[10px] text-slate-400 font-medium hidden sm:block">Tren Real-Time Kreator FB Pro</p>
                 </div>
             </div>
 
-            <div class="hidden lg:flex items-center gap-1 bg-slate-900/60 p-1 border border-white/5 rounded-2xl text-xs">
-                <!-- Tab disederhanakan hanya 2 karena History dihapus dan dipindah ke Dashboard -->
+            <div class="hidden lg:flex items-center gap-1 bg-slate-900/60 p-1 border border-white/5 rounded-2xl text-xs overflow-x-auto">
                 <button onclick="switchView('trends')" class="view-tab-btn px-3 py-1.5 rounded-xl font-semibold transition-all bg-cyan-500 text-slate-950" data-view="trends"><i class="fa-solid fa-fire mr-1.5"></i>Tren Live</button>
                 <button onclick="switchView('url-analysis')" class="view-tab-btn px-3 py-1.5 rounded-xl font-semibold text-slate-400 hover:text-white transition-all" data-view="url-analysis"><i class="fa-solid fa-link mr-1.5"></i>Analisis URL</button>
+                <button onclick="switchView('history')" class="view-tab-btn px-3 py-1.5 rounded-xl font-semibold text-slate-400 hover:text-white transition-all" data-view="history"><i class="fa-solid fa-clock-rotate-left mr-1.5"></i>Riwayat Global</button>
+            </div>
+
+            <div class="flex items-center gap-3">
+                <div class="flex items-center gap-2 bg-slate-900/60 border border-white/5 px-3 py-1.5 rounded-full">
+                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse-fast"></span>
+                    <span class="text-[10px] sm:text-[11px] text-slate-300 font-mono font-bold">Server Aktif</span>
+                </div>
             </div>
         </div>
     </header>
 
-    <nav class="lg:hidden bg-slate-950 border-b border-white/5 px-4 py-2 flex gap-2 w-full">
-        <button onclick="switchView('trends')" class="mobile-view-tab-btn flex-1 px-3 py-1.5 rounded-lg text-xs font-semibold bg-cyan-500 text-slate-950" data-view="trends"><i class="fa-solid fa-fire mr-1"></i> Tren</button>
-        <button onclick="switchView('url-analysis')" class="mobile-view-tab-btn flex-1 px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-900 text-slate-300" data-view="url-analysis"><i class="fa-solid fa-link mr-1"></i> Analisis URL</button>
+    <nav class="lg:hidden bg-slate-950 border-b border-white/5 px-4 py-2 flex gap-2 overflow-x-auto scrollbar-none w-full">
+        <button onclick="switchView('trends')" class="mobile-view-tab-btn shrink-0 px-3 py-1.5 rounded-lg text-xs font-semibold bg-cyan-500 text-slate-950" data-view="trends"><i class="fa-solid fa-fire mr-1"></i> Tren</button>
+        <button onclick="switchView('url-analysis')" class="mobile-view-tab-btn shrink-0 px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-900 text-slate-300" data-view="url-analysis"><i class="fa-solid fa-link mr-1"></i> Analisis URL</button>
+        <button onclick="switchView('history')" class="mobile-view-tab-btn shrink-0 px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-900 text-slate-300" data-view="history"><i class="fa-solid fa-globe mr-1"></i> Riwayat Global</button>
     </nav>
 
     <main class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 w-full">
         
-        <!-- SECTION 1: TREN STATIS (HEMAT API) -->
+        <!-- SECTION 1: DETEKSI TREN LIVE -->
         <div id="view-trends" class="workspace-view space-y-6">
-            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8">
-                
-                <div class="lg:col-span-5 space-y-4">
-                    <!-- Dashboard Monitoring Edge -->
-                    <div class="bg-slate-900/80 border border-white/5 rounded-2xl p-4 shadow-lg mb-4">
-                        <div class="flex items-center justify-between mb-3 border-b border-white/5 pb-2">
-                            <span class="text-xs font-bold text-cyan-400"><i class="fa-solid fa-shield-halved"></i> Global Edge Cache</span>
-                            <button onclick="loadCachedTrend()" class="text-[10px] bg-slate-800 hover:bg-slate-700 px-2 py-1 rounded text-white transition-colors"><i class="fa-solid fa-rotate"></i> Muat Ulang</button>
-                        </div>
-                        <div class="grid grid-cols-2 gap-2 text-[10px] text-slate-300 font-mono">
-                            <div class="bg-slate-950 p-2 rounded border border-white/5 flex flex-col gap-1">
-                                <span id="stat-source"><i class="fa-solid fa-spinner animate-spin"></i> Load...</span>
-                                <span id="stat-api" class="text-rose-400">API Calls: -</span>
-                            </div>
-                            <div class="bg-slate-950 p-2 rounded border border-white/5 flex flex-col gap-1">
-                                <span id="stat-update">Dibuat: -</span>
-                                <span id="stat-expire" class="text-cyan-400">Reset: -</span>
-                            </div>
-                        </div>
-                        <div class="mt-2 text-center bg-emerald-500/10 border border-emerald-500/20 rounded py-1.5 text-[10px] font-bold text-emerald-400" id="stat-hit">Server Hits (Global): -</div>
+            <!-- Desain Asli Dikembalikan -->
+            <div class="relative overflow-hidden rounded-3xl bg-slate-900 border border-white/5 p-5 sm:p-8 shadow-2xl">
+                <div class="absolute top-0 right-0 -translate-y-12 translate-x-12 w-64 h-64 sm:w-96 sm:h-96 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none"></div>
+                <div class="relative max-w-3xl space-y-4">
+                    <div class="inline-flex items-center gap-2 px-3 py-1 bg-white/5 rounded-full border border-white/10">
+                        <i class="fa-solid fa-wand-magic-sparkles text-cyan-400 text-xs"></i>
+                        <span class="text-[10px] sm:text-xs font-semibold text-slate-300">Ditenagai oleh Cache Edge Terjadwal (0 API)</span>
                     </div>
+                    <h1 class="text-2xl sm:text-4xl font-black tracking-tight leading-tight">
+                        Deteksi Tren Niche Terkini <span class="bg-gradient-to-r from-cyan-400 via-blue-400 to-fuchsia-500 text-gradient">Secara Live.</span>
+                    </h1>
+                    <p class="text-slate-300 text-xs sm:text-sm max-w-2xl leading-relaxed">
+                        Data diambil otomatis di background server. Super cepat, instan, dan tersinkronisasi ke semua anggota tim selama 12 Jam.
+                    </p>
+                    <div class="pt-2">
+                        <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-[10px] font-bold tracking-wider uppercase">
+                            <i class="fa-solid fa-globe"></i> Menampilkan Semua Kategori Niche
+                        </span>
+                        <button onclick="triggerNicheCrawling()" class="ml-2 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 border border-blue-500/20 text-[10px] font-bold tracking-wider uppercase transition-all">
+                            <i class="fa-solid fa-rotate"></i> Muat Ulang Cache
+                        </button>
+                    </div>
+                </div>
+            </div>
 
-                    <div class="flex items-center justify-between border-b border-white/5 pb-3">
-                        <div class="flex items-center gap-2">
+            <!-- Loading State Panel (Animasi Asli Dipertahankan) -->
+            <div id="crawling-status" class="hidden bg-slate-900/80 border border-cyan-500/20 rounded-2xl p-4 sm:p-5 backdrop-blur-md shadow-lg">
+                <div class="flex items-center gap-4">
+                    <div class="relative p-2.5 bg-slate-950 border border-cyan-500/40 rounded-full text-cyan-400">
+                        <i class="fa-solid fa-microchip animate-spin text-lg sm:text-xl"></i>
+                    </div>
+                    <div class="space-y-1 w-full">
+                        <h4 class="text-xs sm:text-sm font-bold text-cyan-300 uppercase">Menghubungkan ke Edge Server...</h4>
+                        <p class="text-[11px] sm:text-xs text-slate-300 italic font-medium" id="crawling-text">🔍 Membaca data tren terkini...</p>
+                        <div class="relative h-1.5 w-full bg-slate-950 rounded-full overflow-hidden mt-2">
+                            <div class="absolute top-0 left-0 h-full bg-cyan-500 rounded-full animate-shimmer w-1/2"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8">
+                <div class="lg:col-span-5 space-y-4">
+                    <div class="flex flex-col sm:flex-row justify-between border-b border-white/5 pb-3 gap-3">
+                        <div class="flex items-center gap-2 self-start sm:self-center">
                             <i class="fa-solid fa-fire text-rose-400 animate-pulse"></i>
                             <h2 class="font-extrabold text-base sm:text-lg tracking-tight">Top Tren Hari Ini</h2>
                         </div>
+                        <div class="flex flex-col text-left sm:text-right bg-slate-900/80 p-2 sm:px-3 sm:py-2 rounded-xl border border-white/5 shadow-inner gap-1">
+                            <span class="text-[10px] text-slate-400 font-medium" id="cache-source"><i class="fa-solid fa-server"></i> Sumber: Menunggu...</span>
+                            <span class="text-[10px] text-slate-400 font-medium" id="last-update-time"><i class="fa-regular fa-clock"></i> Update: -</span>
+                            <span class="text-[10px] text-cyan-400 font-bold" id="next-update-time"><i class="fa-solid fa-hourglass-end"></i> Expired: -</span>
+                        </div>
                     </div>
 
-                    <div id="crawling-status" class="bg-slate-900 border border-cyan-500/20 rounded-xl p-4 text-center">
-                        <i class="fa-solid fa-bolt animate-pulse text-cyan-400 text-2xl mb-2"></i>
-                        <p class="text-xs text-slate-300">Menarik data super cepat dari Redis...</p>
+                    <div class="space-y-3" id="trends-feed">
+                        <div class="text-center py-10 text-slate-500 bg-slate-900/40 rounded-2xl border border-white/5">
+                            <i class="fa-solid fa-satellite-dish text-3xl mb-3 block opacity-50 animate-pulse"></i>
+                            <p class="text-xs font-medium">Sedang memuat data...</p>
+                        </div>
                     </div>
-
-                    <div class="space-y-3" id="trends-feed"></div>
                 </div>
 
                 <div class="lg:col-span-7 space-y-6">
                     <div id="scripts-container" class="hidden transition-all duration-500 bg-slate-950 border border-emerald-500/20 rounded-3xl p-4 sm:p-6 space-y-5 shadow-xl shadow-emerald-500/5">
                         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/5 pb-4">
                             <div class="flex items-center gap-3">
-                                <div class="p-2.5 bg-emerald-500/10 text-emerald-400 rounded-xl"><i class="fa-solid fa-bolt text-lg sm:text-xl"></i></div>
+                                <div class="p-2.5 bg-emerald-500/10 text-emerald-400 rounded-xl"><i class="fa-solid fa-clapperboard text-lg sm:text-xl"></i></div>
                                 <div>
-                                    <h3 class="font-extrabold text-base sm:text-lg">Pre-Generated Script</h3>
-                                    <p class="text-[10px] text-emerald-400/70" id="script-timestamp"></p>
+                                    <h3 class="font-extrabold text-base sm:text-lg">Script & Perencanaan Konten</h3>
+                                    <p class="text-[10px] text-slate-400" id="script-timestamp"></p>
                                 </div>
                             </div>
-                            <button onclick="copyFullScript()" class="w-full sm:w-auto px-4 py-2 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 text-xs font-semibold rounded-xl border border-emerald-500/20 transition-all flex items-center justify-center gap-2">
-                                <i class="fa-solid fa-copy"></i> Salin Naskah
+                            <button onclick="copyFullScript()" id="btn-copy-script" class="w-full sm:w-auto px-4 py-2 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 text-xs font-semibold rounded-xl border border-emerald-500/20 transition-all flex items-center justify-center gap-2">
+                                <i class="fa-solid fa-copy"></i> Salin Semua Script
                             </button>
                         </div>
                         <div class="grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-3" id="ai-scores-container"></div>
@@ -134,22 +174,48 @@
                 <div class="flex items-center gap-3 border-b border-white/5 pb-4">
                     <div class="p-2.5 bg-blue-500/10 text-blue-400 rounded-xl"><i class="fa-brands fa-facebook text-xl"></i></div>
                     <div>
-                        <h3 class="font-extrabold text-lg">Bedah Ide (AI Aktif)</h3>
-                        <p class="text-[10px] sm:text-xs text-slate-400 font-medium">Fitur ini tetap memakai AI secara langsung sesuai permintaan Anda.</p>
+                        <h3 class="font-extrabold text-lg">Analisis Ide URL Video / Reels</h3>
+                        <p class="text-[10px] sm:text-xs text-slate-400 font-medium">Tempelkan link video, AI akan membedah konsep secara instan.</p>
                     </div>
                 </div>
 
                 <div class="flex flex-col md:flex-row gap-3">
-                    <input type="text" id="fb-url-input" placeholder="Masukkan Link Reels FB..." class="flex-grow bg-slate-950 border border-white/10 rounded-xl px-4 py-3 text-xs sm:text-sm text-slate-100 outline-none focus:border-blue-500/50" />
-                    <button onclick="handleURLAnalysis()" class="bg-blue-500 hover:bg-blue-400 text-slate-950 font-black text-xs px-6 py-3 rounded-xl uppercase transition-all whitespace-nowrap">
-                        <i class="fa-solid fa-magnifying-glass"></i> Analisis
+                    <input type="text" id="fb-url-input" placeholder="https://www.facebook.com/reel/123456789..." class="flex-grow bg-slate-950 border border-white/10 rounded-xl px-4 py-3 text-xs sm:text-sm text-slate-100 focus:outline-none focus:border-blue-500/50 transition-all" />
+                    <button onclick="handleURLAnalysis()" id="btn-analyze-url" class="bg-blue-500 hover:bg-blue-400 text-slate-950 font-black text-xs px-6 py-3 rounded-xl uppercase transition-all whitespace-nowrap flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-magnifying-glass"></i> Analisis Video
                     </button>
                 </div>
-                <div id="url-loading" class="hidden text-center py-10"><div class="w-8 h-8 border-4 border-blue-500/20 border-t-blue-400 rounded-full animate-spin mx-auto mb-3"></div><p class="text-xs text-blue-400">Menyambung AI...</p></div>
+
+                <div id="url-loading" class="hidden flex flex-col items-center justify-center space-y-3 py-10">
+                    <div class="w-8 h-8 border-4 border-blue-500/20 border-t-blue-400 rounded-full animate-spin"></div>
+                    <p class="text-xs text-blue-300 font-medium animate-pulse" id="url-loading-text">Menghubungkan ke server AI...</p>
+                </div>
                 <div id="url-result-area" class="hidden grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 pt-4 border-t border-white/5"></div>
             </div>
         </div>
+
+        <!-- SECTION 3: RIWAYAT GLOBAL -->
+        <div id="view-history" class="workspace-view space-y-6 hidden">
+            <div class="bg-slate-900 border border-white/5 p-5 sm:p-8 rounded-3xl space-y-6 min-h-[400px] shadow-2xl">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between border-b border-white/5 pb-4 gap-4">
+                    <div class="flex items-center gap-3">
+                        <div class="p-2.5 bg-yellow-500/10 text-yellow-400 rounded-xl"><i class="fa-solid fa-globe text-xl"></i></div>
+                        <div>
+                            <h3 class="font-extrabold text-lg">Riwayat Global Tim</h3>
+                            <p class="text-[10px] sm:text-xs text-slate-400 font-medium">Tersinkronisasi antar semua perangkat pengguna Anda.</p>
+                        </div>
+                    </div>
+                    <button onclick="clearHistory()" class="w-full sm:w-auto px-4 py-2 bg-red-500/10 hover:bg-red-500/20 text-red-400 rounded-xl text-xs font-bold border border-red-500/20 transition-all flex justify-center items-center gap-2"><i class="fa-solid fa-trash"></i> Bersihkan Riwayat</button>
+                </div>
+                <div id="history-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                </div>
+            </div>
+        </div>
     </main>
+
+    <footer class="mt-auto border-t border-white/5 bg-slate-950 py-6 text-center text-xs text-slate-500 px-4">
+        <p>© 2026 ProPulse FB Pro.</p>
+    </footer>
 
     <script>
         function switchView(viewId) {
@@ -163,62 +229,7 @@
                     btn.classList.remove('bg-cyan-500', 'text-slate-950'); btn.classList.add('text-slate-400');
                 }
             });
-        }
-
-        async function copyTextDirectly(text, btnElement = null) {
-            try {
-                if (navigator.clipboard) await navigator.clipboard.writeText(text);
-                else { const t = document.createElement('textarea'); t.value = text; document.body.appendChild(t); t.select(); document.execCommand('copy'); t.remove(); }
-                if(btnElement) { const old = btnElement.innerHTML; btnElement.innerHTML = '<i class="fa-solid fa-check"></i>'; setTimeout(()=>btnElement.innerHTML=old, 1500); }
-                else showToast('Berhasil disalin!', 'success');
-            } catch(e) { showToast('Gagal menyalin.', 'error'); }
-        }
-
-        function copyFullScript() {
-            if(appState.selectedTrendIdx === null) return;
-            const t = appState.trends[appState.selectedTrendIdx];
-            const d = appState.scripts[appState.selectedTrendIdx];
-            if(!d) return;
-            copyTextDirectly(`Judul: ${t.title}\n\n=== HOOK ===\n${d.hook}\n\n=== SCRIPT ===\n${d.script}\n\n=== CAPTION ===\n${d.caption}\n\n${d.hashtags}`);
-        }
-
-        function showToast(msg, type='success') {
-            const container = document.getElementById('toast-container');
-            const toast = document.createElement('div');
-            let icon = type === 'success' ? '<i class="fa-solid fa-check text-emerald-400"></i>' : (type==='error'?'<i class="fa-solid fa-xmark text-red-400"></i>':'<i class="fa-solid fa-info text-cyan-400"></i>');
-            let bg = type === 'success' ? 'bg-emerald-500/15 border-emerald-500/30' : (type==='error'?'bg-red-500/15 border-red-500/30':'bg-cyan-500/15 border-cyan-500/30');
-            toast.className = `flex items-center gap-3 px-4 py-3 rounded-xl shadow-2xl transition-all duration-500 transform translate-y-10 opacity-0 border backdrop-blur-md ${bg}`;
-            toast.innerHTML = `${icon}<p class="text-xs font-medium">${msg}</p>`;
-            container.appendChild(toast);
-            setTimeout(() => toast.classList.remove('translate-y-10', 'opacity-0'), 10);
-            setTimeout(() => { toast.classList.add('opacity-0'); setTimeout(() => toast.remove(), 500); }, 3500);
-        }
-
-        async function handleURLAnalysis() {
-            const url = document.getElementById('fb-url-input').value;
-            if(!url) return;
-            document.getElementById('url-result-area').classList.add('hidden');
-            document.getElementById('url-loading').classList.remove('hidden');
-            
-            const prompt = `Analisis URL: ${url}. Format JSON: 1. kelebihan (Array), 2. kekurangan (Array), 3. hook, 4. saran.`;
-            const schema = { type:"OBJECT", properties: { kelebihan: {type:"ARRAY", items:{type:"STRING"}}, kekurangan: {type:"ARRAY", items:{type:"STRING"}}, hook: {type:"STRING"}, saran: {type:"STRING"} }, required:["kelebihan","kekurangan","hook","saran"] };
-            
-            try {
-                const res = await fetchURLAnalysis(prompt, schema);
-                const d = res.data;
-                document.getElementById('url-result-area').innerHTML = `
-                    <div class="space-y-4">
-                        <div class="bg-emerald-500/10 border border-emerald-500/20 p-4 rounded-xl"><span class="text-emerald-400 font-bold mb-2 block text-xs">Kelebihan</span><ul class="text-xs text-emerald-100 list-disc pl-4">${d.kelebihan.map(x=>`<li>${x}</li>`).join('')}</ul></div>
-                        <div class="bg-red-500/10 border border-red-500/20 p-4 rounded-xl"><span class="text-red-400 font-bold mb-2 block text-xs">Kekurangan</span><ul class="text-xs text-red-100 list-disc pl-4">${d.kekurangan.map(x=>`<li>${x}</li>`).join('')}</ul></div>
-                    </div>
-                    <div class="space-y-4">
-                        <div class="bg-slate-900 border border-white/5 p-4 rounded-xl"><span class="text-cyan-400 font-bold mb-1 block text-xs">Hook Baru</span><p class="text-xs text-slate-300">"${d.hook}"</p></div>
-                        <div class="bg-slate-900 border border-white/5 p-4 rounded-xl"><span class="text-blue-400 font-bold mb-1 block text-xs">Saran</span><p class="text-xs text-slate-300">${d.saran}</p></div>
-                    </div>
-                `;
-                document.getElementById('url-result-area').classList.remove('hidden');
-            } catch(e) { showToast("Gagal menganalisis URL.", "error"); }
-            finally { document.getElementById('url-loading').classList.add('hidden'); }
+            if(viewId === 'history') renderHistory();
         }
     </script>
 </body>
