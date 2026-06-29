@@ -1,5 +1,5 @@
 // api/cache-generator.js
-const AI_MODEL = "gpt-4o-mini"; // GANTI: Jangan pakai gpt-5-mini
+const AI_MODEL = "openai/gpt-5-mini"; // GANTI: Jangan pakai gpt-5-mini
 
 module.exports = async function handler(req, res) {
     const apiKey = process.env.OPENAI_API_KEY;
