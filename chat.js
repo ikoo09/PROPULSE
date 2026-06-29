@@ -36,9 +36,8 @@ function cleanExpiredLocalCache() {
     if (keysToRemove.length > 0) console.log(`🧹 Membersihkan ${keysToRemove.length} item cache LocalStorage yang expired.`);
 }
 
-// Fungsi membuat key cache stabil (bukan berdasarkan full prompt, melainkan cacheId/judul)
+// Fungsi membuat key cache stabil
 function generateCacheKey(feature, cacheId) {
-    // Normalisasi karakter untuk key
     const safeId = cacheId ? cacheId.replace(/[^a-zA-Z0-9]/g, '_') : 'default';
     return `fbpro_v1_${feature}_${safeId}`;
 }
@@ -81,20 +80,16 @@ async function askGPT(payload) {
 }
 
 /**
- * Update: Ditambahkan cacheId stabil, Handler Quota LocalStorage, dan perubahan TTL script
- * @param {boolean} bypassCache Jika true, akan mengabaikan localStorage dan memaksa pembaruan ke server
- * @param {string} cacheId Identifier unik untuk cache yang stabil (misal: judul tren)
+ * Update: Trend kini 100% bergantung pada Redis Server (Bypass LocalStorage)
  */
 async function fetchAI(prompt, schema, feature = null, bypassCache = false, cacheId = null) {
     
-    // Coba bersihkan localStorage dulu untuk menjaga kuota
     cleanExpiredLocalCache();
-
-    // 1. CEK LAYER 1: LOCAL STORAGE (Jika tidak di-bypass)
     const localCacheKey = generateCacheKey(feature, cacheId);
     const CACHE_TTL_12_HOURS = 12 * 60 * 60 * 1000;
     
-    if (!bypassCache && (feature === "trend" || feature === "script")) {
+    // 1. CEK LAYER 1 (LOCAL STORAGE) - HANYA UNTUK SCRIPT! Trend diabaikan.
+    if (!bypassCache && feature === "script") {
         const cachedItem = localStorage.getItem(localCacheKey);
         
         if (cachedItem) {
@@ -102,11 +97,8 @@ async function fetchAI(prompt, schema, feature = null, bypassCache = false, cach
                 const parsedCache = JSON.parse(cachedItem);
                 const timeElapsed = Date.now() - parsedCache.timestamp;
                 
-                // KEDUANYA (Trend & Script) kini kadaluwarsa setelah 12 Jam
-                const isCacheValid = timeElapsed < CACHE_TTL_12_HOURS;
-                
-                if (isCacheValid) {
-                    console.log(`⚡ Lapis 1 (LocalStorage) HIT: Mencegah request ke server -> ${localCacheKey}`);
+                if (timeElapsed < CACHE_TTL_12_HOURS) {
+                    console.log(`⚡ Lapis 1 (LocalStorage) HIT: Script dimuat cepat -> ${localCacheKey}`);
                     return { 
                         data: parsedCache.data, 
                         sources: [], 
@@ -121,7 +113,7 @@ async function fetchAI(prompt, schema, feature = null, bypassCache = false, cach
         }
     }
 
-    // 2. JIKA LAYER 1 KOSONG / EXPIRED / BYPASS -> LANJUT KE SERVER (API)
+    // 2. REQUEST KE SERVER AI (API)
     const enhancedPrompt = prompt + `\n\n[PENTING] Anda WAJIB merespons HANYA dengan format JSON murni yang valid tanpa teks pengantar, tanpa blok kode markdown (\`\`\`json). Struktur JSON wajib:\n${JSON.stringify(schema)}`;
 
     const payload = {
@@ -131,7 +123,7 @@ async function fetchAI(prompt, schema, feature = null, bypassCache = false, cach
 
     if (feature) payload.feature = feature;
     if (bypassCache) payload.bypassCache = true;
-    if (cacheId) payload.cacheId = cacheId; // Teruskan cacheId ke backend untuk Key Redis yang stabil
+    if (cacheId) payload.cacheId = cacheId; // Teruskan ke backend untuk Layer 2 (Redis)
 
     const data = await askGPT(payload);
     
@@ -141,8 +133,7 @@ async function fetchAI(prompt, schema, feature = null, bypassCache = false, cach
     try {
         const parsedJson = JSON.parse(textResult);
         
-        // Tentukan sumber data untuk UI (Redis vs AI)
-        const dataSource = data.metadata?.cached ? 'redis' : 'ai';
+        const dataSource = data.metadata?.source || (data.metadata?.cached ? 'redis' : 'ai');
         const finalTimestamp = data.metadata?.timestamp || Date.now();
 
         const resultToReturn = { 
@@ -151,26 +142,20 @@ async function fetchAI(prompt, schema, feature = null, bypassCache = false, cach
             metadata: { source: dataSource, timestamp: finalTimestamp } 
         };
 
-        // 3. SIMPAN KE LAYER 1 (LOCAL STORAGE)
-        if (feature === "trend" || feature === "script") {
+        // 3. SIMPAN KE LAYER 1 (LOCAL STORAGE) - HANYA UNTUK SCRIPT! Trend diabaikan.
+        if (feature === "script") {
             try {
                 localStorage.setItem(localCacheKey, JSON.stringify({
                     timestamp: finalTimestamp,
                     data: parsedJson
                 }));
-                console.log(`💾 Tersimpan di Lapis 1 (LocalStorage) -> ${localCacheKey}`);
+                console.log(`💾 Script Tersimpan di Lapis 1 (LocalStorage) -> ${localCacheKey}`);
             } catch (storageError) {
-                console.warn("⚠️ Quota LocalStorage Browser Penuh. Menjalankan pembersihan darurat...");
-                // Pembersihan darurat agresif
+                console.warn("⚠️ Quota LocalStorage Browser Penuh. Menjalankan pembersihan...");
                 cleanExpiredLocalCache();
                 try {
-                    localStorage.setItem(localCacheKey, JSON.stringify({
-                        timestamp: finalTimestamp,
-                        data: parsedJson
-                    }));
-                } catch(e) {
-                    console.error("❌ Gagal total menyimpan ke LocalStorage meskipun sudah dibersihkan.", e);
-                }
+                    localStorage.setItem(localCacheKey, JSON.stringify({ timestamp: finalTimestamp, data: parsedJson }));
+                } catch(e) {}
             }
         }
 
