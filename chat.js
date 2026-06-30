@@ -55,7 +55,7 @@ async function triggerNicheCrawling() {
 
         if (data.status === "empty") {
             showToast("Server belum men-generate data. Harap jalankan Cron Job.", "info");
-            document.getElementById('trends-feed').innerHTML = `<div class="text-center py-10 bg-slate-900/40 rounded-2xl border border-white/5"><p class="text-sm text-yellow-400"><i class="fa-solid fa-triangle-exclamation text-3xl mb-3 block"></i>Data belum tersedia.<br>Picu /api/cron di browser Anda untuk pertama kali (Buka tab baru: namaweb.vercel.app/api/cron).</p></div>`;
+            document.getElementById('trends-feed').innerHTML = `<div class="text-center py-10 bg-slate-900/40 rounded-2xl border border-white/5"><p class="text-sm text-yellow-400"><i class="fa-solid fa-triangle-exclamation text-3xl mb-3 block"></i>Data belum tersedia.<br>Server sedang memproses atau Anda perlu Trigger manual di /api/cron</p></div>`;
             return;
         }
 
@@ -98,11 +98,11 @@ async function triggerNicheCrawling() {
             </div>
         `).join('');
 
-        showToast("LOADING...! 🚀", "info");
+        showToast("TREN BERHASIL DIMUAT! 🚀", "success");
 
     } catch(e) {
         showToast("Koneksi ke Edge Server gagal.", "error");
-        document.getElementById('trends-feed').innerHTML = `<div class="text-center py-10 text-red-500 bg-red-900/10 rounded-2xl border border-red-500/20"><i class="fa-solid fa-triangle-exclamation text-3xl mb-3 block"></i><p class="text-xs font-medium">Gagal membaca Redis. Pastikan Variabel Lingkungan sudah disetel dan Cron sudah dijalankan.</p></div>`;
+        document.getElementById('trends-feed').innerHTML = `<div class="text-center py-10 text-red-500 bg-red-900/10 rounded-2xl border border-red-500/20"><i class="fa-solid fa-triangle-exclamation text-3xl mb-3 block"></i><p class="text-xs font-medium">Gagal membaca Redis. Pastikan Variabel Lingkungan disetel dan server online.</p></div>`;
     } finally {
         clearInterval(anim);
         document.getElementById('crawling-status').classList.add('hidden');
@@ -119,7 +119,8 @@ function selectTrend(idx) {
     if(window.innerWidth < 1024) setTimeout(() => document.getElementById('scripts-container').scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
     
     if(!d) {
-        document.getElementById('script-content-area').innerHTML = `<p class="text-red-400 text-xs text-center py-5">Script untuk trend ini gagal digenerate oleh AI saat proses sinkronisasi latar belakang.</p>`;
+        document.getElementById('script-content-area').innerHTML = `<p class="text-red-400 text-xs text-center py-5">Script untuk trend ini gagal digenerate oleh AI saat proses sinkronisasi latar belakang. Anda bisa menekan tombol 'Muat Ulang Cache'.</p>`;
+        document.getElementById('ai-scores-container').innerHTML = '';
         return;
     }
 
@@ -190,8 +191,15 @@ async function handleURLAnalysis() {
         if (dataJson.error) throw new Error(dataJson.error);
         
         let raw = dataJson.candidates[0].content.parts[0].text;
-        raw = raw.replace(/^```json\s*/i, '').replace(/\s*```$/i, '').trim();
-        const d = JSON.parse(raw);
+        raw = raw.replace(/^```(json)?\s*/i, '').replace(/\s*```$/i, '').trim();
+        let d;
+        try {
+            d = JSON.parse(raw);
+        } catch (e) {
+            const match = raw.match(/\{[\s\S]*\}|\[[\s\S]*\]/);
+            d = match ? JSON.parse(match[0]) : null;
+            if(!d) throw new Error("Gagal parsing JSON");
+        }
 
         document.getElementById('url-result-area').innerHTML = `
             <div class="space-y-4">
