@@ -63,7 +63,7 @@ async function triggerNicheCrawling() {
         state.scripts = data.scripts || {};
         
         const updateTime = new Date(data.metadata.timestamp);
-        const nextTime = new Date(data.metadata.timestamp + (12 * 60 * 60 * 1000));
+        const nextTime = new Date(data.metadata.timestamp + (24 * 60 * 60 * 1000));
         const formatTime = (d) => `${d.getHours().toString().padStart(2, '0')}:${d.getMinutes().toString().padStart(2, '0')} WIB`;
         
         document.getElementById('cache-source').innerHTML = `<i class="fa-solid fa-server"></i> Sumber: Upstash Redis`;
